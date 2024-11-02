@@ -78,7 +78,8 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
 
     /** RUTAS PARA LOS INDICADORES ECONOMICOS */
     Route::get('financial-indicators', [FinancialIndicatorController::class, 'index'])->name('financial-indicators.index');
-    Route::post('financial-indicators/show', [FinancialIndicatorController::class, 'show'])->name('financial-indicators.show');
+    Route::get('financial-indicators/show', [FinancialIndicatorController::class, 'show'])->name('financial-indicators.show');
+	Route::post('financial-indicators/show', [FinancialIndicatorController::class, 'show'])->name('financial-indicators.show');
     Route::get('api/financial-indicators/values', [FinancialIndicatorController::class, 'getValues']);
     Route::post('financial-indicators/modify', [FinancialIndicatorController::class, 'modify'])->name('financial-indicators.modify');
 
