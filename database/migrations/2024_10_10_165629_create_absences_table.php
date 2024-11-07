@@ -16,7 +16,6 @@ return new class extends Migration
         Schema::create('absences', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('worker_id')->nullable();
-            $table->integer('absence_type')->nullable();
             $table->integer('day')->nullable();
             $table->integer('month')->nullable();
             $table->integer('year')->nullable();

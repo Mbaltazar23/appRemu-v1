@@ -15,10 +15,8 @@ class Contract extends Model
         'contract_type',
         'hire_date',
         'termination_date',
-        'details',
-        'annex_name',
-        'annex_description',
-        'replacement_reason', // Agregado para motivo de reemplazo
+        'replacement_reason',
+        'annexes',  // Agregado para los anexos
     ];
 
     const CONTRACT_TYPES = [
@@ -27,6 +25,36 @@ class Contract extends Model
         3 => 'Reemplazo',
         4 => 'Residual',
     ];
+
+    const DURATION_OPTIONS = [
+        'Indefinido' => 'Indefinido',
+        'Plazo fijo' => 'Plazo fijo',
+        'Reemplazo' => 'Reemplazo',
+    ];
+
+    const SCHEDULE_OPTIONS = [
+        'Mañana' => 'Mañana',
+        'Tarde' => 'Tarde',
+        'Nocturna' => 'Nocturna',
+    ];
+
+    const LEVELS_OPTIONS = [
+        'Básica' => 'Básica',
+        'Media' => 'Media',
+        'Superior' => 'Superior',
+    ];
+
+    // Accesor para obtener los anexos como un arreglo
+    public function getAnnexesAttribute($value)
+    {
+        return json_decode($value, true) ?? [];
+    }
+
+    // Mutador para guardar los anexos como JSON
+    public function setAnnexesAttribute($value)
+    {
+        $this->attributes['annexes'] = json_encode($value);
+    }
 
     // Arreglo para los tipos de contrato
     public static function getContractTypes()
@@ -55,29 +83,12 @@ class Contract extends Model
         return self::where('worker_id', $idWorker)->first();
     }
 
-    /**
-     * Obtiene los anexos de contrato de un trabajador
-     */
-    public static function getAnnexes($idWorker)
-    {
-        return self::where('worker_id', $idWorker)
-            ->select('annex_name', 'annex_description')
-            ->get();
-    }
-
     public static function createOrUpdateContract($workerId, Request $request)
     {
         $data = $request->only(['contract_type', 'hire_date', 'termination_date', 'replacement_reason']);
         return self::updateOrCreate(['worker_id' => $workerId], $data);
     }
 
-    /**
-     * Ver un anexo específico
-     */
-    public static function getAnnex($idAnexo)
-    {
-        return self::find($idAnexo)->annex_description ?? null;
-    }
 
     public function worker()
     {

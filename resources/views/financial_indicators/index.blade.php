@@ -8,7 +8,7 @@
                     <h3>{{ __('Seleccione un Índice Económico') }}</h3>
                 </div>
                 <div class="card-body">
-                    <form id="economicIndexForm" method="POST" action="{{ route('financial-indicators.show') }}">
+                    <form id="economicIndexForm" method="POST" action="{{ route('financial-indicators.show.post') }}">
                         @csrf
                         <div class="form-group mb-4">
                             <label for="economicIndices" class="form-label">{{ __('Índices Económicos') }}</label>

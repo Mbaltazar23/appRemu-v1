@@ -8,14 +8,13 @@ use App\Models\Worker;
 
 class WorkerPolicy
 {
-     /**
+    /**
      * Determine whether the user can view any workers.
      */
     public function viewAny(User $user): bool
     {
-        return  $user->isContador();
+        return $user->isContador();
     }
-
     /**
      * Determine whether the user can view the worker.
      */
@@ -23,12 +22,6 @@ class WorkerPolicy
     {
         return $user->isContador();
     }
-
-    public function viewContract(User $user, Worker $worker): bool
-    {
-        return $user->isContador() && Contract::contractExists($worker->id);
-    }
-
     /**
      * Determine whether the user can create workers.
      */
@@ -36,7 +29,6 @@ class WorkerPolicy
     {
         return $user->isContador();
     }
-
     /**
      * Determine whether the user can update the worker.
      */
@@ -68,4 +60,21 @@ class WorkerPolicy
     {
         return $user->isContador();
     }
+
+    public function viewContract(User $user, Worker $worker): bool
+    {
+        return $user->isContador() && Contract::contractExists($worker->id);
+    }
+
+    public function settlement(User $user, Worker $worker): bool
+    {
+        return $user->isContador() && $user->school_id_session == $worker->school_id;
+    }
+
+
+    public function viewSettlement(User $user, Worker $worker): bool
+    {
+        return $user->isContador();
+    }
+
 }

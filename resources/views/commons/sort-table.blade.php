@@ -2,10 +2,10 @@
     <script src="{{ asset('js/sort-table.js') }}"></script>
 
     <script>
-        function openPopup(event) {
+        function openPopup(event, titulo) {
             event.preventDefault(); // Evita el comportamiento por defecto
             const url = event.currentTarget.href;
-            window.open(url, 'Contrato', 'width=800,height=600');
+            window.open(url, titulo, 'width=800,height=600');
         }
     </script>
 @endpush

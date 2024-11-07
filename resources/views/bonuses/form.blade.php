@@ -41,22 +41,19 @@
         </div>
 
         @if ((old('is_bonus') ?? ($bonus->is_bonus ?? 0)) == 0)
-        <div class="col-md-6 mb-3">
-            <label for="taxable" class="form-label">¿Es imponible?</label>
-            <select class="form-select" id="taxable" name="taxable">
-                <option value="1" {{ (old('taxable') ?? ($bonus->taxable ?? 1)) == 1 ? 'selected' : '' }}>No
-                </option>
-                <option value="0" {{ (old('taxable') ?? ($bonus->taxable ?? 1)) == 0 ? 'selected' : '' }}>Sí
-                </option>
-            </select>
-        </div>
-    @else
-        <input type='hidden' id="taxable" name='taxable' value='1'>
-        <!-- Mantener en "No" si no hay bonus -->
-    @endif
-    
-
-
+            <div class="col-md-6 mb-3">
+                <label for="taxable" class="form-label">¿Es imponible?</label>
+                <select class="form-select" id="taxable" name="taxable">
+                    <option value="1" {{ (old('taxable') ?? ($bonus->taxable ?? 1)) == 1 ? 'selected' : '' }}>No
+                    </option>
+                    <option value="0" {{ (old('taxable') ?? ($bonus->taxable ?? 1)) == 0 ? 'selected' : '' }}>Sí
+                    </option>
+                </select>
+            </div>
+        @else
+            <input type='hidden' id="taxable" name='taxable' value='1'>
+            <!-- Mantener en "No" si no hay bonus -->
+        @endif
         @if (
             (old('type') ?? ($bonus->type ?? 1)) == 1 ||
                 ((old('type') ?? ($bonus->type ?? 1)) == 3 &&
@@ -97,8 +94,9 @@
         <div class="col-md-6 mb-3">
             <label for="factor" class="form-label">Porcentaje a aplicar (Ej. 8.33)</label>
             <input type="text" class="form-control" id="factor" name="factor"
-                value="{{ old('factor', isset($bonus) ? $bonus->factor * 100 : '') }}" />
+                value="{{ old('factor', isset($bonus) ? $bonus->factor : '') }}" />
         </div>
+        
         <div class="col-md-12 mb-3">
             <label class="form-label">Meses en los que se aplica</label><br>
             @for ($i = 1; $i <= 12; $i++)

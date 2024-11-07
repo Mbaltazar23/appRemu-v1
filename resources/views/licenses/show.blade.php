@@ -5,7 +5,7 @@
         <!-- Page title -->
         <div class="page-header d-print-none">
             <h2 class="page-title">
-                {{ __('Licencia') }}
+                Detalle de la {{ __('Licencia Medica') }}
             </h2>
         </div>
     </div>
@@ -15,10 +15,33 @@
                 <div class="table-responsive">
                     <p>
                         <strong>Trabajador:</strong> {{ $license->worker->name }} {{ $license->worker->last_name }} <br />
-                        <strong>Fecha de Emisión:</strong> {{ $license->issue_date }} <br />
+                        <strong>Fecha de Emisión:</strong>
+                        {{ \Carbon\Carbon::parse($license->issue_date)->format('d-m-Y') }} <br />
                         <strong>Motivo:</strong> {{ $license->reason }} <br />
                         <strong>Días:</strong> {{ $license->days }} <br />
-                        <!-- Muestra otros campos como institución, número de recibo, etc. -->
+
+                        <!-- Muestra otros campos solo si tienen valor -->
+                        @if ($license->institution)
+                            <strong>Institución:</strong> {{ $license->institution }} <br />
+                        @endif
+
+                        @if ($license->receipt_number)
+                            <strong>Número de Recibo:</strong> {{ $license->receipt_number }} <br />
+                        @endif
+
+                        @if ($license->receipt_date)
+                            <strong>Fecha de Recibo:</strong>
+                            {{ \Carbon\Carbon::parse($license->receipt_date)->format('d-m-Y') }} <br />
+                        @endif
+
+                        @if ($license->processing_date)
+                            <strong>Fecha de Procesamiento:</strong>
+                            {{ \Carbon\Carbon::parse($license->processing_date)->format('d-m-Y') }} <br />
+                        @endif
+
+                        @if ($license->responsible_person)
+                            <strong>Persona Responsable:</strong> {{ $license->responsible_person }} <br />
+                        @endif
                     </p>
                 </div>
                 <span>

@@ -11,8 +11,8 @@ class Bonus extends Model
 
     protected $fillable = [
         'title',
-        'school_id',
         'tuition_id',
+        'school_id',
         'worker_id',
         'taxable',
         'is_bonus',
@@ -213,7 +213,7 @@ class Bonus extends Model
     {
         if ($data) {
             $title = $data['title'];
-            $tuitionId = $data['tuition_id'];          
+            $tuitionId = $data['tuition_id'];
             $type = $data['type'];
             Tuition::deleteTuition($tuitionId, $data['school_id']);
             Tuition::deleteTuition("APLICA" . $tuitionId, $data['school_id']);
@@ -304,6 +304,17 @@ class Bonus extends Model
             ->where('school_id', $school_id)
             ->where('type', $type)
             ->delete();
+    }
+
+    public static function getBonusesByTypeAndApplication($schoolId, $type, $application)
+    {
+        return self::where('school_id', $schoolId)
+            ->where(function($query) use ($type) {
+                $query->where('type', $type)
+                      ->orWhere('type', 3);
+            })
+            ->where('application', $application)
+            ->get(['title', 'tuition_id']);
     }
 
     // Relación: Un Bonus pertenece a una School

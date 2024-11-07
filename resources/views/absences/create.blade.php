@@ -2,24 +2,23 @@
 
 @section('content')
     <div class="container-xl">
-        <!-- Page title -->
         <div class="page-header d-print-none">
             <h2 class="page-title">
-                Registrar Licencia Medica
+                Registrar Inasistencia
             </h2>
         </div>
     </div>
     <div class="page-body">
         <div class="container-xl">
             <div class="card p-5">
-                <form method="POST" action="{{ route('licenses.store') }}">
+                <form method="POST" action="{{ route('absences.store') }}">
                     @csrf
-                    @include('licenses.form')
+                    @include('absences.form')
                     <div class="d-flex justify-content-between mt-3">
-                        <a class="text-decoration-none" href="{{ route('licenses.index') }}">
+                        <a class="text-decoration-none" href="{{ route('absences.index') }}">
                             <button type="button" class="btn btn-primary rounded-2 px-3 py-1">Regresar</button>
                         </a>
-                        <button type="submit" class="btn btn-warning rounded-2 px-3 py-1">Crear</button>
+                        <button type="submit" class="btn btn-warning rounded-2 px-3 py-1">Registrar</button>
                     </div>
                 </form>
             </div>

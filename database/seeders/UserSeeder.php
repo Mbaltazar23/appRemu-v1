@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
@@ -20,20 +19,22 @@ class UserSeeder extends Seeder
             'role' => User::SUPER_ADMIN,
             'permissions' => array_keys(User::getPermissions()), // Almacena directamente el array como JSON
         ]);
-
-        // Permisos para el Contador
+        // Permisos para el Contador (se seleccionan solo las claves de permisos específicos)
         $permissionsContador = [
             'MANBODESCOL',
             'PLANREMU',
             'MANISAPRE',
         ];
 
-        // Crear el usuario Contador
+// Obtener solo las claves de permisos para el Contador
+        $permissionsContadorKeys = array_intersect_key(config('permissions'), array_flip($permissionsContador));
+
+// Crear el usuario Contador con los permisos seleccionados
         User::factory()->create([
             'name' => 'Contador User',
             'email' => 'contador@mail.com',
             'role' => User::CONTADOR,
-            'permissions' => array_intersect_key(config('permissions'), array_flip($permissionsContador)), // Almacena directamente el array como JSON
+            'permissions' => array_keys($permissionsContadorKeys), // Solo almacenamos las claves
         ]);
 
         // Crear el usuario Sostenedor
@@ -44,7 +45,7 @@ class UserSeeder extends Seeder
         ]);
 
         // Crear más usuarios adicionales
-        $additionalUsersCount = 10; // Cantidad de usuarios adicionales a crear
+        $additionalUsersCount = 20; // Cantidad de usuarios adicionales a crear
         User::factory()->count($additionalUsersCount)->create();
     }
 }

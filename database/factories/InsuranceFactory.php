@@ -16,7 +16,7 @@ class InsuranceFactory extends Factory
     {
         return [
             'name' => $this->faker->company,
-            'type' => $this->faker->randomElement([Insurance::AFP, Insurance::ISAPRE]),
+            'type' => $this->faker->randomElement([Insurance::AFP, Insurance::ISAPRE, Insurance::FONASA]),
             'cotizacion' => $this->faker->randomFloat(2, 5, 15), // Cotización entre 5 y 15
             'rut' => $this->faker->unique()->numerify('##.###.###-#'), // RUT ficticio
         ];

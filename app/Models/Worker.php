@@ -150,12 +150,13 @@ class Worker extends Model
         ];
     }
 
-    public static function getWorkersBySchoolAndType($schoolId, $type)
+    public static function getWorkersBySchoolAndType($schoolId, $type = null)
     {
         $query = self::where('settlement_date', null)
             ->where('school_id', $schoolId);
 
-        if ($type != 3) {
+        // Permitir que el tipo sea nulo o diferente de 3
+        if ($type !== null && $type != 3) {
             $query->where('worker_type', $type);
         }
 
@@ -167,6 +168,11 @@ class Worker extends Model
     public function parameters()
     {
         return $this->hasMany(Parameter::class, 'worker_id');
+    }
+
+    public function absences()
+    {
+        return $this->hasMany(Absence::class);
     }
 
     public function contract()

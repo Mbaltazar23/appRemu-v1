@@ -18,12 +18,11 @@ class LicenseFormRequest extends FormRequest
             'issue_date' => 'required|date',
             'reason' => 'required|string|max:255',
             'days' => 'required|integer|min:1',
-            'institution' => 'required|string|max:255',
+            'institution' => 'nullable|string|max:255', // Ahora no es obligatorio
             'receipt_number' => 'required|string|max:255',
             'receipt_date' => 'required|date',
-            'processing_date' => 'required|date',
-            'responsible_person' => 'required|string|max:255',
+            'processing_date' => 'nullable|date', // Ahora no es obligatorio
+            'responsible_person' => 'nullable|string|max:255', // Ahora no es obligatorio
         ];
     }
-
 }

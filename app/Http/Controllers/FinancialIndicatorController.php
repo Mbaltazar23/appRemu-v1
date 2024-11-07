@@ -42,16 +42,16 @@ class FinancialIndicatorController extends Controller
                 $values = $financialIndicator->getCurrentValues();
                 $values['uf'] = str_replace(',', '', number_format($values['uf'], 2, '.', '')); // Cambia la coma por un punto
                 $values['utm'] = str_replace(',', '', number_format($values['utm'], 0, '.', '')); // Cambia la coma por un punto
-                Parameter::updateOrInsertParamValue("UF", $values['uf']);
-                Parameter::updateOrInsertParamValue("UTM", $values['utm']);
+                Parameter::updateOrInsertParamValue("UF", 0, $values['uf']);
+                Parameter::updateOrInsertParamValue("UTM", 0, $values['utm']);
                 break;
 
             case 'impuesto_renta':
                 for ($i = 2; $i <= 8; $i++) {
                     $minLimits[$i] = Operation::getMinLimit("IMPUESTOTRAMO$i");
                     $maxLimits[$i] = Operation::getMaxLimit("IMPUESTOTRAMO$i");
-                    $impValues[$i] = Parameter::getValueByName("FACTORIMPTRAMO$i", 0, 0);
-                    $rebValues[$i] = Parameter::getValueByName("FACTORREBAJAIMPTRAMO$i", 0, 0);
+                    $impValues[$i] = Parameter::getValueByName("FACTORIMPTRAMO$i", "", "");
+                    $rebValues[$i] = Parameter::getValueByName("FACTORREBAJAIMPTRAMO$i", "", "");
                 }
                 break;
 
@@ -59,7 +59,7 @@ class FinancialIndicatorController extends Controller
                 for ($i = 1; $i <= 3; $i++) {
                     $minLimits[$i] = Operation::getMinLimit("FILTROASIGFAMT$i");
                     $maxLimits[$i] = Operation::getMaxLimit("FILTROASIGFAMT$i");
-                    $impValues[$i] = Parameter::getValueByName("ASIGCAR.FAMTRAMO$i", 0, 0);
+                    $impValues[$i] = Parameter::getValueByName("ASIGCAR.FAMTRAMO$i", "", "");
                 }
                 break;
 
@@ -78,13 +78,13 @@ class FinancialIndicatorController extends Controller
     {
         if ($request->input('index') === 'impuesto_renta') {
             for ($i = 2; $i <= 8; $i++) {
-                Parameter::updateOrInsertParamValue("FACTORIMPTRAMO$i", $request->input("IMP$i"));
-                Parameter::updateOrInsertParamValue("FACTORREBAJAIMPTRAMO$i", $request->input("REB$i"));
+                Parameter::updateOrInsertParamValue("FACTORIMPTRAMO$i", "", $request->input("IMP$i"));
+                Parameter::updateOrInsertParamValue("FACTORREBAJAIMPTRAMO$i", "", $request->input("REB$i"));
                 Operation::updOrInsertTopesOperation("IMPUESTOTRAMO$i", $request->input("MIN$i"), $request->input("MAX$i"));
             }
         } else if ($request->input('index') === 'asignacion_familiar') {
             for ($i = 1; $i <= 3; $i++) {
-                Parameter::updateOrInsertParamValue("ASIGCAR.FAMTRAMO$i", 0, 0, $request->input("VAL$i"));
+                Parameter::updateOrInsertParamValue("ASIGCAR.FAMTRAMO$i", "", "", $request->input("VAL$i"));
                 Operation::updOrInsertTopesOperation("FILTROASIGFAMT$i", $request->input("MIN$i"), $request->input("MAX$i"));
             }
         }

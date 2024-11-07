@@ -32,14 +32,31 @@ class WorkerFactory extends Factory
             'marital_status' => $this->faker->randomElement([1, 2, 3, 4]), // Estado civil
             'worker_type' => $this->faker->randomElement([1, 2]), // Docente o No docente
             'function_worker' => $this->faker->randomElement(array_keys(Worker::getFunctionWorkerTypes())),
-            'load_hourly_work' => json_encode([
+        ];
+
+        // Si worker_type es 1 (Docente), asignamos horas aleatorias
+        if ($workerData['worker_type'] === 1) {
+            $workerData['load_hourly_work'] = json_encode([
                 'lunes' => rand(0, 8),
                 'martes' => rand(0, 8),
                 'miercoles' => rand(0, 8),
                 'jueves' => rand(0, 8),
                 'viernes' => rand(0, 8),
-                'sabado' => 0,
-            ]),
-        ];
+                'sabado' => rand(0, 8),
+            ]);
+        } else {
+            // Si worker_type es 2 (No docente), asignamos 0 a los días lunes a viernes, y sabado también a 0
+            $workerData['load_hourly_work'] = json_encode([
+                'lunes' => 0,
+                'martes' => 0,
+                'miercoles' => 0,
+                'jueves' => 0,
+                'viernes' => 0,
+                'sabado' => 0, // Puede mantenerse a 0, aunque no es necesario
+            ]);
+        }
+
+        return $workerData;
+
     }
 }

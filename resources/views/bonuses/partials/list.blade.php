@@ -16,13 +16,13 @@
                                 Crear
                             </button>
                         </a>
+                        &nbsp;
+                        <a class="d-inline ml-2 text-decoration-none" href="{{ route('bonuses.index') }}">
+                            <button class="btn btn-secondary rounded-3 px-3 py-1">
+                                Regresar al inicio
+                            </button>
+                        </a>
                     @endcan
-                    &nbsp;
-                    <a class="d-inline ml-2 text-decoration-none" href="{{ route('bonuses.index') }}">
-                        <button class="btn btn-secondary rounded-3 px-3 py-1">
-                            Regresar al inicio
-                        </button>
-                    </a>
                 </div>
             </h2>
         </div>
@@ -64,7 +64,7 @@
                                         @endcan
                                         @can('workers', $bonus)
                                             <a class="text-decoration-none" href="{{ route('bonuses.workers', $bonus) }}"
-                                                target="_blank" onclick="openPopup(event)">
+                                                target="_blank" onclick="openPopup(event, 'Agregar Trabajador')">
                                                 <button class="btn btn-info rounded-3 px-3" title="Añadir Trabajadores">
                                                     <i class='bx bx-user'></i>
                                                 </button>

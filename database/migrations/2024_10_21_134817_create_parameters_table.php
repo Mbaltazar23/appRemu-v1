@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('start_date', 4)->nullable();
             $table->string('end_date', 4)->nullable();
             $table->double('value')->nullable();
-            $table->foreign('worker_id')->references('id')->on('workers')->onDelete('cascade');
+//            $table->foreign('worker_id')->references('id')->on('workers')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -4,12 +4,14 @@ namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
 
+use App\Models\Absence;
 use App\Models\FinancialIndicator;
 use App\Models\Insurance;
 use App\Models\School;
 use App\Models\Sustainer;
 use App\Models\User;
 use App\Models\Worker;
+use App\Policies\AbsencePolicy;
 use App\Policies\FinancialIndicatorPolicy;
 use App\Policies\InsurancePolicy;
 use App\Policies\SchoolPolicy;
@@ -32,6 +34,7 @@ class AuthServiceProvider extends ServiceProvider
         Insurance::class => InsurancePolicy::class,
         Worker::class => WorkerPolicy::class,
         FinancialIndicator::class => FinancialIndicatorPolicy::class,
+        Absence::class => AbsencePolicy::class,
     ];
 
     /**

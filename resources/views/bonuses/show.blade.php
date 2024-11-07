@@ -13,7 +13,7 @@
                 <div class="table-responsive">
                     <p>
                         <strong>Título de ítem:</strong>
-                        {{ $bonus->school->tuitions->where('tuition_id', $bonus->type != 3 ? $bonus->tuition_id : $bonus->title)->first()->title }}
+                        {{ $bonus->school->tuitions->where('tuition_id', $bonus->tuition_id)->first()->title }}
                         <br />
                         <strong>Tipo de Trabajador:</strong> {{ $workerOptions[$bonus->type] ?? 'No definido' }} <br />
                         <strong>¿Es un bono o un descuento?:</strong> {{ $bonus->is_bonus == 0 ? 'Bono' : 'Descuento' }}

@@ -7,6 +7,7 @@ use App\Http\Requests\WorkerFormRequest;
 use App\Models\Contract;
 use App\Models\Parameter;
 use App\Models\Worker;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class WorkerController extends Controller
@@ -116,7 +117,12 @@ class WorkerController extends Controller
 
     public function createContract(Worker $worker)
     {
-        return view('contracts.create', compact('worker'));
+        return view('contracts.create', [
+            'worker' => $worker,
+            'durationOptions' => Contract::DURATION_OPTIONS,
+            'scheduleOptions' => Contract::SCHEDULE_OPTIONS,
+            'levelsOptions' => Contract::LEVELS_OPTIONS,
+        ]);
     }
 
     public function storeContract(StoreContractRequest $request, Worker $worker)
@@ -152,6 +158,106 @@ class WorkerController extends Controller
             'contractDetails' => json_decode($contract->details, true), // Convertir a array
         ]);
     }
+
+    public function settlements()
+    {
+        $schoolId = auth()->user()->school_id_session;
+        // Obtener trabajadores con finiquito
+        $workers = Worker::where('school_id', $schoolId)
+            ->whereNotNull('settlement_date')
+            ->orderBy('id', 'DESC')
+            ->paginate(5); // Paginación de 5 trabajadores por página
+        //dd($workers);
+        return view('workers.settlements.index', compact('workers'));
+    }
+
+    public function settle(Worker $worker)
+    {
+        return view('workers.settlements.settle', compact('worker'));
+    }
+
+    public function updateSettlementDate(Request $request, Worker $worker)
+    {
+        $request->validate([
+            'settlement_date' => 'required|date',
+        ]);
+        $worker->settlement_date = $request->input('settlement_date');
+        return redirect()->route('workers.index')->with('success', 'Fecha de finiquito actualizada correctamente.');
+    }
+
+    public function showAnnexes(Worker $worker)
+    {
+        // Obtener el contrato del trabajador y los anexos (si existen)
+        $contract = Contract::getContract($worker->id);
+        $annexes = $contract ? $contract->annexes : [];
+
+        // Retornar la vista de la ventana emergente con los anexos
+        return view('contracts.annexes', compact('worker', 'annexes'));
+    }
+
+    // Método para almacenar un anexo con un ID único
+    public function storeAnnex(Request $request, Worker $worker)
+    {
+        $request->validate([
+            'annex_name' => 'required|string|max:255',
+            'annex_description' => 'required|string',
+        ]);
+
+        // Obtener el contrato del trabajador
+        $contract = Contract::getContract($worker->id);
+
+        // Obtener los anexos actuales (si existen)
+        $annexes = $contract ? $contract->annexes : [];
+
+        // Crear un nuevo anexo con un ID único
+        $newAnnex = [
+            'id' => uniqid(), // Genera un ID único
+            'annex_name' => $request->input('annex_name'),
+            'annex_description' => $request->input('annex_description'),
+        ];
+
+        // Agregar el nuevo anexo al array de anexos
+        $annexes[] = $newAnnex;
+
+        // Guardar los anexos actualizados en el contrato
+        $contract->update([
+            'annexes' => $annexes,
+        ]);
+
+        // Redirigir de nuevo a la ventana emergente con los anexos actualizados
+        return redirect()->route('contracts.showAnnexes', $worker)->with('success', 'Anexo Registrado Exitosamente !!');
+    }
+
+// Método para eliminar un anexo basado en su ID
+    public function deleteAnnex(Worker $worker, Request $request)
+    {
+        // Validar el ID del anexo
+        $request->validate([
+            'annex_id' => 'required|string', // Validación de que el ID del anexo esté presente
+        ]);
+        // Obtener el contrato del trabajador
+        $contract = $worker->contract;
+        // Verificar si el contrato y sus detalles existen
+        if (!$contract || !isset($contract->details)) {
+            return redirect()->back()->with('error', 'El contrato o los detalles no están disponibles.');
+        }
+        // Obtener los anexos del contrato
+        $annexes = $contract->annexes ?? [];
+
+        // Filtrar los anexos para eliminar el que corresponde al ID proporcionado
+        $annexes = array_filter($annexes, function ($annex) use ($request) {
+            return $annex['id'] !== $request->input('annex_id');
+        });
+        // Reindexar el array para que no haya huecos
+        $annexes = array_values($annexes);
+        // Actualizar los anexos en los detalles del contrato
+        $contract->annexes = $annexes;
+        // Guardar el contrato actualizado
+        $contract->save();
+        // Redirigir de nuevo a la página de anexos con el trabajador
+        return redirect()->route('contracts.showAnnexes', $worker)->with('success', 'Anexo Eliminado Exitosamente !!');
+    }
+
     /**
      * Remove the specified resource from storage.
      */

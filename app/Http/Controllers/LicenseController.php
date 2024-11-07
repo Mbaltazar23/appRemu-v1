@@ -48,7 +48,7 @@ class LicenseController extends Controller
      */
     public function store(LicenseFormRequest $request)
     {
-        $license = License::create($request->validated());
+        License::create($request->validated());
 
         return redirect()->route('licenses.index')->with('success', 'Licencia creada exitosamente.');
     }
@@ -58,6 +58,8 @@ class LicenseController extends Controller
      */
     public function show(License $license)
     {
+        $workers = Worker::where('school_id', auth()->user()->school_id_session)->get();
+
         return view('licenses.show',compact('license', 'workers'));
     }
 

@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\School;
 use App\Models\SchoolUser;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class SchoolUserSeeder extends Seeder
@@ -15,26 +14,23 @@ class SchoolUserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Asociar el Contador con un colegio
-        $contador = User::where('role', User::CONTADOR)->first();
-        $schoolForContador = School::inRandomOrder()->first();
-        if ($contador && $schoolForContador) {
-            SchoolUser::create([
-                'user_id' => $contador->id,
-                'school_id' => $schoolForContador->id,
-            ]);
-        }
+        // Obtener todos los usuarios con el rol 'Contador'
+        $contadores = User::where('role', User::CONTADOR)->get();
 
-        // Asociar usuarios adicionales a colegios
-        $additionalUsers = User::whereNotIn('role', [User::SUPER_ADMIN, User::CONTADOR, User::SOSTENEDOR])->get();
-        foreach ($additionalUsers as $user) {
-            $school = School::inRandomOrder()->first();
-            if ($school) {
-                SchoolUser::create([
-                    'user_id' => $user->id,
-                    'school_id' => $school->id,
-                ]);
-            }
+        // Verificar si existen usuarios con el rol 'Contador'
+        if ($contadores->isNotEmpty()) {
+            // Asociar cada 'Contador' con una escuela de forma masiva
+            $contadores->each(function ($contador) {
+                $school = School::inRandomOrder()->first(); // Obtener una escuela aleatoria
+                // Crear el registro en la tabla pivote 'school_user' para cada 'Contador'
+                if ($school) {
+                    // Usar el factory para crear el registro en la tabla pivote 'school_user'
+                    SchoolUser::factory()->create([
+                        'user_id' => $contador->id,
+                        'school_id' => $school->id,
+                    ]);
+                }
+            });
         }
     }
 }

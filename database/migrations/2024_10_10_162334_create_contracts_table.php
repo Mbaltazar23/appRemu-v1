@@ -20,9 +20,8 @@ return new class extends Migration
             $table->date('hire_date')->nullable();
             $table->date('termination_date')->nullable();
             $table->binary('details')->nullable();
-            $table->string('annex_name', 30)->nullable();
-            $table->string('annex_description')->nullable();
             $table->string('replacement_reason', 120)->nullable();
+            $table->json('annexes')->nullable();  // Cambiado a JSON para almacenar múltiples anexos
             $table->foreign('worker_id')->references('id')->on('workers')->onDelete('cascade');
             $table->timestamps();
         });

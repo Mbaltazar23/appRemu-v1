@@ -6,10 +6,10 @@
         <div class="page-header d-print-none">
             <h2 class="page-title d-flex justify-content-between">
                 <span>
-                    Lista de {{ __('Licencias Medicas') }}
+                    Lista de {{ __('Inasistencias') }}
                 </span>
-                @can('create', App\Models\License::class)
-                    <a class="d-inline ml-5 text-decoration-none" href="{{ route('licenses.create') }}">
+                @can('create', App\Models\Absence::class)
+                    <a class="d-inline ml-5 text-decoration-none" href="{{ route('absences.create') }}">
                         <button class="btn btn-primary rounded-3 px-3 py-1">
                             Crear
                         </button>
@@ -26,39 +26,38 @@
                         <thead>
                             <tr>
                                 <th onclick="sortTable(0)" class="sort-table">{{ __('Trabajador') }}</th>
-                                <th onclick="sortTable(1)" class="sort-table">{{ __('Fecha de Emisión') }}</th>
+                                <th onclick="sortTable(1)" class="sort-table">{{ __('Fecha de Ausencia') }}</th>
                                 <th onclick="sortTable(2)" class="sort-table">{{ __('Motivo') }}</th>
-                                <th onclick="sortTable(3)" class="sort-table">{{ __('Días') }}</th>
-                                <th onclick="sortTable(4)" class="sort-table">{{ __('Última Actualización') }}</th> <!-- Nueva columna -->
-                                <th onclick="sortTable(5)" class="sort-table">{{ __('Acciones') }}</th>
+                                <th onclick="sortTable(3)" class="sort-table">{{ __('Duración (minutos)') }}</th>
+                                <th onclick="sortTable(4)" class="sort-table">{{ __('Acciones') }}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($licenses as $license)
+                            @foreach ($absences as $absence)
                                 <tr>
-                                    <td>{{ $license->worker->name }} {{ $license->worker->last_name }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($license->issue_date)->format('d-m-Y') }}</td> <!-- Fecha formateada -->
-                                    <td>{{ $license->reason }}</td>
-                                    <td>{{ $license->days }}</td>
-                                    <td>{{ $license->updated_at->diffForHumans() }}</td> <!-- Tiempo desde la última actualización -->
+                                    <td>{{ $absence->worker->name }} {{ $absence->worker->last_name }}</td>
+                                    <td>{{ $absence->day }}-{{ $absence->month }}-{{ $absence->year }}</td>
+                                    <td>{{ $absence->reason }}</td>
+                                    <td>{{ $absence->minutes }}</td>
                                     <td>
-                                        @can('view', $license)
-                                            <a class="text-decoration-none" href="{{ route('licenses.show', $license) }}">
+                                        @can('view', $absence)
+                                            <a class="text-decoration-none" href="{{ route('absences.show', $absence) }}">
                                                 <button class="btn btn-success rounded-3 px-3">
                                                     <i class='bx bx-show'></i>
                                                 </button>
                                             </a>
                                         @endcan
-                                        @can('update', $license)
-                                            <a class="text-decoration-none" href="{{ route('licenses.edit', $license) }}">
+                                        @can('update', $absence)
+                                            <a class="text-decoration-none" href="{{ route('absences.edit', $absence) }}">
                                                 <button class="btn btn-primary rounded-3 px-3">
                                                     <i class='bx bx-edit'></i>
                                                 </button>
                                             </a>
                                         @endcan
-                                        @can('delete', $license)
-                                            <form method="POST" action="{{ route('licenses.destroy', $license) }}" class="d-inline"
-                                                  onsubmit="return confirm('¿Estás seguro de que deseas eliminar este registro?')">
+                                        @can('delete', $absence)
+                                            <form method="POST" action="{{ route('absences.destroy', $absence) }}"
+                                                class="d-inline"
+                                                onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta ausencia?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-danger rounded-3 px-3">
@@ -72,14 +71,12 @@
                         </tbody>
                     </table>
                 </div>
-                @if ($licenses->hasPages())
+                @if ($absences->hasPages())
                     <div class="card-footer pb-0">
-                        {{ $licenses->links() }}
+                        {{ $absences->links() }}
                     </div>
                 @endif
             </div>
         </div>
     </div>
 @endsection
-
-@include('commons.sort-table')

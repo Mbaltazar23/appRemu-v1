@@ -6,14 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Tuition extends Model//Clase
-
 {
     use HasFactory;
 
     // Atributos que pueden ser asignados masivamente
     protected $fillable = [
-        'tuition_id', // Incluye el nuevo campo
         'title',
+        'tuition_id', // Incluye el nuevo campo
         'type',
         'description',
         'in_liquidation',
@@ -33,7 +32,7 @@ class Tuition extends Model//Clase
     public static function addTuition($name, $title, $type, $editable, $schoolId)
     {
         return self::create([
-            'tuition_id' => $name, // Asumiendo que el nombre es el ID ahora
+            'tuition_id' => $name,
             'title' => $title,
             'type' => $type,
             'description' => $title,
@@ -72,6 +71,17 @@ class Tuition extends Model//Clase
         self::where('tuition_id', $tuition_id)
             ->where('school_id', $school_id)
             ->delete();
+    }
+
+    public static function getTuitionTitle($tuitionId, $schoolId)
+    {
+        if ($tuitionId == "") return "";
+
+        $result = self::where('tuition_id', $tuitionId)
+            ->where('school_id', $schoolId)
+            ->first(['title']);
+
+        return $result ? $result->title : "";
     }
 
     // Relación: Una Tuition pertenece a una School

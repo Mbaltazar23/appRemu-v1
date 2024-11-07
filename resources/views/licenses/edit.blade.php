@@ -5,7 +5,7 @@
         <!-- Page title -->
         <div class="page-header d-print-none">
             <h2 class="page-title">
-                Editar Licencia
+                Editar Licencia Medica
             </h2>
         </div>
     </div>

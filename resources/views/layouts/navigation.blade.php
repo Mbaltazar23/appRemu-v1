@@ -72,7 +72,8 @@
                                 request()->is('workers*') ||
                                 request()->is('licenses*') ||
                                 request()->is('bonuses*') ||
-                                request()->is('financial-indicators*')) active @endif">
+                                request()->is('financial-indicators*') ||
+                                request()->is('absences')) active @endif">
                             <a class="nav-link dropdown-toggle" href="#" id="laborDropdown" role="button"
                                 data-bs-toggle="dropdown" aria-expanded="false">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -106,12 +107,12 @@
                                                     @elseif ($type == 2)
                                                         <i class='bx bx-shield-minus' style="font-size: 20px;"></i>
                                                         <!-- Salud -->
-                                                    @else 
+                                                    @else
                                                         <i class='bx bx-shield-plus' style="font-size: 20px;"></i>
                                                         <!-- Fonasa -->
                                                     @endif
                                                 </span>
-                                                {{ __('Seguro ' . $name) }} 
+                                                {{ __('Seguro ' . $name) }}
                                             </a>
                                         </li>
                                     @endforeach
@@ -149,6 +150,18 @@
                                                 <i class='bx bxs-heart' style="font-size: 20px;"></i>
                                             </span>
                                             {{ __('Licencias Medicas') }}
+                                        </a>
+                                    </li>
+                                @endcan
+
+                                @can('viewAny', App\Models\Absence::class)
+                                    <li>
+                                        <a class="dropdown-item @if (request()->is('absences*')) active @endif"
+                                            href="{{ route('absences.index') }}">
+                                            <span class="nav-link-icon">
+                                                <i class="bx bx-minus-circle" style="font-size: 20px;"></i>
+                                            </span>
+                                            {{ __('Inasistencias') }}
                                         </a>
                                     </li>
                                 @endcan

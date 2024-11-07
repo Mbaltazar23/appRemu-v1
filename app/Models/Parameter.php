@@ -105,31 +105,47 @@ class Parameter extends Model
         return $cotizacion ? $cotizacion->value : null; // Retorna el valor de cotización o null si no existe
     }
 
-    public static function updateParamValue($classId, $schoolId, $value)
+    public static function updateParamValue($classId, $schoolId, $value, $workerId = null)
     {
-        self::where('name', $classId)
-            ->where('school_id', $schoolId)
-            ->update(['value' => $value]);
+        $query = self::where('name', $classId)
+            ->where('school_id', $schoolId);
+
+        if ($workerId !== null) {
+            $query->where('worker_id', $workerId);
+        }
+
+        $query->update(['value' => $value]);
     }
 
-    public static function updateOrInsertParamValue($classId, $value)
+    public static function updateOrInsertParamValue($classId, $workerId = null, $value)
     {
-        $param = self::where('name', $classId)->first();
-
+        // Crea la consulta básica buscando por el nombre (classId)
+        $query = self::where('name', $classId);
+    
+        // Si workerId no es null, añade la condición
+        if ($workerId !== null) {
+            $query->where('worker_id', $workerId);
+        }
+    
+        // Ejecuta la consulta para obtener el parámetro
+        $param = $query->first();
+        
         if ($param) {
             // Si existe, actualiza
-            $param->update(['value' => $value]);
+            $param->update(['value' => $value, 'updated_at' => now()]);
         } else {
             // Si no existe, crea uno nuevo
             self::create([
                 'name' => $classId,
+                'worker_id' => $workerId,
                 'value' => $value,
-                'created_at' => now(), // Establece la fecha de creación
-                'updated_at' => now(), // Establece la fecha de actualización
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
     }
-
+    
+    
     public static function deleteParamAll($name, $schoolId)
     {
         self::where('name', $name)
@@ -144,10 +160,19 @@ class Parameter extends Model
     }
 
     // Método para obtener un valor específico basado en el nombre
-    public static function getValueByName($name, $schoolId, $workerId)
+    public static function getValueByName($name, $schoolId = null, $workerId=null)
     {
-        return self::where('name', $name)
-            ->value('value');
+        $query = self::where('name', $name);    
+        // Si schoolId es null o vacío, no se agrega el filtro en la consulta
+        if (!empty($schoolId)) {
+            $query->where('school_id', $schoolId);
+        }
+
+        if (!empty($workerId)) {
+            $query->where('worker_id', $workerId);
+        }
+    
+        return $query->value('value');
     }
 
     public static function exists($name, $worker_id, $school_id)

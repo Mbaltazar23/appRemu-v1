@@ -17,8 +17,11 @@ class SchoolUserFactory extends Factory
     public function definition()
     {
         return [
-            'user_id' => User::inRandomOrder()->first()->id, // Selecciona un usuario existente
-            'school_id' => School::inRandomOrder()->first()->id, // Selecciona un colegio existente
+            // Seleccionamos un usuario con el rol 'Contador' de manera aleatoria
+            'user_id' => User::where('role', User::CONTADOR)->inRandomOrder()->first()->id, // Filtra solo los 'Contadores'
+
+            // Seleccionamos una escuela de manera aleatoria
+            'school_id' => School::inRandomOrder()->first()->id, 
         ];
     }
 }

@@ -11,7 +11,7 @@ class Insurance extends Model
 
     const AFP = 1;
     const ISAPRE = 2;
-    const FONASA = 3; // Nueva constante para Fonasa
+    const FONASA = 3;
 
     protected $fillable = [
         'name',
@@ -28,7 +28,7 @@ class Insurance extends Model
     const TYPES = [
         self::AFP => 'AFP',
         self::ISAPRE => 'Salud',
-        self::FONASA => 'Fonasa', // Agregando Fonasa a los tipos
+        self::FONASA => 'Fonasa',
     ];
 
     public function getTypeName()
@@ -38,9 +38,8 @@ class Insurance extends Model
 
     public static function obt_insurances($type)
     {
-        // Comprobar si el tipo es válido
         if (!in_array($type, [self::AFP, self::ISAPRE, self::FONASA])) {
-            return collect(); // Retorna una colección vacía
+            return collect(); 
         }
 
         return self::where('type', $type)->get();
@@ -66,10 +65,10 @@ class Insurance extends Model
         return self::find($id);
     }
 
-    public static function select_insurance_worker($id_insurance, $id_school)
+    public static function select_insurance_worker($id_insurance, $type, $id_school)
     {
-        return Worker::where('id_insurance', $id_insurance)
-            ->where('id_school', $id_school)
+        return Worker::where('insurance_' . $type, $id_insurance)
+            ->where('school_id', $id_school)
             ->whereNull('termination_date')
             ->orderBy('last_name')
             ->orderBy('name')
