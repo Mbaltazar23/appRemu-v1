@@ -19,7 +19,6 @@ class Insurance extends Model
         'cotizacion',
         'rut',
     ];
-
     /**
      * Tipos de insurance.
      *

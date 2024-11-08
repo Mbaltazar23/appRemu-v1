@@ -7,6 +7,7 @@ use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SustainerController;
+use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkerController;
 use Illuminate\Support\Facades\Auth;
@@ -49,6 +50,7 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
     Route::resource('workers', WorkerController::class);
     Route::resource('licenses', LicenseController::class);
     Route::resource('absences', AbsenceController::class);
+    Route::resource('templates', TemplateController::class);
     //Route::resource('financial_indicators', FinancialIndicatorController::class);
     Route::get('profile', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
     Route::put('profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
@@ -94,5 +96,9 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
     Route::post('financial-indicators/show', [FinancialIndicatorController::class, 'show'])->name('financial-indicators.show.post');
     Route::get('api/financial-indicators/values', [FinancialIndicatorController::class, 'getValues']);
     Route::post('financial-indicators/modify', [FinancialIndicatorController::class, 'modify'])->name('financial-indicators.modify');
+
+    /** RUTAS PARA LOS ITEMS DE LIQUIDACION (Templates) */
+    Route::get('templates/moveUp/{template}/{position}', [TemplateController::class, 'moveUp'])->name('templates.moveUp');
+    Route::get('templates/moveDown/{template}/{position}', [TemplateController::class, 'moveDown'])->name('templates.moveDown');
 
 });

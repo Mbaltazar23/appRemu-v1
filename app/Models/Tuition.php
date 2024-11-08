@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Tuition extends Model//Clase
+
 {
     use HasFactory;
 
@@ -29,14 +30,14 @@ class Tuition extends Model//Clase
     }
 
     // Crear un nuevo método para añadir Tuition usando el nuevo campo
-    public static function addTuition($name, $title, $type, $editable, $schoolId)
+    public static function addTuition($name, $title, $type, $liquidation, $editable, $schoolId)
     {
         return self::create([
             'tuition_id' => $name,
             'title' => $title,
             'type' => $type,
             'description' => $title,
-            'in_liquidation' => 1,
+            'in_liquidation' => $liquidation,
             'editable' => $editable,
             'school_id' => $schoolId,
         ]);
@@ -75,13 +76,24 @@ class Tuition extends Model//Clase
 
     public static function getTuitionTitle($tuitionId, $schoolId)
     {
-        if ($tuitionId == "") return "";
+        if ($tuitionId == "") {
+            return "";
+        }
 
         $result = self::where('tuition_id', $tuitionId)
             ->where('school_id', $schoolId)
             ->first(['title']);
 
         return $result ? $result->title : "";
+    }
+
+    public static function getLiquidationTitlesBySchool($schoolId)
+    {
+        // Obtener los títulos y tuition_id de las clases en liquidación de un colegio sin agrupar
+        return self::where('in_liquidation', 1) // Filtrar las clases en liquidación
+            ->where('school_id', $schoolId) // Filtrar por el ID del colegio
+            ->orderBy('title') // Ordenar alfabéticamente por 'title'
+            ->get(['title', 'tuition_id']); // Obtener los campos 'title' y 'tuition_id'
     }
 
     // Relación: Una Tuition pertenece a una School

@@ -7,11 +7,7 @@
             <h2 class="page-title d-flex justify-content-between">
                 <span>
                     Lista de {{ __('Seguros') }}
-                    @if ($type == App\Models\Insurance::AFP)
-                        <small class="text-muted">({{ App\Models\Insurance::getInsuranceTypes()[$type] }})</small>
-                    @else
-                        <small class="text-muted">({{ App\Models\Insurance::getInsuranceTypes()[$type] }})</small>
-                    @endif
+                    <small class="text-muted">({{ App\Models\Insurance::getInsuranceTypes()[$type] }})</small>
                 </span>
                 @can('create', App\Models\Insurance::class)
                     <a class="d-inline ml-5 text-decoration-none" href="{{ route('insurances.create', ['type' => $type]) }}">
@@ -33,8 +29,8 @@
                                 <th onclick="sortTable(0)" class="sort-table">{{ __('RUT') }}</th>
                                 <th onclick="sortTable(1)" class="sort-table">{{ __('Nombre') }}</th>
                                 <th onclick="sortTable(2)" class="sort-table">{{ __('Cotización') }}</th>
-                                <th onclick="sortTable(3)" class="sort-table">Actualizado</th>
-                                <th>{{ __('Acciones') }}</th>
+                                <th onclick="sortTable(3)" class="sort-table">{{ __('Actualizado') }}</th>
+                                <th onclick="sortTable(4)" class="sort-table">{{ __('Acciones') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -44,7 +40,6 @@
                                     <td>{{ $insurance->name }}</td>
                                     <td>{{ $insurance->cotizacion }}</td>
                                     <td>{{ $insurance->updated_at->diffForHumans() }}</td>
-
                                     <td>
                                         @can('view', $insurance)
                                             <a class="text-decoration-none"

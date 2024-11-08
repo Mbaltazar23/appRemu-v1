@@ -9,6 +9,7 @@ use App\Models\FinancialIndicator;
 use App\Models\Insurance;
 use App\Models\School;
 use App\Models\Sustainer;
+use App\Models\Template;
 use App\Models\User;
 use App\Models\Worker;
 use App\Policies\AbsencePolicy;
@@ -16,6 +17,7 @@ use App\Policies\FinancialIndicatorPolicy;
 use App\Policies\InsurancePolicy;
 use App\Policies\SchoolPolicy;
 use App\Policies\SustainerPolicy;
+use App\Policies\TemplatePolicy;
 use App\Policies\UserPolicy;
 use App\Policies\WorkerPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -35,6 +37,7 @@ class AuthServiceProvider extends ServiceProvider
         Worker::class => WorkerPolicy::class,
         FinancialIndicator::class => FinancialIndicatorPolicy::class,
         Absence::class => AbsencePolicy::class,
+        Template::class => TemplatePolicy::class,
     ];
 
     /**

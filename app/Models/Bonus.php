@@ -54,12 +54,12 @@ class Bonus extends Model
 
             // Generar y guardar clases usando time
             $nombre = Tuition::createUniqueTuition($data['title'], $data['type'], $data['school_id'], 'time');
-            Tuition::addTuition($nombre, $data['title'], 'O', 1, $data['school_id']);
-            Tuition::addTuition("APLICA" . $nombre, "Aplicación de " . $data['title'], 'P', 0, $data['school_id']);
+            Tuition::addTuition($nombre, $data['title'], 'O', 1, 1, $data['school_id']);
+            Tuition::addTuition("APLICA" . $nombre, "Aplicación de " . $data['title'], 'P', 0, 0, $data['school_id']);
 
             // Generar y guardar clase valor usando "valor"
             $nombrev = Tuition::createUniqueTuition($data['title'], $data['type'], $data['school_id'], 'valor');
-            Tuition::addTuition($nombrev, "Valor " . $data['title'], 'P', 0, $data['school_id']);
+            Tuition::addTuition($nombrev, "Valor " . $data['title'], 'P', 0, 0, $data['school_id']);
 
             // Crear el bono
             self::createBonus([
@@ -309,9 +309,9 @@ class Bonus extends Model
     public static function getBonusesByTypeAndApplication($schoolId, $type, $application)
     {
         return self::where('school_id', $schoolId)
-            ->where(function($query) use ($type) {
+            ->where(function ($query) use ($type) {
                 $query->where('type', $type)
-                      ->orWhere('type', 3);
+                    ->orWhere('type', 3);
             })
             ->where('application', $application)
             ->get(['title', 'tuition_id']);

@@ -167,6 +167,30 @@
                                 @endcan
                             </ul>
                         </li>
+                        <li class="nav-item dropdown @if (request()->is('templates*')) active @endif">
+                            <a class="nav-link dropdown-toggle" href="#" id="administrationDropdown"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <i class="bx bxs-wallet" style="font-size: 24px;"></i>
+                                </span>
+                                <span class="nav-link-title">
+                                    {{ __('Remuneraciones') }}
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="administrationDropdown">
+                                @can('viewAny', App\Models\Template::class)
+                                    <li>
+                                        <a class="dropdown-item @if (request()->is('templates*')) active @endif"
+                                            href="{{ route('templates.index') }}">
+                                            <span class="nav-link-icon">
+                                                <i class='bx bx-money' style="font-size: 20px;"></i>
+                                            </span>
+                                            {{ __('Liquidaciones') }}
+                                        </a>
+                                    </li>
+                                @endcan
+                            </ul>
+                        </li>
                         <li class="nav-item @if (request()->is('select-school')) active @endif">
                             <a class="nav-link" href="{{ route('schoolSelect') }}">
                                 <span class="nav-link-icon">
