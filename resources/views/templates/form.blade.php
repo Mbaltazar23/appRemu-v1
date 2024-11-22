@@ -18,7 +18,7 @@
                     <option value="0">Seleccione la línea donde irá el ítem</option>
                     @foreach ($templates as $tmpl)
                         <option value="{{ $tmpl->position }}" 
-                            {{ old('position', 0) == $tmpl->position ? 'selected' : '' }}>
+                            {{ old('position', $template->position) == $tmpl->position ? 'selected' : '' }}>
                             {{ $tmpl->tuition->title }}
                         </option>
                     @endforeach
@@ -26,8 +26,6 @@
             </td>
         </tr>
     @endif
-    
-
         <tr>
             <td class="w-50" style="vertical-align: middle; padding: 8px;">
                 <label for="code" class="form-label mb-0">Tipo de línea</label>
@@ -36,7 +34,7 @@
                 <select name="code" id="code" class="form-select">
                     @foreach ($lineTypes as $code => $description)
                         <option value="{{ $code }}"
-                            {{ old('code', $template->code ?? '') == $code ? 'selected' : '' }}>
+                            {{ old('code', $template->code) == $code ? 'selected' : '' }}>
                             {{ $description }}
                         </option>
                     @endforeach

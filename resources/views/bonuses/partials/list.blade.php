@@ -36,17 +36,15 @@
                             <tr>
                                 <th onclick="sortTable(0)" class="sort-table">{{ __('Nombre') }}</th>
                                 <th onclick="sortTable(1)" class="sort-table">{{ __('Aplicado para') }}</th>
-                                <th onclick="sortTable(2)" class="sort-table">{{ __('Actualizado') }}</th>
                                 <th onclick="sortTable(3)" class="sort-table">{{ __('Acciones') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($bonuses as $bonus)
                                 <tr>
-                                    <td>{{ $bonus->school->tuitions->where('tuition_id', $bonus->tuition_id)->first()->title }}
+                                    <td>{{ $bonus->school->tuitions->where('tuition_id', $bonus->title)->first()->title ?? '' }}
                                     </td>
                                     <td>{{ $bonus->getTypeLabel($bonus->type) }}</td>
-                                    <td>{{ $bonus->updated_at->diffForHumans() }}</td>
                                     <td>
                                         @can('view', $bonus)
                                             <a class="text-decoration-none" href="{{ route('bonuses.show', $bonus) }}">

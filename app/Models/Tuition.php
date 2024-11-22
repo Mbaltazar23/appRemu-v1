@@ -82,18 +82,83 @@ class Tuition extends Model//Clase
 
         $result = self::where('tuition_id', $tuitionId)
             ->where('school_id', $schoolId)
-            ->first(['title']);
+            ->first();
 
         return $result ? $result->title : "";
     }
 
     public static function getLiquidationTitlesBySchool($schoolId)
     {
-        // Obtener los títulos y tuition_id de las clases en liquidación de un colegio sin agrupar
+        // Obtener los títulos distintos y tuition_id de las clases en liquidación de un colegio
         return self::where('in_liquidation', 1) // Filtrar las clases en liquidación
             ->where('school_id', $schoolId) // Filtrar por el ID del colegio
             ->orderBy('title') // Ordenar alfabéticamente por 'title'
+            ->distinct() // Obtener solo títulos distintos
             ->get(['title', 'tuition_id']); // Obtener los campos 'title' y 'tuition_id'
+    }
+
+    // Método para obtener las operaciones por clase (tuition), tipo de trabajador y colegio
+    public static function getOperationsByTuitionAndWorkerType($tuitionId, $workerTypeId, $schoolId)
+    {
+        // Use Eloquent to retrieve the information from Tuition, Parameter, and Operation
+        $results = Tuition::select(
+            'tuitions.type',
+            'operations.operation',
+            'operations.limit_unit',
+            'operations.min_limit',
+            'operations.max_limit',
+            'operations.max_value',
+            'operations.application',
+            'tuitions.in_liquidation',
+            'operations.worker_type'
+        )
+            ->leftJoin('parameters', 'parameters.name', '=', 'tuitions.tuition_id') // Join with parameters based on tuition_id
+            ->where(function ($query) use ($tuitionId) {
+                $query->where('operations.tuition_id', '=', $tuitionId)
+                    ->orWhere('parameters.name', '=', $tuitionId); // Apply the OR condition
+            })
+            ->where('tuitions.tuition_id', $tuitionId) // Match the tuition_id
+            ->where('tuitions.school_id', $schoolId) // Match the school_id for tuition
+            ->where('operations.school_id', $schoolId) // Match the school_id for operations
+            ->where('operations.worker_type', $workerTypeId) // Match the worker_type for operations
+            ->first(); // Get the first matching result
+
+        return $results;
+    }
+
+    // Método combinado para obtener el título y la descripción de la clase
+    public static function getTuitionTitleAndDescription($tuitionId, $schoolId)
+    {
+        $tuition = self::where('tuition_id', $tuitionId)
+            ->where('school_id', $schoolId)
+            ->first();
+
+        if ($tuition) {
+            return [
+                'title' => $tuition->title,
+                'description' => $tuition->description,
+            ];
+        }
+    }
+
+    // Método para obtener el título del parámetro
+    public static function getTitleOfParameter($tuitionId, $workerId, $workerTypeId, $schoolId)
+    {
+        // Obtener la descripción de la clase
+        $classDescription = self::getTuitionTitleAndDescription($tuitionId, $schoolId);
+
+        // Si la clase tiene una descripción, devolverla
+        if (!empty($classDescription)) {
+            // Devolver la descripción del parámetro asociado
+            return Parameter::where('tuition_id', $classDescription['description'])
+                ->where('worker_id', $workerId)
+                ->where('worker_type', $workerTypeId)
+                ->where('school_id', $schoolId)
+                ->first()->description ?? '';
+        }
+
+        // Si no tiene descripción, devolver el título de la clase
+        return self::getTuitionTitle($tuitionId, $schoolId);
     }
 
     // Relación: Una Tuition pertenece a una School
@@ -103,6 +168,13 @@ class Tuition extends Model//Clase
     }
 
     // Relación: Una Tuition tiene muchas Operations
+    // Relación con el modelo Parameter (tuition_id en Parameter)
+    public function parameters()
+    {
+        return $this->hasMany(Parameter::class);
+    }
+
+    // Relación con el modelo Operation (tuition_id en Operation)
     public function operations()
     {
         return $this->hasMany(Operation::class);

@@ -12,13 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('hour_licenses', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('license_id')->constrained()->onDelete('cascade'); 
-            // Referencia a licenses
-            $table->integer('hours');
-            $table->timestamps();
+            $table->id(); // ID de la relación de horas (auto-incrementable)
+            $table->unsignedBigInteger('license_id'); // ID de la licencia (relación con 'licenses')
+            $table->integer('day')->default(0); // Día
+            $table->integer('month')->default(0); // Mes
+            $table->integer('year')->default(0); // Año
+            $table->integer('hours')->nullable(); // Horas de la licencia
+            $table->boolean('exists')->default(0); // Campo que indica si el día está activo (1 = sí, 0 = no)
+            $table->foreign('license_id')->references('id')->on('licenses')->onDelete('cascade'); 
+            $table->timestamps(); // timestamps() agrega created_at y updated_at
         });
     }
+    
 
     /**
      * Reverse the migrations.

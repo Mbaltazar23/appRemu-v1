@@ -56,6 +56,26 @@ class Template extends Model
 
     }
 
+    public static function processTemplates($templates)
+    {
+        // Iteramos sobre cada plantilla y procesamos según el código
+        foreach ($templates as $template) {
+            if ($template->code == "_L_") {
+                $template->tuition->title = "(Linea de total en segunda columna)";
+            } elseif ($template->code == "__L") {
+                $template->tuition->title = "(Linea de total en tercera columna)";
+            } elseif ($template->code == "_LL") {
+                $template->tuition->title = "(Linea de total en segunda y tercera columna)";
+            } elseif ($template->code == "LLL") {
+                $template->tuition->title = "(Linea de total en todas las columnas)";
+            } elseif ($template->code == "TEX") {
+                $template->tuition->title = $template->tuition_id; // Asigna el título de la clase si el código es "TEX"
+            }
+        }
+        // Devolvemos las plantillas ya procesadas
+        return $templates;
+    }
+
 /**
  * Checks if a position already exists
  */

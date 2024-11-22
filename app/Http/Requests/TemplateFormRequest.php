@@ -27,7 +27,7 @@ class TemplateFormRequest extends FormRequest
             'type' => 'required|integer',
             'school_id' => 'required|integer', // Asegura que el ID de la escuela sea un entero
             'position' => 'required|integer|min:1',
-            'code' => 'required|in:N,NV,NVV,N V,_L_,__L,_LL,LLL,TEX',
+            'code' => 'nullable|in:N,NV,NVV,N V,_L_,__L,_LL,LLL,TEX', // Permite que el campo esté vacío
             'tuition_id' => 'nullable|string|exists:tuitions,tuition_id',
             'ignore_zero' => 'nullable|boolean', // Asegura que sea un valor booleano o nulo
             'parentheses' => 'nullable|boolean', // Puede ser verdadero o falso, es opcional

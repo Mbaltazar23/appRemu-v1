@@ -43,8 +43,31 @@
                             <strong>Persona Responsable:</strong> {{ $license->responsible_person }} <br />
                         @endif
                     </p>
+                    <!-- Mostrar detalles de las horas solo si el trabajador es docente -->
+                    @if ($license->worker->worker_type === \App\Models\Worker::WORKER_TYPE_TEACHER)  <!-- Verificar si es docente -->
+                        <h5>Detalles de las Horas de Licencia</h5>
+                        <table class="table table-sm table-bordered mb-4">
+                            <thead>
+                                <tr>
+                                    <th class="p-1">Día</th>
+                                    <th class="p-1">Horas Asignadas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($license->hourLicenses as $hourLicense)
+                                    <tr>
+                                        <td class="p-1">{{ \Carbon\Carbon::createFromDate($hourLicense->year, $hourLicense->month, $hourLicense->day)->format('d-m-Y') }}</td>
+                                        <td class="p-1">{{ $hourLicense->hours }} horas</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+
                 </div>
-                <span>
+                
+                <!-- Botones con margen superior -->
+                <span class="mt-2 d-block">
                     <a class="mr-4 rounded-2 text-decoration-none" href="{{ route('licenses.index') }}">
                         <button class="btn btn-sm btn-info rounded-2">Volver al inicio</button>
                     </a>

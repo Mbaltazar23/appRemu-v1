@@ -1,0 +1,16 @@
+bonus
+title,                             type,   taxable  imputable     is_bonus     factor    application  months          amount
+Prestamo Social Caja los heroes    3       0        1             0            100       D            111111111111    0
+Prestamo Social Caja los Andes     3       0        1             1            100       D            111111111111    0
+Colegio de profesores              2       0        1             1            1         I            111111111111    0
+Asignancion Voluntaria             3       0        0             0            100       D            111111111111    0
+Cuenta Ahorro Caja los Andes       3       0        1             1            100       D            111111111111    0
+Fundacion Lopez Perez              3       0        1             1            100       D            111111111111    0
+Desempeño dificil                  3       0        1             0            100       H            111111111111    466607
+Ley 19933 			   1	   0        0		  0            80        H            111111111111    2057449	
+Perfeccionamiento                  1       0        0             0            100       H            111111111111    0
+Otros                              2       1	    1		  0	       100       D	      111111111111    0
+Ley 19410                          1       0        0             0            80        H            111111111111    795260
+Ley 19464                          2       0        1             0            100       H            111111111111    246661
+RBMN                               1       0        0             0            100       C            111111111111    7824
+UMP                                1       0        0             0            100       T	      111110111110    663

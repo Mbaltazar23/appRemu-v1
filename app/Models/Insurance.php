@@ -27,8 +27,9 @@ class Insurance extends Model
     const TYPES = [
         self::AFP => 'AFP',
         self::ISAPRE => 'Salud',
-        self::FONASA => 'Fonasa',
+        //self::FONASA => 'Fonasa',
     ];
+
 
     public function getTypeName()
     {
@@ -38,7 +39,7 @@ class Insurance extends Model
     public static function obt_insurances($type)
     {
         if (!in_array($type, [self::AFP, self::ISAPRE, self::FONASA])) {
-            return collect(); 
+            return collect();
         }
 
         return self::where('type', $type)->get();
@@ -49,12 +50,12 @@ class Insurance extends Model
         return collect(self::TYPES);
     }
 
-    public static function obt_nombre_insurance($id)
+    public static function getNameInsurance($id)
     {
         return self::where('id', $id)->value('name');
     }
 
-    public static function obt_cotizacion_insurance($id)
+    public static function getCotizationInsurance($id)
     {
         return self::where('id', $id)->value('cotizacion');
     }
@@ -62,6 +63,22 @@ class Insurance extends Model
     public static function obt_datos_insurance($id)
     {
         return self::find($id);
+    }
+
+     /**
+     * Relación inversa con los trabajadores (AFP).
+     */
+    public function workersAFP()
+    {
+        return $this->hasMany(Worker::class, 'insurance_AFP');
+    }
+
+    /**
+     * Relación inversa con los trabajadores (ISAPRE).
+     */
+    public function workersISAPRE()
+    {
+        return $this->hasMany(Worker::class, 'insurance_ISAPRE');
     }
 
     public static function select_insurance_worker($id_insurance, $type, $id_school)

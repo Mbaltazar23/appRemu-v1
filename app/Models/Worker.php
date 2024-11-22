@@ -24,7 +24,7 @@ class Worker extends Model
         'region',
         'nationality',
         'marital_status',
-        'worker_type',
+        'worker_type', //este es
         'function_worker',
         'load_hourly_work',
         'worker_titular',
@@ -82,8 +82,8 @@ class Worker extends Model
 
     public function getInsuranceNames()
     {
-        $insuranceAFPName = Insurance::obt_nombre_insurance($this->insurance_AFP);
-        $insuranceISAPREName = Insurance::obt_nombre_insurance($this->insurance_ISAPRE);
+        $insuranceAFPName = Insurance::getNameInsurance($this->insurance_AFP);
+        $insuranceISAPREName = Insurance::getNameInsurance($this->insurance_ISAPRE);
 
         return [
             'insurance_AFP' => $insuranceAFPName,
@@ -165,6 +165,28 @@ class Worker extends Model
             ->get(['id', 'name', 'last_name']);
     }
 
+    /**
+     * Relación con la tabla 'insurances' (AFP).
+     */
+    public function insuranceAFP()
+    {
+        return $this->belongsTo(Insurance::class, 'insurance_AFP');
+    }
+
+    /**
+     * Relación con la tabla 'insurances' (ISAPRE).
+     */
+    public function insuranceISAPRE()
+    {
+        return $this->belongsTo(Insurance::class, 'insurance_ISAPRE');
+    }
+
+
+    public function licenses()
+    {
+        return $this->hasMany(License::class);
+    }
+
     public function parameters()
     {
         return $this->hasMany(Parameter::class, 'worker_id');
@@ -173,6 +195,11 @@ class Worker extends Model
     public function absences()
     {
         return $this->hasMany(Absence::class);
+    }
+
+    public function liquidations()
+    {
+        return $this->hasMany(Liquidation::class);
     }
 
     public function contract()

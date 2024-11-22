@@ -63,8 +63,8 @@ class Bonus extends Model
 
             // Crear el bono
             self::createBonus([
-                'title' => $nombrev,
-                'tuition_id' => $nombre,
+                'title' => $nombre,
+                'tuition_id' => $nombrev,
                 'school_id' => $data['school_id'],
                 'taxable' => $data['taxable'],
                 'is_bonus' => $data['is_bonus'],
@@ -113,41 +113,41 @@ class Bonus extends Model
                 $operator = "+";
                 if ($taxable == 0) {
                     if ($imputable == 0) {
-                        $operationType = "TAXABLEANDIMPUTABLE";
+                        $operationType = "IMPONIBLEEIMPUTABLE";
                     } else {
-                        $operationType = ($type == 1) ? "TAXABLEANDNOTIMPUTABLE" : "TAXABLEINCOMES";
+                        $operationType = ($type == 1) ? "IMPONIBLEYNOIMPUTABLE" : "RENTAIMPONIBLESD";
                     }
                 } else {
-                    $operationType = "TOTALNONTAXABLE";
+                    $operationType = "TOTALNOIMPONIBLE";
                 }
             } else {
                 $operator = "+";
-                $operationType = "VOLUNTARYDISCOUNTS";
+                $operationType = "DESCUENTOSVOLUNTARIOS";
             }
 
             if ($type != 3) {
-                if (($type == 2) && ($operationType == "TAXABLEANDIMPUTABLE")) {
-                    $operationType = "TAXABLEINCOMES";
+                if (($type == 2) && ($operationType == "IMPONIBLEEIMPUTABLE")) {
+                    $operationType = "RENTAIMPONIBLESD";
                 }
-                $originalOperation = Operation::getOperationFunction($operationType, $type, $bonus['school_id']);
+                $originalOperation = Operation::getOperationFunction($operationType, $type, $bonus['school_id'], $bonus->school->operations->first()->value('application'));
                 $originalOperation = str_replace(" $operator $name", '', $originalOperation);
                 $newOperation = $originalOperation . " " . $operator . " " . $name;
-                Operation::updateOperationFunction($operationType, $type, $newOperation, $bonus['school_id']);
+                Operation::updateOperationFunction($operationType, $type, $newOperation, $bonus['school_id'],$bonus->school->operations->first()->value('application'));
             } else {
                 // For teachers
-                $originalOperation = Operation::getOperationFunction($operationType, 1, $bonus['school_id']);
+                $originalOperation = Operation::getOperationFunction($operationType, 1, $bonus['school_id'],$bonus->school->operations->first()->value('application'));
                 $originalOperation = str_replace(" $operator $name", '', $originalOperation);
                 $newOperation = $originalOperation . " " . $operator . " " . $name;
-                Operation::updateOperationFunction($operationType, 1, $newOperation, $bonus['school_id']);
+                Operation::updateOperationFunction($operationType, 1, $newOperation, $bonus['school_id'],$bonus->school->operations->first()->value('application'));
 
                 // For non-teachers
-                if ($operationType == "TAXABLEANDIMPUTABLE") {
-                    $operationType = "TAXABLEINCOMES";
+                if ($operationType == "IMPONIBLEEIMPUTABLE") {
+                    $operationType = "RENTAIMPONIBLESD";
                 }
-                $originalOperation = Operation::getOperationFunction($operationType, 2, $bonus['school_id']);
+                $originalOperation = Operation::getOperationFunction($operationType, 2, $bonus['school_id'], $bonus->school->operations->first()->value('application'));
                 $originalOperation = str_replace(" $operator $name", '', $originalOperation);
                 $newOperation = $originalOperation . " " . $operator . " " . $name;
-                Operation::updateOperationFunction($operationType, 2, $newOperation, $bonus['school_id']);
+                Operation::updateOperationFunction($operationType, 2, $newOperation, $bonus['school_id'], $bonus->school->operations->first()->value('application'));
             }
         }
     }
@@ -227,7 +227,7 @@ class Bonus extends Model
 
             }
 
-            Operation::processDeleteOperation($tuitionId, $data, "+");
+            Operation::processDeleteOperation($tuitionId, $data, "+",$data->school->operations->first()->value('application'));
 
             Parameter::deleteParamAll($title, $data['school_id']);
             Parameter::deleteParamAll("APLICA" . $title, $data['school_id']);

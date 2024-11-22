@@ -16,7 +16,7 @@ class Contract extends Model
         'hire_date',
         'termination_date',
         'replacement_reason',
-        'annexes',  // Agregado para los anexos
+        'annexes', // Agregado para los anexos
     ];
 
     const CONTRACT_TYPES = [
@@ -88,7 +88,6 @@ class Contract extends Model
         $data = $request->only(['contract_type', 'hire_date', 'termination_date', 'replacement_reason']);
         return self::updateOrCreate(['worker_id' => $workerId], $data);
     }
-
 
     public function worker()
     {

@@ -19,6 +19,11 @@ class DatabaseSeeder extends Seeder
         $this->call(InsuranceSeeder::class);
         $this->call(WorkerSeeder::class);
         $this->call(FinancialIndicatorsSeeder::class);
-        //$this->call(BonusSeeder::class);
+        $this->call(OperationsTableSeeder::class);
+        $this->call(BonusSeeder::class);
+        $this->call(LicenseSeeder::class);
+        $this->call(AbsenceSeeder::class);
+        $this->call(TuitionsTableSeeder::class);
+        //$this->call(TemplateSeeder::class);
     }
 }

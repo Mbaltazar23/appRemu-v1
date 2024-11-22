@@ -8,25 +8,24 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Tabla: licenses (licencia)
      */
     public function up(): void
     {
         Schema::create('licenses', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('worker_id')->nullable();
-            $table->date('issue_date')->nullable();
-            $table->string('reason', 50)->nullable();
-            $table->integer('days')->nullable();
-            $table->string('institution', 30)->nullable();
-            $table->string('receipt_number', 10)->nullable();
-            $table->date('receipt_date')->nullable();
-            $table->date('processing_date')->nullable();
-            $table->string('responsible_person', 50)->nullable();
-            $table->text('dayslicense')->nullable();
-            $table->foreign('worker_id')->references('id')->on('workers');
-            $table->timestamps();
+            $table->id(); // ID de la licencia (auto-incrementable)
+            $table->unsignedBigInteger('worker_id')->nullable(); // ID del trabajador
+            $table->string('issue_date', 11)->nullable(); // Fecha de la licencia
+            $table->string('reason', 50)->nullable(); // Motivo de la licencia
+            $table->integer('days')->nullable(); // Días de la licencia
+            $table->string('institution')->nullable(); // Institución que emite la licencia
+            $table->string('receipt_number', 10)->nullable(); // Folio o número de recibo
+            $table->string('receipt_date', 11)->nullable(); // Fecha de recepción de la licencia
+            $table->string('processing_date', 11)->nullable(); // Fecha de tramitación
+            $table->string('responsible_person', 50)->nullable(); // Persona responsable de la tramitación
+            $table->foreign('worker_id')->references('id')->on('workers')->onDelete('cascade'); // Relación con la tabla workers
+            $table->timestamps(); // timestamps() agrega created_at y updated_at
         });
     }
 

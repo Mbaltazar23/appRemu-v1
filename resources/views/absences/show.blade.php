@@ -16,7 +16,7 @@
                     <strong>Fecha de Ausencia:</strong> {{ $absence->day }}/{{ $absence->month }}/{{ $absence->year }} <br />
                     <strong>Motivo:</strong> {{ $absence->reason }} <br />
                     <strong>Duración:</strong> {{ $absence->minutes }} minutos <br />
-                    <strong>Con consentimiento:</strong> {{ $absence->with_consent ? 'Sí' : 'No' }} <br />
+                    <strong>Con goce de sueldo:</strong> {{ $absence->with_consent ? 'Sí' : 'No' }} <br />
                 </p>
                 <span>
                     <a class="mr-4 rounded-2 text-decoration-none" href="{{ route('absences.index') }}">

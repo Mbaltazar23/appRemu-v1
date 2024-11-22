@@ -29,7 +29,8 @@
                                 <th onclick="sortTable(1)" class="sort-table">{{ __('Fecha de Emisión') }}</th>
                                 <th onclick="sortTable(2)" class="sort-table">{{ __('Motivo') }}</th>
                                 <th onclick="sortTable(3)" class="sort-table">{{ __('Días') }}</th>
-                                <th onclick="sortTable(4)" class="sort-table">{{ __('Última Actualización') }}</th> <!-- Nueva columna -->
+                                <th onclick="sortTable(4)" class="sort-table">{{ __('Última Actualización') }}</th>
+                                <!-- Nueva columna -->
                                 <th onclick="sortTable(5)" class="sort-table">{{ __('Acciones') }}</th>
                             </tr>
                         </thead>
@@ -37,10 +38,12 @@
                             @foreach ($licenses as $license)
                                 <tr>
                                     <td>{{ $license->worker->name }} {{ $license->worker->last_name }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($license->issue_date)->format('d-m-Y') }}</td> <!-- Fecha formateada -->
+                                    <td>{{ \Carbon\Carbon::parse($license->issue_date)->format('d-m-Y') }}</td>
+                                    <!-- Fecha formateada -->
                                     <td>{{ $license->reason }}</td>
                                     <td>{{ $license->days }}</td>
-                                    <td>{{ $license->updated_at->diffForHumans() }}</td> <!-- Tiempo desde la última actualización -->
+                                    <td>{{ $license->updated_at->diffForHumans() }}</td>
+                                    <!-- Tiempo desde la última actualización -->
                                     <td>
                                         @can('view', $license)
                                             <a class="text-decoration-none" href="{{ route('licenses.show', $license) }}">
@@ -57,8 +60,9 @@
                                             </a>
                                         @endcan
                                         @can('delete', $license)
-                                            <form method="POST" action="{{ route('licenses.destroy', $license) }}" class="d-inline"
-                                                  onsubmit="return confirm('¿Estás seguro de que deseas eliminar este registro?')">
+                                            <form method="POST" action="{{ route('licenses.destroy', $license) }}"
+                                                class="d-inline"
+                                                onsubmit="return confirm('¿Estás seguro de que deseas eliminar este registro?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-danger rounded-3 px-3">

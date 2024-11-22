@@ -35,7 +35,7 @@
                             <tr>
                                 <td>{{ $worker->name }}</td>
                                 <td>{{ $worker->last_name }}</td>
-                                <td>{{ $worker->getWorkerTypes()[$worker->worker_type] ?? 'Desconocido' }}</td>
+                                <td>{{ $worker->getWorkerTypes()[$worker->worker_type] }}</td>
                                 <td>{{ \Carbon\Carbon::parse($worker->settlement_date)->format('d-m-Y') }}</td>
                             </tr>
                         @endforeach

@@ -5,6 +5,7 @@ use App\Http\Controllers\BonusController;
 use App\Http\Controllers\FinancialIndicatorController;
 use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\LicenseController;
+use App\Http\Controllers\LiquidationController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SustainerController;
 use App\Http\Controllers\TemplateController;
@@ -71,14 +72,14 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
     // Ruta para actualizar la fecha de finiquito
     Route::put('workers/{worker}/settle', [WorkerController::class, 'updateSettlementDate'])->name('workers.updateSettle');
     // Ruta para ver y añadir y quitar los anexos a los contratos
-    Route::get('/contracts/{worker}/annexes', [WorkerController::class, 'showAnnexes'])->name('contracts.showAnnexes');
-    Route::post('/contracts/{worker}/annexes', [WorkerController::class, 'storeAnnex'])->name('contracts.storeAnnex');
-    Route::delete('/contracts/{worker}/annexes', [WorkerController::class, 'deleteAnnex'])->name('contracts.deleteAnnex');
+    Route::get('contracts/{worker}/annexes', [WorkerController::class, 'showAnnexes'])->name('contracts.showAnnexes');
+    Route::post('contracts/{worker}/annexes', [WorkerController::class, 'storeAnnex'])->name('contracts.storeAnnex');
+    Route::delete('contracts/{worker}/annexes', [WorkerController::class, 'deleteAnnex'])->name('contracts.deleteAnnex');
 
     /** RUTAS PARA INSURANCE  (ASOCIAR WORKER AL INSURANCE)*/
-    Route::get('/insurances/{insurance}/link-worker', [InsuranceController::class, 'linkWorker'])->name('insurances.link_worker');
-    Route::post('/insurances/{insurance}/attach-worker', [InsuranceController::class, 'attachWorker'])->name('insurances.attach_worker');
-    Route::get('/insurances/{worker}/{type}/parameters', [InsuranceController::class, 'getWorkerParameters']);
+    Route::get('insurances/{insurance}/link-worker', [InsuranceController::class, 'linkWorker'])->name('insurances.link_worker');
+    Route::post('insurances/{insurance}/attach-worker', [InsuranceController::class, 'attachWorker'])->name('insurances.attach_worker');
+    Route::post('/insurances/setParameters', [InsuranceController::class, 'setParameters'])->name('insurances.setParameters');
 
     /* RUTAS PARA BONUSES */
     Route::get('/bonuses/partials/list', [BonusController::class, 'list'])->name('bonuses.partials.list');
@@ -100,5 +101,15 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
     /** RUTAS PARA LOS ITEMS DE LIQUIDACION (Templates) */
     Route::get('templates/moveUp/{template}/{position}', [TemplateController::class, 'moveUp'])->name('templates.moveUp');
     Route::get('templates/moveDown/{template}/{position}', [TemplateController::class, 'moveDown'])->name('templates.moveDown');
+
+    /** RUTAS PARA LA EMISION DE LIQUIDACIONES (Liquidations) */
+    // Ruta GET para cargar los tipos de trabajador y procesar la selección
+    Route::get('liquidations', [LiquidationController::class, 'index'])->name('liquidations.index');
+    // Ruta GET para seleccionar un trabajador y su liquidación, pasando workerType como parámetro
+    Route::get('liquidations/select-workers/{workerType}', [LiquidationController::class, 'selectWorkerType'])->name('liquidations.selectWorker');
+    // Ruta GET para mostrar la liquidación de un trabajador específico
+    Route::get('liquidations/worker-liquidation/{workerId}', [LiquidationController::class, 'workerLiquidation'])->name('liquidations.workerLiquidation');
+    // Ruta GET para crear una liquidación, mantiene el workerId y workerType como parámetros
+    Route::get('liquidations/create/{workerId}', [LiquidationController::class, 'create'])->name('liquidations.create');
 
 });

@@ -1,160 +1,158 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="es">
 
-@section('content')
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trabajadores a Asociar al Seguro - {{ $insurance->name }}</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Estilos de la página -->
+    @vite('resources/sass/app.scss')
+
+    <!-- Custom Styles -->
+    @stack('custom_styles')
+
+    <style>
+        /* Estilos personalizados */
+        .container-xl {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        /* Estilos para el botón de acción */
+        .action-btn {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <br><br>
+    <!-- Contenedor principal -->
     <div class="container-xl">
-        <!-- Page title -->
+        <!-- Título de la página -->
         <div class="page-header d-print-none">
             <h2 class="page-title">
-                Vincular Trabajador a ({{ $insurance->name }})
+                Trabajadores a Asociar al Seguro ({{ $insurance->name }})
             </h2>
         </div>
-    </div>
 
-    <div class="page-body">
-        <div class="container-xl">
-            <div class="card p-4">
-                <div class="form-group mb-4">
-                    <label for="worker_id" class="h5">Selecciona un Trabajador a Asociar al Seguro</label>
-                    <select name="worker_id" id="worker_id" class="form-control" required
-                        onchange="fetchWorkerParameters(this.value)">
-                        <option value="">Seleccionar trabajador...</option>
-                        @foreach ($workers as $worker)
-                            <option value="{{ $worker->id }}">{{ $worker->name }} {{ $worker->last_name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+        <!-- Formulario para asociar trabajador -->
+        <div class="card p-4">
+            <div class="form-group mb-4">
+                <label for="worker_id_select" class="h5">Selecciona un Trabajador</label>
+                <select name="worker_id_select" id="worker_id_select" class="form-control" required>
+                    <option value="">Seleccionar trabajador...</option>
+                    @foreach ($workers as $worker)
+                        <option value="{{ $worker->id }}" @if (request('worker_id') == $worker->id) selected @endif>
+                            {{ $worker->name }} {{ $worker->last_name }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
 
-            <div id="parameter-card" class="card mt-4" style="display:none;">
-                <div class="card-header">
-                    <h3>Datos del Trabajador</h3>
-                </div>
-                <form method="POST" action="{{ route('insurances.attach_worker', $insurance->id) }}" id="worker-form">
+            <!-- Botón de asociar trabajador -->
+            <div class="action-btn">
+                <form id="associateWorkerForm" action="{{ route('insurances.attach_worker', $insurance->id) }}" method="POST">
                     @csrf
-                    <input type="hidden" name="type" id="type" value="{{ $insurance->type }}">
-                    <input type="hidden" name="worker_id" id="worker_id_hidden">
-
-                    <div class="card-body" id="worker-parameters-body">
-                        <!-- Parámetros se insertarán aquí -->
-                    </div>
-                    <div class="card-footer d-flex justify-content-end">
-                        <button type="submit" id="submit-button" class="btn btn-primary"
-                            style="display:none;">Vincular</button>
-                    </div>
+                    <input type="hidden" name="type" id="type" value="{{ $type }}">
+                    <input type="hidden" name="insurance_id" id="insurance_id" value="{{ $insurance->id }}">
+                    <input type="hidden" name="worker_id" id="worker_id_input" value="{{ request('worker_id') }}">
+                    <input type="hidden" name="force_update" id="force_update" value="false">
+                    <button id="submitButton" type="submit" class="btn btn-primary rounded-3 px-4">
+                        Asociar Trabajador
+                    </button>
                 </form>
             </div>
         </div>
     </div>
-@endsection
 
-@push('custom_scripts')
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+
     <script>
-        function fetchWorkerParameters(workerId) {
-            if (!workerId) {
-                document.getElementById('worker-parameters-body').innerHTML = '';
-                document.getElementById('submit-button').style.display = 'none';
-                document.getElementById('parameter-card').style.display = 'none';
-                document.getElementById('worker_id_hidden').value = ''; // Limpiar el campo oculto
-                return;
-            }
+        document.getElementById('worker_id_select').addEventListener('change', function() {
+            const workerId = this.value;
+            document.getElementById('worker_id_input').value = workerId;
+            localStorage.setItem('worker_id', workerId);
+        });
 
-            // Establecer el valor del campo oculto
-            document.getElementById('worker_id_hidden').value = workerId;
+        // Función que maneja el envío del formulario
+        function submitForm(event) {
+            event.preventDefault(); // Prevenir el envío por defecto
+            const form = document.getElementById('associateWorkerForm');
+            const formData = new FormData(form);
 
-            fetch(`/insurances/${workerId}/${document.getElementById('type').value}/parameters`)
-                .then(response => response.json())
+            // Deshabilitar el botón mientras se procesa
+            const submitButton = document.getElementById('submitButton');
+            submitButton.disabled = true;
+
+            // Hacer la solicitud al backend con los datos del formulario
+            fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    },
+                })
+                .then(response => response.json())  // Convierte la respuesta a JSON
                 .then(data => {
-                    let html = '<div class="row">';
-
-                    if (data.success) {
-                        // Verificar si el trabajador tiene parámetros de AFP o ISAPRE
-                        const hasParameters = (data.insuranceType === '1' && data.cotizacionAFP) || (data
-                            .insuranceType === '2' && data.institucionSalud);
-
-                        if (hasParameters) {
-                            const confirmEdit = confirm('Este trabajador ya tiene una AFP ¿Deseas Modificarla?');
-                            if (!confirmEdit) {
-                                location.reload(); // Recargar la página si se cancela
-                                return;
-                            }
+                    if (data.confirm) {
+                        // Si se necesita confirmación, mostrar el mensaje
+                        if (window.confirm(data.message)) {
+                            document.getElementById('force_update').value = "true"; // Marcamos la actualización forzada
+                            submitForm(event); // Reenvía el formulario si es necesario
                         }
-
-                        if (data.insuranceType === '1') {
-                            html += ` 
-                            <div class="col-md-4 mb-3">
-                                <label><strong>Tipo de Trabajador:</strong> ${data.workerType}</label>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label><strong>Cotización AFP:</strong></label>
-                                <input type="text" name="cotization_afp" value="${data.cotizationAFP || ''}" class="form-control" onchange="checkModification('cotization_afp', '${data.cotizationAFP || ''}')"/>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label><strong>APV:</strong></label>
-                                <input type="text" name="apv" value="${data.apv || ''}" class="form-control" onchange="checkModification('apv', '${data.apv || ''}')"/>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label><strong>Otros Descuentos:</strong></label>
-                                <input type="text" name="others_discounts" value="${data.othersDiscounts || ''}" class="form-control" onchange="checkModification('others_discounts', '${data.othersDiscounts || ''}')"/>
-                            </div>
-                        `;
-                        } else {
-                            html += `
-                            <div class="col-md-4 mb-3">
-                                <label><strong>Institución de Salud:</strong></label>
-                                <input type="text" name="institution_health" value="${data.institutionHealth || ''}" class="form-control" onchange="checkModification('institution_health', '${data.institutionHealth || ''}')"/>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label><strong>Precio Plan:</strong></label>
-                                <input type="text" name="price_plan" value="${data.pricePlan || ''}" class="form-control" onchange="checkModification('price_plan', '${data.pricePlan || ''}')"/>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label><strong>Unidad:</strong></label>
-                                <select name="unit" id="unit" class="form-control" onchange="checkModification('unit', '${data.unit || ''}')">
-                                    <option value="UF" ${data.unit === 'UF' ? 'selected' : ''}>UF</option>
-                                    <option value="Pesos" ${data.unit === 'Pesos' ? 'selected' : ''}>Pesos</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label><strong>Cotización:</strong></label>
-                                <input type="text" name="cotization_health" value="${data.cotizacionSalud || ''}" class="form-control" onchange="checkModification('cotization_health', '${data.cotizacionSalud || ''}')"/>
-                            </div>
-                        `;
-                        }
-                        html += '</div>';
-                        document.getElementById('worker-parameters-body').innerHTML = html;
-
-                        document.getElementById('submit-button').innerText =
-                            (data.cotizacionAFP || data.apv || data.othersDiscounts || data.institucionSalud || data
-                                .precioPlan || data.cotizacionSalud) ?
-                            'Modificar' :
-                            'Vincular';
-
-                        document.getElementById('submit-button').style.display = 'inline-block';
-                        document.getElementById('parameter-card').style.display = 'block';
                     } else {
-                        html += '<p>No se encontraron parámetros para este trabajador.</p>';
-                        document.getElementById('worker-parameters-body').innerHTML = html;
-                        document.getElementById('submit-button').style.display = 'none';
-                        document.getElementById('parameter-card').style.display = 'none';
+                        // Si no se necesita confirmación, manejar el mensaje de éxito
+                        alert(data.message);
+
+                        // Redirigir según la lógica que ya tienes
+                        let insuranceId = document.getElementById('insurance_id').value;
+                        let workerId = document.getElementById('worker_id_input').value;
+                        let type = document.getElementById('type').value;
+                        let redirectUrl =
+                            `{{ url('insurances') }}?insurance_id=${insuranceId}&worker_id=${workerId}&type=${type}`;
+
+                        // Verificar si la ventana tiene un "opener"
+                        if (window.opener) {
+                            window.opener.location.href = redirectUrl;
+                            window.close();
+                        } else {
+                            window.location.href = redirectUrl;
+                        }
                     }
+                })
+                .catch(error => {
+                    alert('Ocurrió un error al procesar la solicitud.');
+                })
+                .finally(() => {
+                    // Volver a habilitar el botón después de la respuesta
+                    submitButton.disabled = false;
                 });
         }
 
-        let modifiedFields = {};
-
-        function checkModification(fieldName, oldValue) {
-            const input = document.querySelector(`[name="${fieldName}"]`);
-            const newValue = input.value;
-
-            if (oldValue && oldValue !== newValue) {
-                if (confirm('Este trabajador ya posee datos previos. ¿Deseas modificarlo?')) {
-                    // Si el usuario confirma, se enviará el formulario
-                    document.getElementById('worker-form').submit();
-                } else {
-                    // Si el usuario cancela, revertimos el valor al antiguo
-                    input.value = oldValue;
-                }
-            }
-        }
+        // Agregar el listener al formulario
+        document.getElementById('associateWorkerForm').addEventListener('submit', submitForm);
     </script>
-@endpush
+</body>
+
+</html>

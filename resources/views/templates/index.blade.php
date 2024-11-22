@@ -51,10 +51,8 @@
                                 <tr>
                                     <!-- Mostrar el título procesado -->
                                     <td>{{ $template->tuition->title }}</td>
-
                                     <!-- Mostrar la fecha de actualización -->
                                     <td>{{ \Carbon\Carbon::parse($template['updated_at'])->diffForHumans() }}</td>
-
                                     <td>
                                         @can('update', $template)
                                             <!-- Botón para editar -->
@@ -68,6 +66,10 @@
                                         @if ($template->position > 1)
                                             <a href="{{ route('templates.moveUp', ['template' => $template, 'position' => $template->position]) }}"
                                                 class="btn btn-secondary">
+                                                <i class="bx bx-up-arrow-alt"></i>
+                                            </a>
+                                        @else
+                                            <a disabled>
                                                 <i class="bx bx-up-arrow-alt"></i>
                                             </a>
                                         @endif

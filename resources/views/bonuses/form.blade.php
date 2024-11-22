@@ -7,7 +7,7 @@
                 value="{{ old(
                     'title',
                     $bonus->school && $bonus->school->tuitions
-                        ? optional($bonus->school->tuitions->where('tuition_id', $bonus->tuition_id)->first())->title
+                        ? optional($bonus->school->tuitions->where('tuition_id', $bonus->title)->first())->title
                         : '',
                 ) }}"
                 required>
@@ -94,7 +94,7 @@
         <div class="col-md-6 mb-3">
             <label for="factor" class="form-label">Porcentaje a aplicar (Ej. 8.33)</label>
             <input type="text" class="form-control" id="factor" name="factor"
-                value="{{ old('factor', isset($bonus) ? $bonus->factor : '') }}" />
+                value="{{ old('factor', isset($bonus) ? $bonus->factor * 100 : '') }}" />
         </div>
         
         <div class="col-md-12 mb-3">

@@ -128,8 +128,7 @@ class WorkerController extends Controller
     public function storeContract(StoreContractRequest $request, Worker $worker)
     {
         // Busca el contrato existente
-        $contract = $worker->contract;
-
+        $contract = Contract::getContract($worker->id);
         // Agrupar datos en un array
         $details = [
             'city' => $request->city,
@@ -141,17 +140,17 @@ class WorkerController extends Controller
             'schedule' => $request->schedule,
         ];
 
-        // Actualizar el contrato existente
-        $contract->update(['details' => json_encode($details)]);
+        // Actualizar o crear el contrato con los detalles
+        $contract->details = json_encode($details);
+        $contract->save();
 
-        return redirect()->route('workers.index', $worker);
+        return redirect()->route('workers.index');
     }
 
     public function printContract(Worker $worker)
     {
         // Obtener los detalles del contrato
         $contract = $worker->contract;
-
         // Pasar los datos a la vista
         return view('contracts.print', [
             'worker' => $worker,
@@ -182,6 +181,7 @@ class WorkerController extends Controller
             'settlement_date' => 'required|date',
         ]);
         $worker->settlement_date = $request->input('settlement_date');
+        $worker->save();
         return redirect()->route('workers.index')->with('success', 'Fecha de finiquito actualizada correctamente.');
     }
 
@@ -190,7 +190,6 @@ class WorkerController extends Controller
         // Obtener el contrato del trabajador y los anexos (si existen)
         $contract = Contract::getContract($worker->id);
         $annexes = $contract ? $contract->annexes : [];
-
         // Retornar la vista de la ventana emergente con los anexos
         return view('contracts.annexes', compact('worker', 'annexes'));
     }
@@ -202,28 +201,22 @@ class WorkerController extends Controller
             'annex_name' => 'required|string|max:255',
             'annex_description' => 'required|string',
         ]);
-
         // Obtener el contrato del trabajador
         $contract = Contract::getContract($worker->id);
-
         // Obtener los anexos actuales (si existen)
         $annexes = $contract ? $contract->annexes : [];
-
         // Crear un nuevo anexo con un ID único
         $newAnnex = [
             'id' => uniqid(), // Genera un ID único
             'annex_name' => $request->input('annex_name'),
             'annex_description' => $request->input('annex_description'),
         ];
-
         // Agregar el nuevo anexo al array de anexos
         $annexes[] = $newAnnex;
-
         // Guardar los anexos actualizados en el contrato
         $contract->update([
             'annexes' => $annexes,
         ]);
-
         // Redirigir de nuevo a la ventana emergente con los anexos actualizados
         return redirect()->route('contracts.showAnnexes', $worker)->with('success', 'Anexo Registrado Exitosamente !!');
     }

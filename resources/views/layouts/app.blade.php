@@ -33,7 +33,7 @@
                                     $school = App\Models\School::find(auth()->user()->school_id_session);
                                 @endphp
                                 @if ($school)
-                                    {{ auth()->user()->getRoleNameAttribute() .' - '.$school->name }}
+                                    {{ auth()->user()->getRoleNameAttribute() . ' - ' . $school->name }}
                                 @else
                                     {{ config('app.name') }}
                                 @endif
@@ -78,11 +78,20 @@
         </div>
         <div class="page-wrapper">
 
-
+            <br>
             @if (session('success'))
                 <div class="container-xl mt-2">
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="container-xl mt-2">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 </div>

@@ -26,6 +26,8 @@ class FinancialIndicatorController extends Controller
     public function show(Request $request)
     {
         $financialIndicator = new FinancialIndicator();
+        $schoolId = auth()->user()->school_id_session;
+
         $index = $request->input('index');
         $values = [];
         $minLimits = [];
@@ -42,8 +44,8 @@ class FinancialIndicatorController extends Controller
                 $values = $financialIndicator->getCurrentValues();
                 $values['uf'] = str_replace(',', '', number_format($values['uf'], 2, '.', '')); // Cambia la coma por un punto
                 $values['utm'] = str_replace(',', '', number_format($values['utm'], 0, '.', '')); // Cambia la coma por un punto
-                Parameter::updateOrInsertParamValue("UF", 0, $values['uf']);
-                Parameter::updateOrInsertParamValue("UTM", 0, $values['utm']);
+                Parameter::createOrUpdateParamIndicators("UF",  $values['uf'], $schoolId);
+                Parameter::createOrUpdateParamIndicators("UTM", $values['utm'], $schoolId);
                 break;
 
             case 'impuesto_renta':
@@ -76,10 +78,11 @@ class FinancialIndicatorController extends Controller
 
     public function modify(FinancialIndModRequest $request)
     {
+        $schoolId = auth()->user()->school_id_session;
         if ($request->input('index') === 'impuesto_renta') {
             for ($i = 2; $i <= 8; $i++) {
-                Parameter::updateOrInsertParamValue("FACTORIMPTRAMO$i", "", $request->input("IMP$i"));
-                Parameter::updateOrInsertParamValue("FACTORREBAJAIMPTRAMO$i", "", $request->input("REB$i"));
+                Parameter::updateOrInsertParamValue("FACTORIMPTRAMO$i", "", $request->input("IMP$i"), $schoolId);
+                Parameter::updateOrInsertParamValue("FACTORREBAJAIMPTRAMO$i", "", $request->input("REB$i"), $schoolId);
                 Operation::updOrInsertTopesOperation("IMPUESTOTRAMO$i", $request->input("MIN$i"), $request->input("MAX$i"));
             }
         } else if ($request->input('index') === 'asignacion_familiar') {
@@ -88,7 +91,6 @@ class FinancialIndicatorController extends Controller
                 Operation::updOrInsertTopesOperation("FILTROASIGFAMT$i", $request->input("MIN$i"), $request->input("MAX$i"));
             }
         }
-
         return redirect()->route('financial-indicators.show', ['index' => $request->input('index')])
             ->with('success', 'Los valores han sido modificados con éxito');
     }

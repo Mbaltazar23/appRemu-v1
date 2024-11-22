@@ -16,7 +16,6 @@
                     <div class="row col-12 mb-2">
                         <form method="POST" action="{{ route('contracts.store', $worker) }}">
                             @csrf
-                        
                             <!-- Fila 1 -->
                             <div class="row mb-3">
                                 <div class="col-md-4">

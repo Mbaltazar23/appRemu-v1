@@ -17,29 +17,48 @@ class InsuranceController extends Controller
     {
         $this->authorizeResource(Insurance::class, 'insurance');
     }
-
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        // Iniciar la consulta
-        $query = Insurance::query();
+        $school_id = auth()->user()->school_id_session;
+        $type = $request->input('type');
+        // Obtener los seguros según el tipo
+        $insurances = Insurance::where('type', $type)->get();
+        // Asegurarse de que hay seguros disponibles antes de continuar
+        $insurance = null;
+        // Si hay seguros disponibles, proceder con la selección del seguro
+        if ($insurances->isNotEmpty()) {
+            // Obtener el seguro basado en el ID enviado por la solicitud o el primero disponible
+            $insurance_id = $request->input('insurance_id');
 
-        // Filtrar por tipo si se pasa en la consulta
-        if ($request->has('type')) {
-            $type = $request->input('type');
-            $query->where('type', $type);
+            // Si se pasa un ID de seguro, buscar ese seguro, de lo contrario, usar el primero de la lista
+            if ($insurance_id) {
+                $insurance = Insurance::find($insurance_id);
+            }
+
+            // Si no se encuentra el seguro por ID, usar el primero de la lista
+            if (!$insurance) {
+                $insurance = $insurances->first();
+            }
         }
 
-        // Obtener los insurances ordenados y paginados
-        $insurances = Insurance::where('type', $type)->paginate(5)->appends(['type' => $type]);
+        // Filtrar trabajadores según el tipo de seguro, solo si existe un seguro
+        $workers = collect(); // Inicializamos como colección vacía por si no hay trabajadores
+        if ($insurance) {
+            if ($insurance->type == Insurance::AFP) {
+                $workers = Worker::where('insurance_AFP', $insurance->id)->get(); // Esto devuelve una colección de trabajadores
+            } elseif ($insurance->type == Insurance::ISAPRE) {
+                $workers = Worker::where('insurance_ISAPRE', $insurance->id)->get(); // Esto también devuelve una colección
+            }
+        }
 
-        // Capturamos el tipo para pasar a la vista
-        $type = $request->input('type');
+        // Obtener el worker_id si existe en la solicitud
+        $worker_id = $request->input('worker_id');
 
-        // Retornar la vista con los insurances y el tipo
-        return view('insurances.index', compact('insurances', 'type'));
+        // Retornar la vista con las variables necesarias
+        return view('insurances.index', compact('insurances', 'type', 'workers', 'worker_id', 'insurance'));
     }
 
     /**
@@ -48,7 +67,6 @@ class InsuranceController extends Controller
     public function create(Request $request)
     {
         $insurance = new Insurance();
-
         // Captura el tipo desde la solicitud
         $type = $request->input('type');
 
@@ -118,40 +136,84 @@ class InsuranceController extends Controller
         return view('insurances.link_worker', compact('insurance', 'workers', 'type'));
     }
 
-    public function getWorkerParameters($workerId, $typeInsurance)
-    {
-        $worker = Worker::findOrFail($workerId);
-
-        $parameters = $worker->getWorkerParameters($typeInsurance);
-
-        return response()->json($parameters);
-    }
-
     /** Send Link Worker To Insurance */
-
     public function attachWorker(Request $request, $insuranceId)
     {
         $request->validate([
             'worker_id' => 'required|exists:workers,id',
         ]);
-    
+
         $worker = Worker::findOrFail($request->worker_id);
-        
-        // Vincula el trabajador al seguro
-        if ($request->input('type') !== Insurance::ISAPRE) {
+        $school_id = auth()->user()->school_id_session;
+
+        // Determinar el tipo de seguro y el título del parámetro
+        $paramTitle = $request->input('type') != Insurance::AFP ? "ISAPRETRABAJADOR" : "AFPTRABAJADOR";
+        $Insurance = $paramTitle != 'ISAPRETRABAJADOR' ? 'AFP' : 'institución';
+
+        // Verificar si el trabajador ya está asociado con un seguro del mismo tipo
+        $existingInsurance = Parameter::getParameterValue($paramTitle, $worker->id, $school_id);
+
+        // Si el trabajador ya tiene un seguro del mismo tipo y no forzamos la actualización
+        if ($existingInsurance != '' && $request->input('force_update') !== 'true') {
+            // Enviar respuesta JSON para la confirmación
+            return response()->json([
+                'confirm' => true,
+                'message' => 'Este trabajador ya está en otro ' . $Insurance . '. ¿Desea eliminar la anterior designación y asignarla a esta?',
+            ]);
+        }
+
+        // Si no hay conflictos, vinculamos al trabajador al seguro
+        if ($request->input('type') != Insurance::ISAPRE) {
             $worker->insurance_AFP = $insuranceId;
         } else {
             $worker->insurance_ISAPRE = $insuranceId;
         }
 
         $worker->save();
-        // Obtiene los parámetros del formulario
-        $params = $request->only(['cotization_afp', 'apv', 'others_discounts', 'institution_health', 'price_plan']);
-    
-        // Actualiza los parámetros del trabajador
-        Parameter::updateWorkerParametersInsurance($worker->id, $request->input('type'), $params, auth()->user()->school_id_session);
-    
-        return redirect()->route('insurances.index', ['type' => $request->input('type')]);
+
+        // Actualización de parámetros
+        $data = Parameter::updateOrInsertInsuranceParams(
+            $request->worker_id,
+            $request->input('type'),
+            $school_id,
+            $insuranceId
+        );
+
+        // Enviar éxito si no hay conflicto
+        return response()->json([
+            'confirm' => false,
+            'message' => $data,
+        ]);
+    }
+
+    // Método para manejar la actualización de parámetros o desvinculación
+    public function setParameters(Request $request)
+    {
+        // Obtener los valores del formulario
+        $workerId = $request->worker_id; // El ID del trabajador
+        $schoolId = auth()->user()->school_id_session; // El ID de la escuela
+        $insuranceType = $request->type; // Tipo de seguro (AFP o ISAPRE)
+        $operation = $request->operation; // Operación: 'modificar' o 'desvincular'
+
+        // Verificar si la operación es "desvincular"
+        if ($operation === 'desvincular') {
+            // Desvincular parámetros (Eliminar)
+            Parameter::deleteParameters($workerId, $schoolId, $insuranceType);
+            return redirect()->back()
+                ->withInput() // Esto es opcional, pero mantiene los valores del formulario previo.
+                ->with('success', "Trabajador desvinculado Exitosamente !!");
+
+        }
+        // Verificar si la operación es "modificar"
+        if ($operation === 'modificar') {
+            // Modificar o agregar parámetros
+            Parameter::updateOrInsertInsuranceParams($workerId, $insuranceType, $schoolId, $request->input('insurance_id'), $request);
+            return redirect()->back()
+                ->withInput() // Esto es opcional, pero mantiene los valores del formulario previo.
+                ->with('success', "Valores Actualizados Exitosamente !!")
+                ->with('worker_id', $workerId)
+                ->with('insurance_id', $request->input('insurance_id'));
+        }
     }
 
     /**
@@ -160,7 +222,6 @@ class InsuranceController extends Controller
     public function destroy(Insurance $insurance, Request $request)
     {
         $insurance->delete();
-
         // Captura el tipo de la solicitud y lo pasa al redirigir
         $type = $request->input('type');
 

@@ -44,51 +44,85 @@ class Parameter extends Model
         }
     }
 
-    public static function updateWorkerParametersInsurance($workerId, $insuranceType, $params, $schoolId)
+    /**
+     * Método para insertar o actualizar parámetros según el tipo de seguro.
+     */
+    public static function updateOrInsertInsuranceParams($workerId, $insuranceType, $schoolId, $insuranceID, $extraParams = [])
     {
-        $isAfp = $insuranceType !== Insurance::ISAPRE;
-        $keys = $isAfp ? [
-            'AFPTRABAJADOR' => 'cotization_afp',
-            'COTIZACIONAFP' => 'cotizacion_afp',
-            'APV' => 'apv',
-            'AFPOTRO' => 'others_discounts',
-        ] : [
-            'INSTITUCIONDESALUD' => 'institution_health',
-        ];
+        // Obtener la cotización del seguro
+        $cotizacion = Insurance::getCotizationInsurance($insuranceID);
 
-        foreach ($keys as $name => $paramKey) {
-            $value = $params[$paramKey] ?? null;
-            self::updateOrCreate(
-                ['worker_id' => $workerId, 'name' => $name, 'school_id' => $schoolId],
-                ['value' => $value, 'description' => $isAfp ? null : 'Institución de salud']
-            );
+        // Inicializamos los parámetros comunes
+        $params = [];
+
+        // Definir los parámetros comunes por tipo de seguro
+        if ($insuranceType != Insurance::AFP) {
+            $params = [
+                'ISAPRETRABAJADOR' => ['description' => $insuranceID, 'unit' => null, 'value' => 1],
+                'COTIZACIONISAPRE' => ['description' => 'Cotización en ISAPRE del trabajador', 'unit' => null, 'value' => $cotizacion],
+                'COTIZACIONPACTADA' => isset($extraParams['cotization']) ?
+                ['description' => 'Cotización pactada en ISAPRE del trabajador', 'unit' => $extraParams['unit'], 'value' => $extraParams['cotization']] : null,
+                'ISAPREOTRO' => isset($extraParams['others_discounts']) ? ['description' => 'Otro descuento en ISAPRE', 'unit' => null, 'value' => $extraParams['others_discounts']] : null,
+            ];
+        } else {
+            $params = [
+                'AFPTRABAJADOR' => ['description' => $insuranceID, 'unit' => null, 'value' => 1],
+                'COTIZACIONAFP' => ['description' => 'Cotización en AFP del trabajador', 'unit' => null, 'value' => $cotizacion],
+                'APV' => isset($extraParams['apv']) ? ['description' => 'APV', 'unit' => $extraParams['unit'], 'value' => $extraParams['apv']] : null,
+                'AFPOTRO' => isset($extraParams['others_discounts']) ? ['description' => 'Otro descuento en AFP', 'unit' => null, 'value' => $extraParams['others_discounts']] : null,
+            ];
         }
 
-        if ($isAfp) {
-            $cotizacionAfp = Parameter::obt_cotizacion_afp($params['cotization_afp'] ?? null);
-            self::updateOrCreate(
-                ['worker_id' => $workerId, 'name' => 'COTIZACIONAFP', 'school_id' => $schoolId],
-                ['value' => $cotizacionAfp, 'description' => 'Cotización en AFP del trabajador']
-            );
-        } else {
-            $institution = $params['institution_health'];
-            $pricePlan = $params['price_plan'] ?? null;
-            $unidad = $params['unit'] ?? null;
+        // Filtramos cualquier parámetro que sea null (no se pasa)
+        $params = array_filter($params);
 
-            if (strpos($institution, "FONASA") !== false) {
-                Parameter::where('name', 'COTIZACIONPACTADA')->where('worker_id', $workerId)->where('school_id', $schoolId)->delete();
-                self::updateOrCreate(
-                    ['worker_id' => $workerId, 'name' => 'COTIZACIONFONASA', 'school_id' => $schoolId],
-                    ['value' => 'Cotización Fonasa']
-                );
+        // Insertar o actualizar los parámetros
+        foreach ($params as $paramName => $paramData) {
+            // Buscar si el parámetro ya existe
+            $existingParam = self::where('name', $paramName)
+                ->where('worker_id', $workerId)
+                ->where('school_id', $schoolId)
+                ->first();
+
+            if ($existingParam) {
+                // Actualizar el parámetro existente
+                $existingParam->update($paramData);
             } else {
-                Parameter::where('name', 'COTIZACIONFONASA')->where('worker_id', $workerId)->where('school_id', $schoolId)->delete();
-                self::updateOrCreate(
-                    ['worker_id' => $workerId, 'name' => 'COTIZACIONPACTADA', 'school_id' => $schoolId],
-                    ['description' => 'Cotización pactada isapre', 'value' => $pricePlan, 'unit' => $unidad]
-                );
+                // Crear un nuevo parámetro si no existe
+                self::create(array_merge(['name' => $paramName, 'worker_id' => $workerId, 'school_id' => $schoolId], $paramData));
             }
         }
+
+        return "Se han actualizado los parámetros para el trabajador en la institución.";
+    }
+
+    public static function deleteParameters($workerId, $schoolId, $insuranceType)
+    {
+        // Eliminar parámetros relacionados con AFP o ISAPRE
+        $parametersToDelete = [];
+
+        if ($insuranceType === 'AFP') {
+            // Parámetros para AFP
+            $parametersToDelete = ['COTIZACIONAFP', 'APV', 'AFPOTRO'];
+        } elseif ($insuranceType === 'ISAPRE') {
+            // Parámetros para ISAPRE
+            $parametersToDelete = ['COTIZACIONISAPRE', 'COTIZACIONPACTADA', 'ISAPREOTRO'];
+        }
+
+        // Eliminar todos los parámetros relacionados con el tipo de seguro
+        foreach ($parametersToDelete as $param) {
+            Parameter::where('name', $param)
+                ->where('worker_id', $workerId)
+                ->where('school_id', $schoolId)
+                ->delete();
+        }
+
+        // Eliminar el parámetro específico de tipo trabajador
+        $workerParam = ($insuranceType === 'AFP') ? 'AFPTRABAJADOR' : 'ISAPRETRABAJADOR';
+        Parameter::where('name', $workerParam)
+            ->where('worker_id', $workerId)
+            ->where('school_id', $schoolId)
+            ->delete();
     }
 
     public function createParameter(array $data)
@@ -117,19 +151,19 @@ class Parameter extends Model
         $query->update(['value' => $value]);
     }
 
-    public static function updateOrInsertParamValue($classId, $workerId = null, $value)
+    public static function updateOrInsertParamValue($classId, $workerId = null, $school_id = null, $value)
     {
         // Crea la consulta básica buscando por el nombre (classId)
         $query = self::where('name', $classId);
-    
+
         // Si workerId no es null, añade la condición
         if ($workerId !== null) {
             $query->where('worker_id', $workerId);
         }
-    
+
         // Ejecuta la consulta para obtener el parámetro
         $param = $query->first();
-        
+
         if ($param) {
             // Si existe, actualiza
             $param->update(['value' => $value, 'updated_at' => now()]);
@@ -138,14 +172,38 @@ class Parameter extends Model
             self::create([
                 'name' => $classId,
                 'worker_id' => $workerId,
+                'school_id' => $school_id,
                 'value' => $value,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
         }
     }
-    
-    
+
+    public static function createOrUpdateParamIndicators($classId, $value, $school_id)
+    {
+        // Crea la consulta básica buscando por el nombre (classId) y el school_id
+        $query = self::where('name', $classId)->where('school_id', $school_id);
+        // Ejecuta la consulta para obtener el parámetro
+        $param = $query->first();
+        // Si existe el parámetro, realiza un update
+        if ($param) {
+            $param->update([
+                'value' => $value,
+                'updated_at' => now(), // Actualiza el timestamp
+            ]);
+        } else {
+            // Si no existe el parámetro, crea uno nuevo
+            self::create([
+                'name' => $classId,
+                'school_id' => $school_id,
+                'value' => $value,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    }
+
     public static function deleteParamAll($name, $schoolId)
     {
         self::where('name', $name)
@@ -160,19 +218,28 @@ class Parameter extends Model
     }
 
     // Método para obtener un valor específico basado en el nombre
-    public static function getValueByName($name, $schoolId = null, $workerId=null)
+    public static function getValueByName($name, $schoolId, $workerId = null)
     {
-        $query = self::where('name', $name);    
-        // Si schoolId es null o vacío, no se agrega el filtro en la consulta
-        if (!empty($schoolId)) {
-            $query->where('school_id', $schoolId);
-        }
-
-        if (!empty($workerId)) {
-            $query->where('worker_id', $workerId);
+        // Start the query with the 'name' filter
+        $query = self::where('name', $name);
+    
+        // If schoolId is not null or empty, apply the filter for school_id
+        if (!is_null($schoolId)) {
+            $query->where(function($query) use ($schoolId) {
+                $query->where('school_id', $schoolId)
+                      ->orWhere('school_id', 0);  // Mimicking SQL 'id_colegio=0' condition
+            });
         }
     
-        return $query->value('value');
+        // If workerId is not null or empty, apply the filter for worker_id
+        if (!is_null($workerId)) {
+            $query->where(function($query) use ($workerId) {
+                $query->where('worker_id', $workerId)
+                      ->orWhere('worker_id', 0);  // Mimicking SQL 'id_trabajador=0' condition
+            });
+        }    
+        // Get the 'value' field or return 0 if no result is found
+        return $query->value('value') ?? 0;
     }
 
     public static function exists($name, $worker_id, $school_id)
@@ -183,6 +250,41 @@ class Parameter extends Model
             ->exists();
     }
 
+    public static function getTitleByParameter($classId, $workerId, $schoolId)
+    {
+        // Check if classId is empty
+        if (empty($classId)) {
+            return '';
+        }
+        // Get the description associated with the classId and schoolId
+        $classDescription = self::getTuitionDescription($classId, $schoolId);
+        // If no class description is found, return the title of the class
+        if (empty($classDescription)) {
+            return Tuition::getTuitionTitleAndDescription($classId, $schoolId);
+        } else {
+            // If class description exists, return the parameter description
+            return self::getDescriptionByTuitionWorkerAndSchool($classDescription['tuition_id'], $workerId, $schoolId);
+        }
+    }
+
+    public static function getTuitionDescription($tuition_id, $school_id)
+    {
+        return Tuition::where('tuition_id', $tuition_id)->where('school_id', $school_id)->first(['description']);
+    }
+
+    public static function getDescriptionByCode($name, $worker_id, $school_id)
+    {
+        return self::where('name', $name)->where('worker_id', $worker_id)->where('school_id', $school_id)->first(['description']);
+    }
+
+    public static function getTitleTuition($tuition_id, $school_id)
+    {
+        $result = self::where('name', $tuition_id)
+            ->where('school_id', $school_id)
+            ->first(['value']);
+
+        return $result->name;
+    }
     public static function getParameterValue($name, $workerId, $schoolId)
     {
         $result = self::where('name', $name)
@@ -198,6 +300,75 @@ class Parameter extends Model
             ->first(['value']);
 
         return $result ? $result->value : 0;
+    }
+
+    public static function getWorkerParametersByInsuranceType($workerId, $schoolId, $insuranceType)
+    {
+        $isAfp = $insuranceType !== Insurance::ISAPRE;
+
+        $keys = $isAfp ? [
+            'AFPTRABAJADOR' => 'insurance_id',
+            'COTIZACIONAFP' => 'cotizacion_afp',
+            'APV' => 'apv',
+            'AFPOTRO' => 'others_discounts',
+        ] : [
+            'ISAPRETRABAJADOR' => 'insurance_id',
+            'COTIZACIONISAPRE' => 'cotization_isapre',
+            'ISAPREOTRO' => 'others_discounts',
+        ];
+
+        $parameters = [];
+
+        foreach ($keys as $paramName) {
+            $parameters[$paramName] = self::getValueByName($paramName, $schoolId, $workerId);
+        }
+
+        return $parameters;
+    }
+
+    // Método para obtener la unidad de parámetro por clase, tipo de trabajador y colegio
+    public static function getUnitByTuitionWorkerAndSchool($tuitionId, $workerId, $schoolId)
+    {
+        // Filtramos el parámetro según la clase, tipo de trabajador y colegio
+        $parameter = self::where('name', $tuitionId)
+            ->where(function ($query) use ($schoolId) {
+                $query->where('school_id', $schoolId)
+                    ->orWhere('school_id', 0); // También permite 0 como valor de school_id
+            })
+            ->where(function ($query) use ($workerId) {
+                $query->where('worker_id', $workerId)
+                    ->orWhere('worker_id', 0); // También permite 0 como valor de worker_id
+            })
+            ->value('unit');
+        // Si existe el parámetro, devuelve la unidad, si no, devuelve 0
+        return $parameter ?? $parameter->unit;
+    }
+
+    // Método para obtener la suma del valor de los parámetros
+    public static function getSumValueByTuitionSchoolAndWorkerType($tuitionId, $schoolId, $workerTypeId)
+    {
+        return self::join('workers', 'workers.id', '=', 'parameters.worker_id') // Asumimos que la relación es con el modelo Worker
+            ->where('parameters.name', $tuitionId)
+            ->where('parameters.school_id', $schoolId)
+            ->where('parameters.worker_id', 'workers.id')
+            ->where('workers.school_id', $schoolId)
+            ->where('parameters.worker_type', $workerTypeId)
+            ->whereNull('workers.settlement_date') // equivalent to fec_finiquito IS NULL
+            ->sum('parameters.value');
+    }
+
+    // Método para obtener la descripción de un parámetro
+    public static function getDescriptionByTuitionWorkerAndSchool($tuitionId, $workerId, $schoolId)
+    {
+        $parameter = self::where('name', $tuitionId)
+            ->where('school_id', $schoolId)
+            ->where(function ($query) use ($workerId) {
+                $query->where('worker_id', $workerId)
+                    ->orWhere('worker_id', 0); // 0 permite el valor global
+            })
+            ->first();
+
+        return $parameter ? $parameter->description : "";
     }
 
     public function school()

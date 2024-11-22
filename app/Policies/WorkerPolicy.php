@@ -68,7 +68,7 @@ class WorkerPolicy
 
     public function settlement(User $user, Worker $worker): bool
     {
-        return $user->isContador() && $user->school_id_session == $worker->school_id;
+        return $user->isContador() ;
     }
 
 

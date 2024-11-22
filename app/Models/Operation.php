@@ -80,21 +80,48 @@ class Operation extends Model
             ->value('operation');
     }
 
-    public static function updateOperationFunction($tuitionId, $workerType, $function, $schoolId)
+    public static function updateOperationFunction($tuitionId, $workerType, $function, $schoolId, $application)
     {
-        return self::where('tuition_id', $tuitionId)
-            ->where('worker_type', $workerType)
-            ->where('school_id', $schoolId)
-            ->update(['operation' => $function]);
+        // Realizar el update directamente usando where
+        return self::where([
+                ['tuition_id', '=', $tuitionId],
+                ['worker_type', '=', $workerType],
+                ['school_id', '=', $schoolId],
+            ])
+            ->update([
+                'operation' => $function,
+                'application' => $application,
+            ]);
     }
+    
 
     public static function getOperasobreClase($data)
     {
-        return ($data['is_bonus'] == 0)
-        ? ($data['imputable'] == 0
-            ? ($data['imputable'] == 0 ? "IMPONIBLEEIMPUTABLE" : ($data['type'] == 1 ? "IMPONIBLEYNOIMPUTABLE" : "RENTAIMPONIBLESD"))
-            : "TOTALNOIMPONIBLE")
-        : "DESCUENTOSVOLUNTARIOS";
+        // Verificar si es un bono
+        if ($data['is_bonus'] == 0) {
+            // Verificar si es imponible
+            if ($data['imputable'] == 0) {
+                // Verificar si es imputable
+                if ($data['imputable'] == 0) {
+                    $operasobreclase = "IMPONIBLEEIMPUTABLE";
+                } else {
+                    // Verificar el tipo para decidir el nombre de la clase
+                    if ($data['type'] == 1) {
+                        $operasobreclase = "IMPONIBLEYNOIMPUTABLE";
+                    } else {
+                        $operasobreclase = "RENTAIMPONIBLESD";
+                    }
+                }
+            } else {
+                $operasobreclase = "TOTALNOIMPONIBLE";
+            }
+        } else {
+            // Si no es bono
+            $operasobreclase = "DESCUENTOSVOLUNTARIOS";
+        }
+
+        // Retornar el resultado final
+        return $operasobreclase;
     }
 
     public static function deleteOperation($tuitionId, $workerType, $schoolId)
@@ -109,7 +136,7 @@ class Operation extends Model
     {
         $operasobreclase = self::getOperasobreClase($data);
 
-        if (in_array($operasobreclase, ["RENTAIMPONIBLESD", "IMPONIBLEEIMPUTABLE", "IMPONIBLEYNOIMPUTABLE"])) {
+        if (($operasobreclase == "RENTAIMPONIBLESD") || ($operasobreclase == "IMPONIBLEEIMPUTABLE") || ($operasobreclase == "IMPONIBLEYNOIMPUTABLE")) {
             $operation .= " * FACTORASIST";
         }
 
@@ -129,28 +156,29 @@ class Operation extends Model
                 $operasobreclase = "RENTAIMPONIBLESD";
             }
             $operationOriginal = self::getOperationFunction($operasobreclase, $data['type'], $data['school_id']);
-            $operationOriginal = str_replace(" $operador $nombre", "", $operationOriginal);
+            $operationOriginal = str_replace(" ".$operador." ".$nombre,"",$operationOriginal);
             $newOperation = $operationOriginal . " " . $operador . " " . $nombre;
-            self::updateOperationFunction($operasobreclase, $data['type'], $newOperation, $data['school_id']);
+            self::updateOperationFunction($operasobreclase, $data['type'], $newOperation, $data['school_id'], $meses);
         } else {
             // Para docentes
             $operationOriginal = self::getOperationFunction($operasobreclase, 1, $data['school_id']);
-            $operationOriginal = str_replace(" $operador $nombre", "", $operationOriginal);
+            $operationOriginal = str_replace(" ".$operador." ".$nombre,"", $operationOriginal);
             $newOperation = $operationOriginal . " " . $operador . "" . $nombre;
-            self::updateOperationFunction($operasobreclase, 1, $newOperation, $data['school_id']);
+            self::updateOperationFunction($operasobreclase, 1, $newOperation, $data['school_id'],$meses);
 
             // Para no docentes
             if ($operasobreclase == "IMPONIBLEEIMPUTABLE") {
                 $operasobreclase = "RENTAIMPONIBLESD";
             }
+
             $operationOriginal = self::getOperationFunction($operasobreclase, 2, $data['school_id']);
-            $operationOriginal = str_replace(" $operador $nombre", "", $operationOriginal);
+            $operationOriginal = str_replace(" ".$operador." ".$nombre,"", $operationOriginal);
             $newOperation = $operationOriginal . " " . $operador . "" . $nombre;
-            self::updateOperationFunction($operasobreclase, 2, $newOperation, $data['school_id']);
+            self::updateOperationFunction($operasobreclase, 2, $newOperation, $data['school_id'], $meses);
         }
     }
 
-    public static function processDeleteOperation($nombre, $data, $operador)
+    public static function processDeleteOperation($nombre, $data, $operador, $meses)
     {
 
         $operasobreclase = self::getOperasobreClase($data);
@@ -164,13 +192,13 @@ class Operation extends Model
                 $operasobreclase = "RENTAIMPONIBLESD";
             }
 
-            self::updateOperationFunction($operasobreclase, $data['type'], $newOperation, $data['school_id']);
+            self::updateOperationFunction($operasobreclase, $data['type'], $newOperation, $data['school_id'], $meses);
         } else {
             // Para docentes
             $operationOriginal = self::getOperationFunction($operasobreclase, 1, $data['school_id']);
             $operationOriginal = str_replace(" $operador $nombre", "", $operationOriginal);
             $newOperation = trim($operationOriginal . " " . $operador . " " . $nombre);
-            self::updateOperationFunction($operasobreclase, 1, $newOperation, $data['school_id']);
+            self::updateOperationFunction($operasobreclase, 1, $newOperation, $data['school_id'], $meses);
 
             // Para no docentes
             if ($operasobreclase == "IMPONIBLEEIMPUTABLE") {
@@ -179,7 +207,7 @@ class Operation extends Model
             $operationOriginal = self::getOperationFunction($operasobreclase, 2, $data['school_id']);
             $operationOriginal = str_replace(" $operador $nombre", "", $operationOriginal);
             $newOperation = trim($operationOriginal . " " . $operador . " " . $nombre);
-            self::updateOperationFunction($operasobreclase, 2, $newOperation, $data['school_id']);
+            self::updateOperationFunction($operasobreclase, 2, $newOperation, $data['school_id'], $meses);
         }
     }
 
@@ -223,7 +251,7 @@ class Operation extends Model
                 'min_limit' => $min,
                 'max_limit' => $max,
                 'created_at' => now(), // Establece la fecha de creación
-                'updated_at' => now()  // Establece la fecha de actualización
+                'updated_at' => now(), // Establece la fecha de actualización
             ]);
         }
     }
