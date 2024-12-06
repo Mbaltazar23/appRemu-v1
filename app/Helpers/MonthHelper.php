@@ -37,8 +37,6 @@ class MonthHelper
                 return "Noviembre";
             case 12:
                 return "Diciembre";
-            default:
-                return null; // O puedes retornar un valor por defecto, como 'Mes no válido'
         }
     }
 }

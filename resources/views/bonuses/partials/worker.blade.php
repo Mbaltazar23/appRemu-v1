@@ -21,6 +21,7 @@
                                 <option value="">Seleccionar trabajador...</option>
                                 @foreach ($workers as $worker)
                                     <option value="{{ $worker->id }}">{{ $worker->name }} {{ $worker->last_name }}
+                                        - ({{ $worker->getDescriptionWorkerTypes() }})
                                     </option>
                                 @endforeach
                             </select>
@@ -41,16 +42,16 @@
 
 @push('custom_scripts')
     <script>
-    function fetchWorkerParameters(workerId) {
-        if (!workerId) {
-            document.getElementById('worker-details').innerHTML = '';
-            return;
-        }
+        function fetchWorkerParameters(workerId) {
+            if (!workerId) {
+                document.getElementById('worker-details').innerHTML = '';
+                return;
+            }
 
-        axios.get(`/api/workers/${workerId}/parameters`)
-            .then(response => {
-                const data = response.data;
-                let html = `<div id="parameter-card" class="card mt-4">
+            axios.get(`/api/workers/${workerId}/parameters`)
+                .then(response => {
+                    const data = response.data;
+                    let html = `<div id="parameter-card" class="card mt-4">
                                 <div class="card-header">
                                     <h3>Datos del Trabajador y sus Bonos Asociados</h3>
                                 </div>
@@ -68,11 +69,11 @@
                                                     <td>${data.type}</td>
                                                 </tr>`;
 
-                // Agregar los inputs de bonos como filas de tabla
-                if (data.bonuses.length > 0) {
-                    data.bonuses.forEach((bonus, index) => {
-                        if (bonus.aplicable == 1) {
-                            html += `<tr>
+                    // Agregar los inputs de bonos como filas de tabla
+                    if (data.bonuses.length > 0) {
+                        data.bonuses.forEach((bonus, index) => {
+                            if (bonus.aplicable == 1) {
+                                html += `<tr>
                                       <td><label for="bonus${bonus.id}" class="form-label">${capitalizeFirstLetters(bonus.title)}</label></td>
                                         <td colspan="${data.bonuses.length === 1 ? 3 : 2}">
                                             <div class="input-container">
@@ -80,36 +81,36 @@
                                             </div>
                                         </td>
                                     </tr>`;
-                        }
-                    });
-                } else {
-                    html += `<tr>
+                            }
+                        });
+                    } else {
+                        html += `<tr>
                                 <td colspan="4" class="text-center text-muted" style="padding-top: 20px;">
                                     No existen bonos a designar para este trabajador o todos sus bonos son fijos.
                                 </td>
                                 </tr>`;
-                }
+                    }
 
-                html += `</tbody>
+                    html += `</tbody>
                         </table>`;
 
-                if (data.bonuses.length > 0) {
-                    html += "<div class='d-flex justify-content-end'>";
-                    html += "<button type='submit' id='submit-button' class='btn btn-primary'>Modificar</button>";
-                    html += "</div>";
-                    html +=
-                        "<div class='text-center'><small class='text-muted'>(*) Campos son obligatorios</small></div>";
-                }
+                    if (data.bonuses.length > 0) {
+                        html += "<div class='d-flex justify-content-end'>";
+                        html += "<button type='submit' id='submit-button' class='btn btn-primary'>Modificar</button>";
+                        html += "</div>";
+                        html +=
+                            "<div class='text-center'><small class='text-muted'>(*) Campos son obligatorios</small></div>";
+                    }
 
-                html += `</div>
+                    html += `</div>
                         </form>
                     </div>`; // Cierre del card
-                document.getElementById('worker-details').innerHTML = html;
-            })
-            .catch(error => {
-                console.error('Error fetching worker parameters:', error);
-            });
-    }
+                    document.getElementById('worker-details').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error fetching worker parameters:', error);
+                });
+        }
 
         function numerovalido(input) {
             const value = input.value;
@@ -129,7 +130,7 @@
             return str
                 .split(' ') // Divide el texto por los espacios
                 .map(word => word.charAt(0).toUpperCase() + word.slice(1)
-            .toLowerCase()) // Convierte la primera letra a mayúscula y el resto a minúscula
+                    .toLowerCase()) // Convierte la primera letra a mayúscula y el resto a minúscula
                 .join(' '); // Vuelve a juntar las palabras con espacios
         }
 

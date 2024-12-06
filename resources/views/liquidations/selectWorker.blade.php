@@ -8,8 +8,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="mb-0">Emisión y visualización de liquidaciones para
                         {{ App\Models\Worker::getWorkerTypes()[$workerType] }}s</h3>
-                    <button type="submit" class="btn btn-secondary px-4 py-2"
-                        onclick="{{ route('liquidations.index') }}">Volver</button>
+                    <a class="btn btn-secondary px-4 py-2" href="{{ route('liquidations.index') }}">Volver</a>
                 </div>
                 <div class="card-body">
                     @if ($workers->isEmpty())
@@ -41,41 +40,60 @@
                     <h3>O Seleccione un mes y año para ver todas las liquidaciones</h3>
                 </div>
                 <div class="card-body">
-                    <form action="#" method="POST">
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="month" class="form-label">Mes</label>
-                                    <select name="month" id="month" required class="form-control">
-                                        @for ($i = 1; $i <= 12; $i++)
-                                            <option value="{{ $i }}">
-                                                {{ App\Helpers\MonthHelper::integerToMonth($i) }}</option>
-                                        @endfor
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="year" class="form-label">Año</label>
-                                    <select name="year" id="year" required class="form-control">
-                                        <option value="0">Seleccione el año para la emisión</option>
-                                        @foreach (\App\Models\Liquidation::getDistinctYears() as $year)
-                                            <option value="{{ $year }}">{{ $year }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="month" class="form-label">Mes</label>
+                                <select name="month" id="month" required class="form-control">
+                                    @for ($i = 1; $i <= 12; $i++)
+                                        <option value="{{ $i }}">
+                                            {{ App\Helpers\MonthHelper::integerToMonth($i) }}</option>
+                                    @endfor
+                                </select>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary px-4 py-2">Imprimir</button>
-                    </form>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="year" class="form-label">Año</label>
+                                <select name="year" id="year" required class="form-control">
+                                    <option value="0">Seleccione el año para la emisión</option>
+                                    @foreach (\App\Models\Liquidation::getDistinctYears() as $year)
+                                        <option value="{{ $year }}">{{ $year }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Aquí usamos el href con parámetros de mes y año -->
+                    <a href="{{ route('liquidations.printGlosas', ['type' => $workerType]) }}"
+                        class="btn btn-primary px-4 py-2" onclick="openPopup(event, 'Liquidaciones')">Imprimir</a>
                 </div>
             </div>
         </div>
     </div>
+@endsection
 
+@push('custom_scripts')
     <script>
+        function openPopup(event, titulo) {
+            event.preventDefault(); // Evita el comportamiento por defecto
+            // Obtener los valores de los campos de mes y año
+            var month = document.getElementById("month").value;
+            var year = document.getElementById("year").value;
+
+            // Verificar que se haya seleccionado mes y año
+            if (month && year != "0") {
+                // Construir la URL con los parámetros
+                var url = `{{ route('liquidations.printGlosas', ['type' => $workerType]) }}?month=${month}&year=${year}`;
+                // Abrir la ventana emergente
+                window.open(url, titulo, 'width=800,height=600');
+            } else {
+                alert("Por favor, seleccione el mes y el año.");
+            }
+        }
         document.getElementById('worker_id').addEventListener('change', function() {
             window.location.href = this.value; // Redirige a la ruta seleccionada
         });
     </script>
-@endsection
+@endpush

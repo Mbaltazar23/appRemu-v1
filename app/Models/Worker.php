@@ -34,6 +34,11 @@ class Worker extends Model
     const WORKER_TYPE_TEACHER = 1;
     const WORKER_TYPE_NON_TEACHER = 2;
 
+    const WORKER_TYPES = [
+        1 => "Docente",
+        2 => "No Docente" 
+    ];
+
     const FUNCTION_WORKER = [
         1 => 'Docente de aula',
         2 => 'Administrativo Calificado',
@@ -54,10 +59,12 @@ class Worker extends Model
 
     public static function getWorkerTypes()
     {
-        return [
-            self::WORKER_TYPE_TEACHER => 'Docente',
-            self::WORKER_TYPE_NON_TEACHER => 'No Docente',
-        ];
+        return self::WORKER_TYPES;
+    }
+
+    public function getDescriptionWorkerTypes()
+    {
+        return self::WORKER_TYPES[$this->worker_type] ?? "Desconocido";
     }
 
     public static function getFunctionWorkerTypes()
@@ -162,7 +169,7 @@ class Worker extends Model
 
         return $query->orderBy('last_name')
             ->orderBy('name')
-            ->get(['id', 'name', 'last_name']);
+            ->get(['id', 'name', 'last_name', 'worker_type']);
     }
 
     /**
@@ -181,7 +188,6 @@ class Worker extends Model
         return $this->belongsTo(Insurance::class, 'insurance_ISAPRE');
     }
 
-
     public function licenses()
     {
         return $this->hasMany(License::class);
@@ -189,7 +195,7 @@ class Worker extends Model
 
     public function parameters()
     {
-        return $this->hasMany(Parameter::class, 'worker_id');
+        return $this->hasMany(Parameter::class);
     }
 
     public function absences()

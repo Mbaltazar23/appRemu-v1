@@ -12,7 +12,7 @@ class LicensePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isContador();
+        return $user->isContador() && in_array('MANLIC', $user->permissions);
     }
 
     /**
@@ -20,7 +20,7 @@ class LicensePolicy
      */
     public function view(User $user, License $license): bool
     {
-        return $user->isContador();
+        return $user->isContador() && in_array('MANLIC', $user->permissions);
     }
 
     /**
@@ -28,7 +28,7 @@ class LicensePolicy
      */
     public function create(User $user): bool
     {
-        return $user->isContador();
+        return $user->isContador() && in_array('MANLIC', $user->permissions);
     }
 
     /**
@@ -36,7 +36,7 @@ class LicensePolicy
      */
     public function update(User $user, License $license): bool
     {
-        return $user->isContador();
+        return $user->isContador() && in_array('MANLIC', $user->permissions);
     }
 
     /**
@@ -44,22 +44,6 @@ class LicensePolicy
      */
     public function delete(User $user, License $license): bool
     {
-        return $user->isContador();
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, License $license): bool
-    {
-        return $user->isContador();
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, License $license): bool
-    {
-        return $user->isContador();
+        return $user->isContador() && in_array('MANLIC', $user->permissions);
     }
 }

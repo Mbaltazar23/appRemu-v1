@@ -12,18 +12,34 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+
+        $permissionsAdmin = [
+            'MANUSU',
+            'VERHISTORIAL',
+            'MANSOST',
+            'CCOST',
+        ];
+
+        $permissionsAdminKeys = array_intersect_key(config('permissions'), array_flip($permissionsAdmin));
+
+
         // Crear el Super Admin con todos los permisos
         User::factory()->create([
             'name' => 'Super User',
             'email' => 'admin@mail.com',
             'role' => User::SUPER_ADMIN,
-            'permissions' => array_keys(User::getPermissions()), // Almacena directamente el array como JSON
+            'permissions' => array_keys($permissionsAdminKeys), // Almacena directamente el array como JSON
         ]);
         // Permisos para el Contador (se seleccionan solo las claves de permisos específicos)
         $permissionsContador = [
+            'MANTRA',
             'MANBODESCOL',
             'PLANREMU',
             'MANISAPRE',
+            'MANAFP',
+            'MANLIC',
+            'MANIECO',
+            'MANINAS'
         ];
 
 // Obtener solo las claves de permisos para el Contador
@@ -42,10 +58,11 @@ class UserSeeder extends Seeder
             'name' => 'Sostenedor User',
             'email' => 'sostenedor@mail.com',
             'role' => User::SOSTENEDOR,
+            'permissions' => array_keys($permissionsContadorKeys), // Solo almacenamos las claves
         ]);
 
         // Crear más usuarios adicionales
-        $additionalUsersCount = 20; // Cantidad de usuarios adicionales a crear
+        $additionalUsersCount = 15; // Cantidad de usuarios adicionales a crear
         User::factory()->count($additionalUsersCount)->create();
     }
 }

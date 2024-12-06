@@ -94,9 +94,7 @@ class BonusController extends Controller
         $idWorkers = $request->input('workers');
         $title = $bonus->title;
         $school = $bonus->school_id;
-
         //dd($idWorkers, $school, $tuition);
-
         // Primero, aplicamos el bono a todos los trabajadores
         Parameter::updateParamsSchool_All("APLICA{$title}", $school, 0);
 
@@ -187,7 +185,7 @@ class BonusController extends Controller
                 // Validar si el bono ya existe para este trabajador
                 if (Parameter::exists($bonus->tuition_id, $worker_id, $schoolId)) {
                     // Si el parametro ya existe, actualizar el valor
-                    Parameter::updateOrInsertParamValue($bonus->tuition_id, $worker_id, $value, $schoolId);
+                    Parameter::updateOrInsertParamValue($bonus->tuition_id, $worker_id, $schoolId, $value);
                 } else {
                     // Si el parametro no existe, insertar el nuevo valor
                     Parameter::create([
@@ -253,7 +251,7 @@ class BonusController extends Controller
             $mesesapl = Operation::getMounthOperations($bonus->title, $type, $schoolId);
         }
 
-// Determinar si se debe marcar cada mes usando mesesapl
+        // Determinar si se debe marcar cada mes usando mesesapl
         $allChecked = str_repeat('0', 12); // Inicializa como todos los meses no marcados
         if ($mesesapl) {
             $allChecked = $mesesapl; // Usar mesesapl para marcar los meses
@@ -319,9 +317,7 @@ class BonusController extends Controller
     public function destroy(Bonus $bonus)
     {
         $result = Bonus::deleteProcessBonus($bonus);
-
         //dd($bonus);
-
         if (!$result['success']) {
             return redirect()->back()->with('error', $result['message']); // Redirigir con mensaje de error
         }

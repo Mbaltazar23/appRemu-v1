@@ -12,7 +12,7 @@ class BonusPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isContador() || in_array('MANBODESCOL', $user->permissions);
+        return $user->isContador() && in_array('MANBODESCOL', $user->permissions);
     }
 
     /**
@@ -20,7 +20,7 @@ class BonusPolicy
      */
     public function view(User $user, Bonus $bonuses): bool
     {
-        return $user->isContador() || in_array('MANBODESCOL', $user->permissions);
+        return $user->isContador() && in_array('MANBODESCOL', $user->permissions);
     }
 
     /**
@@ -28,7 +28,7 @@ class BonusPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isContador() || in_array('MANBODESCOL', $user->permissions);
+        return $user->isContador() && in_array('MANBODESCOL', $user->permissions);
     }
 
     /**
@@ -36,7 +36,7 @@ class BonusPolicy
      */
     public function update(User $user, Bonus $bonuses): bool
     {
-        return $user->isContador() || in_array('MANBODESCOL', $user->permissions);
+        return $user->isContador() && in_array('MANBODESCOL', $user->permissions);
     }
 
     /**
@@ -47,17 +47,10 @@ class BonusPolicy
         return $user->isContador() || in_array('MANBODESCOL', $user->permissions);
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Bonus $bonuses): bool
-    {
-        return $user->isContador() || in_array('MANBODESCOL', $user->permissions);
-    }
 
     public function workers(User $user, Bonus $bonuses): bool
     {
-        return $user->isContador() || in_array('MANBODESCOL', $user->permissions);
+        return $user->isContador() || in_array('MANBODESTRA', $user->permissions);
 
     }
     /**

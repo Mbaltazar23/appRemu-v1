@@ -6,6 +6,8 @@ use App\Http\Controllers\FinancialIndicatorController;
 use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LiquidationController;
+use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SustainerController;
 use App\Http\Controllers\TemplateController;
@@ -52,6 +54,8 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
     Route::resource('licenses', LicenseController::class);
     Route::resource('absences', AbsenceController::class);
     Route::resource('templates', TemplateController::class);
+    Route::resource('reports', ReportController::class);
+    Route::resource('payrolls', PayrollController::class);
     //Route::resource('financial_indicators', FinancialIndicatorController::class);
     Route::get('profile', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
     Route::put('profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
@@ -111,5 +115,11 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
     Route::get('liquidations/worker-liquidation/{workerId}', [LiquidationController::class, 'workerLiquidation'])->name('liquidations.workerLiquidation');
     // Ruta GET para crear una liquidación, mantiene el workerId y workerType como parámetros
     Route::get('liquidations/create/{workerId}', [LiquidationController::class, 'create'])->name('liquidations.create');
+    Route::post('liquidations/store/{worker}', [LiquidationController::class, 'store'])->name('liquidations.store');
+    Route::get('liquidations/{id}/glosa', [LiquidationController::class, 'getGlosa'])->name('liquidations.getGlosa');
+    Route::get('liquidations/printGlosas/{type}', [LiquidationController::class, 'printGlosas'])->name('liquidations.printGlosas');
 
+    /** RUTAS PARA LA GENERACION DE INFORMES PREVISIONALES */
+    Route::get('reports/typeInsurance/{type}', [ReportController::class, 'typeInsurance'])->name('reports.type');
+    Route::get('/reports/generate/{typeInsurance}/{month}/{year}/{insurance}', [ReportController::class, 'generateReport'])->name('reports.generate');
 });

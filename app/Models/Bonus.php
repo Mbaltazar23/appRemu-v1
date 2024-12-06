@@ -81,15 +81,12 @@ class Bonus extends Model
             for ($i = 1; $i <= 12; $i++) {
                 $meses .= isset($data['months']) && in_array($i, $data['months']) ? '1' : '0';
             }
-
             // Modificar la operación en el lugar correspondiente
             Operation::processOperation($nombre, $data, $operation, $meses, '+', 1); // Cambia el operador según lo necesites
-
             // Crear parámetro si aplica
             if ($data['application'] != "D") {
                 self::createParameter($nombrev, $data['school_id'], $monto, $data['title']);
             }
-
             return [
                 'success' => true,
                 'message' => 'Bono creado correctamente.',
@@ -98,7 +95,7 @@ class Bonus extends Model
 
     }
 
-    public static function deleteOldFunction($id)
+    public static function deleteOldFunction($id, $schoolId)
     {
         $bonus = Bonus::find($id); // Asegúrate de que 'bonus_id' está en $data
 
@@ -109,6 +106,7 @@ class Bonus extends Model
             $imputable = $bonus->imputable;
             $name = $bonus->title;
 
+            // Determinar tipo de operación
             if ($isBonus == 0) {
                 $operator = "+";
                 if ($taxable == 0) {
@@ -125,33 +123,40 @@ class Bonus extends Model
                 $operationType = "DESCUENTOSVOLUNTARIOS";
             }
 
+            // Si no es un bono especial (tipo 3)
             if ($type != 3) {
                 if (($type == 2) && ($operationType == "IMPONIBLEEIMPUTABLE")) {
                     $operationType = "RENTAIMPONIBLESD";
                 }
-                $originalOperation = Operation::getOperationFunction($operationType, $type, $bonus['school_id'], $bonus->school->operations->first()->value('application'));
-                $originalOperation = str_replace(" $operator $name", '', $originalOperation);
-                $newOperation = $originalOperation . " " . $operator . " " . $name;
-                Operation::updateOperationFunction($operationType, $type, $newOperation, $bonus['school_id'],$bonus->school->operations->first()->value('application'));
-            } else {
-                // For teachers
-                $originalOperation = Operation::getOperationFunction($operationType, 1, $bonus['school_id'],$bonus->school->operations->first()->value('application'));
-                $originalOperation = str_replace(" $operator $name", '', $originalOperation);
-                $newOperation = $originalOperation . " " . $operator . " " . $name;
-                Operation::updateOperationFunction($operationType, 1, $newOperation, $bonus['school_id'],$bonus->school->operations->first()->value('application'));
 
-                // For non-teachers
+                $originalOperation = Operation::getOperationFunction($operationType, $type, $schoolId);
+                $originalOperation = str_replace(" $operator $name", '', $originalOperation);
+                $newOperation = $originalOperation . " " . $operator . " " . $name;
+                Operation::updateOperationFunction($operationType, $type, $newOperation, $schoolId);
+
+            } else {
+                // Para docentes (tipo 1)
+                $originalOperation = Operation::getOperationFunction($operationType, 1, $schoolId);
+                if (strpos($originalOperation, $name) == 0) {
+                    $originalOperation = str_replace($name . " + ", "", $originalOperation);
+                } else {
+                    $originalOperation = str_replace(" " . $operator . " " . $name, "", $originalOperation);
+                }
+                $newOperation = $originalOperation . " " . $operator . " " . $name;
+                Operation::updateOperationFunction($operationType, 1, $newOperation, $schoolId);
+
+                // Para no docentes (tipo 2)
                 if ($operationType == "IMPONIBLEEIMPUTABLE") {
                     $operationType = "RENTAIMPONIBLESD";
                 }
-                $originalOperation = Operation::getOperationFunction($operationType, 2, $bonus['school_id'], $bonus->school->operations->first()->value('application'));
+
+                $originalOperation = Operation::getOperationFunction($operationType, 2, $schoolId);
                 $originalOperation = str_replace(" $operator $name", '', $originalOperation);
                 $newOperation = $originalOperation . " " . $operator . " " . $name;
-                Operation::updateOperationFunction($operationType, 2, $newOperation, $bonus['school_id'], $bonus->school->operations->first()->value('application'));
+                Operation::updateOperationFunction($operationType, 2, $newOperation, $schoolId);
             }
         }
     }
-
     public static function processUpdateBonuses($data, $id)
     {
         $monto = $data['amount'] ?? 0; // O un valor que tenga sentido en tu contexto
@@ -174,8 +179,8 @@ class Bonus extends Model
                 $nameValue = $bonus->tuition_id; // Acceder a tuition_id desde el objeto Bonus
 
                 Tuition::updateTitleTuition($nameValue, $name, $data['school_id']);
-                Parameter::updateParamValue($bonus->title, $data['school_id'], $monto);
-                self::deleteOldFunction($id);
+                Parameter::updateParamValue($bonus->tuition_id, $data['school_id'], $monto);
+                self::deleteOldFunction($id, $data['school_id']);
 
                 // Adding operation
                 $operation = Operation::generateOperation($data, $name, $nameValue, $factor);
@@ -215,9 +220,9 @@ class Bonus extends Model
             $title = $data['title'];
             $tuitionId = $data['tuition_id'];
             $type = $data['type'];
-            Tuition::deleteTuition($tuitionId, $data['school_id']);
-            Tuition::deleteTuition("APLICA" . $tuitionId, $data['school_id']);
             Tuition::deleteTuition($title, $data['school_id']);
+            Tuition::deleteTuition("APLICA" . $title, $data['school_id']);
+            Tuition::deleteTuition($tuitionId, $data['school_id']);
 
             if ($type != 3) {
                 Operation::deleteOperation($tuitionId, 1, $data['school_id']);
@@ -227,22 +232,20 @@ class Bonus extends Model
 
             }
 
-            Operation::processDeleteOperation($tuitionId, $data, "+",$data->school->operations->first()->value('application'));
+            Operation::processDeleteOperation($tuitionId, $data, "+", $data->school->operations->first()->value('application'));
 
-            Parameter::deleteParamAll($title, $data['school_id']);
+            Parameter::deleteParamAll($tuitionId, $data['school_id']);
             Parameter::deleteParamAll("APLICA" . $title, $data['school_id']);
 
             //Recorrer posiciones
-            $positions = Template::listTuitionPositionsInTemplate($data['school_id'], $type, $tuitionId);
+            $positions = Template::listTuitionPositionsInTemplate($data['school_id'], $type, $title);
 
             if ($positions->isNotEmpty()) {
                 foreach ($positions as $position) {
                     // Elimina la línea de la plantilla
                     Template::deleteTemplateLine($data['school_id'], $type, $position->position);
-
                     // Establece la posición inicial para mover hacia arriba
                     $p = $position->position + 1;
-
                     // Mueve posiciones hacia arriba mientras existan
                     while (Template::positionExists($data['school_id'], $type, $p) && $p >= $position->position) {
                         Template::movePositionUp($data['school_id'], $type, $p);
@@ -281,7 +284,6 @@ class Bonus extends Model
     {
         // Obtener el objeto Bonus por su tuition_id
         $bonus = self::where('tuition_id', $tuitionId)->first(); // Busca el primer bonus que coincida con el tuition_id
-
         if ($bonus) {
             $bonus->update([
                 'school_id' => $data['school_id'],
@@ -294,7 +296,6 @@ class Bonus extends Model
             ]);
             return $bonus; // Retorna el objeto actualizado si es necesario
         }
-
         return null; // Devuelve null si no se encuentra el bonus
     }
 

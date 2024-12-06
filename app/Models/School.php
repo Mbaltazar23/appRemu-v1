@@ -60,7 +60,7 @@ class School extends Model
      */
     public function obtDirector()
     {
-        return $this->director ?? '';
+        return $this->rut_director ?? '';
     }
 
     /**
@@ -117,5 +117,10 @@ class School extends Model
     public function templates()
     {
         return $this->hasMany(Template::class);
+    }
+
+    public function payrolls()
+    {
+        return $this->hasMany(Payroll::class);
     }
 }

@@ -37,7 +37,6 @@ class InsuranceController extends Controller
             if ($insurance_id) {
                 $insurance = Insurance::find($insurance_id);
             }
-
             // Si no se encuentra el seguro por ID, usar el primero de la lista
             if (!$insurance) {
                 $insurance = $insurances->first();
@@ -49,11 +48,10 @@ class InsuranceController extends Controller
         if ($insurance) {
             if ($insurance->type == Insurance::AFP) {
                 $workers = Worker::where('insurance_AFP', $insurance->id)->get(); // Esto devuelve una colección de trabajadores
-            } elseif ($insurance->type == Insurance::ISAPRE) {
+            } else {
                 $workers = Worker::where('insurance_ISAPRE', $insurance->id)->get(); // Esto también devuelve una colección
             }
         }
-
         // Obtener el worker_id si existe en la solicitud
         $worker_id = $request->input('worker_id');
 
@@ -154,23 +152,20 @@ class InsuranceController extends Controller
         $existingInsurance = Parameter::getParameterValue($paramTitle, $worker->id, $school_id);
 
         // Si el trabajador ya tiene un seguro del mismo tipo y no forzamos la actualización
-        if ($existingInsurance != '' && $request->input('force_update') !== 'true') {
+        if ($existingInsurance != 0 && $request->input('force_update') !== 'true') {
             // Enviar respuesta JSON para la confirmación
             return response()->json([
                 'confirm' => true,
                 'message' => 'Este trabajador ya está en otro ' . $Insurance . '. ¿Desea eliminar la anterior designación y asignarla a esta?',
             ]);
         }
-
         // Si no hay conflictos, vinculamos al trabajador al seguro
         if ($request->input('type') != Insurance::ISAPRE) {
             $worker->insurance_AFP = $insuranceId;
         } else {
             $worker->insurance_ISAPRE = $insuranceId;
         }
-
         $worker->save();
-
         // Actualización de parámetros
         $data = Parameter::updateOrInsertInsuranceParams(
             $request->worker_id,
@@ -178,7 +173,6 @@ class InsuranceController extends Controller
             $school_id,
             $insuranceId
         );
-
         // Enviar éxito si no hay conflicto
         return response()->json([
             'confirm' => false,
@@ -201,7 +195,8 @@ class InsuranceController extends Controller
             Parameter::deleteParameters($workerId, $schoolId, $insuranceType);
             return redirect()->back()
                 ->withInput() // Esto es opcional, pero mantiene los valores del formulario previo.
-                ->with('success', "Trabajador desvinculado Exitosamente !!");
+                ->with('success', "Trabajador desvinculado Exitosamente !!")
+                ->with('insurance_id', $request->input('insurance_id'));
 
         }
         // Verificar si la operación es "modificar"

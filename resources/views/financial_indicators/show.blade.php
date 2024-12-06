@@ -12,8 +12,8 @@
                             {{ __('Mantenedor de indices económicos y previsionales') }}
                         @elseif ($index === 'impuesto_renta')
                             {{ __('Mantenedor de valores y topes de impuesto a la renta') }}
-                        @elseif ($index === 'asignacion_familiar')
-                            {{ __('Mantenedor de valores y topes para asignación familiar') }}
+                        @else
+                            {{ __('Mantenedor de valores y topes para Asignación familiar') }}
                         @endif
                     </h3>
                     <br>
@@ -34,7 +34,7 @@
                                     'impValues' => $impValues,
                                     'rebValues' => $rebValues,
                                 ])
-                            @elseif ($index === 'asignacion_familiar')
+                            @else
                                 @include('financial_indicators.partials.family_all', [
                                     'minLimits' => $minLimits,
                                     'maxLimits' => $maxLimits,

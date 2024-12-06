@@ -45,6 +45,9 @@ class TemplateController extends Controller
 
         $templates = Template::getTemplate($schoolId, $typeItem);
 
+        $templates = Template::processTemplates($templates);
+
+
         $lineTypes = Template::getLineTypes();
 
         return view('templates.create', compact('template', 'templates', 'typeItem', 'typeTitle', 'tuitions', 'lineTypes'));
@@ -77,6 +80,8 @@ class TemplateController extends Controller
         $tuitions = Tuition::getLiquidationTitlesBySchool($schoolId);
 
         $templates = Template::getTemplate($schoolId, $typeItem);
+
+        $templates = Template::processTemplates($templates);
 
         $lineTypes = Template::getLineTypes();
         return view('templates.edit', compact('template', 'templates', 'typeItem', 'typeTitle', 'tuitions', 'lineTypes'));

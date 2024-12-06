@@ -35,7 +35,7 @@
                             <tr>
                                 <th onclick="sortTable(0)" class="sort-table">Nombre</th>
                                 <th onclick="sortTable(1)" class="sort-table">Creado en</th>
-                                <th onclick="sortTable(2)" class="sort-table">Docente</th>
+                                <th onclick="sortTable(2)" class="sort-table">Tipo</th>
                                 <th onclick="sortTable(3)" class="sort-table">Actualizado</th>
                                 <th onclick="sortTable(4)" class="sort-table">Acciones</th>
                             </tr>

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tuitions', function (Blueprint $table) {
             $table->id();
             $table->string('title')->nullable();
-            $table->string('tuition_id')->unique(); // Asegúrate de que sea único
+            $table->string('tuition_id')->nullable(); // Asegúrate de que sea único
             $table->char('type', 1)->nullable();
             $table->string('description')->nullable();
             $table->tinyInteger('in_liquidation')->nullable();

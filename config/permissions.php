@@ -3,6 +3,7 @@
 return [
     'MANUSU' => 'Mantener usuarios',
     'MANCOL' => 'Mantener centros',
+    'MANSOST' => 'Mantener Sostenedores',
     'MANTRA' => 'Mantener personal',
     'REMEMI' => 'Emitir liquidaciones de sueldo',
     'MANISAPRE' => 'Mantenedor de cotizaciones de salud',
@@ -17,7 +18,6 @@ return [
     'MANIMREN' => 'Mantenedor de valores para impuesto a la renta',
     'MANASIGFAM' => 'Mantenedor de valores para asignación familiar',
     'MANLIC' => 'Mantenedor de licencias medicas',
-    'MANOPE' => 'Mantenedor de operaciones',
     'MANAFP' => 'Mantenedor de afps',
     'MANISAPRETR' => 'Mantenedor de isapres',
     'MANINAS' => 'Mantendedor de inasistencias',

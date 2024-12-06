@@ -16,7 +16,6 @@ class FinancialIndicatorsSeeder extends Seeder
 
     public function run()
     {
-
         // Insertar los tres parámetros para cada escuela asociada a un contador
         $contadorUser = User::where('role', User::CONTADOR)->first();
 
@@ -24,7 +23,6 @@ class FinancialIndicatorsSeeder extends Seeder
         if ($contadorUser) {
             // Obtener todas las escuelas asociadas a los contadores
             $schoolId = $contadorUser->schools->first()->id; // Obtener el primer colegio de los colegios asociados al contador
-
             // Obtener un mes aleatorio entre 1 (Enero) y 12 (Diciembre)
             $randomMonth = rand(1, 12);
 
@@ -50,7 +48,7 @@ class FinancialIndicatorsSeeder extends Seeder
                 );
             }
 
-            // Insertar valores en la tabla Parameter usando el factory
+            // Insertar valores en la tabla Parameter usando el factory para los impuesto_renta
             for ($i = 2; $i <= 8; $i++) {
                 Parameter::factory()->create(['name' => "FACTORIMPTRAMO$i", 'description' => "Factor Impuesto tramo $i", 'value' => rand(1, 10), 'school_id' => $schoolId]);
                 Parameter::factory()->create(['name' => "FACTORREBAJAIMPTRAMO$i", 'value' => rand(1, 5), 'school_id' => $schoolId]);
@@ -77,7 +75,7 @@ class FinancialIndicatorsSeeder extends Seeder
                 ]);
             }
 
-            //Insertar valores en la tabla Operation usando el factory
+            //Insertar valores en la tabla Operation usando el factory asignacion_familiar
             for ($i = 1; $i <= 3; $i++) {
                 Parameter::factory()->create([
                     'name' => "FILTROASIGFAMT$i",

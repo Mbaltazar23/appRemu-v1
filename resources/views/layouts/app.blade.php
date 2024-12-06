@@ -97,6 +97,15 @@
                 </div>
             @endif
 
+            @if (session('warning'))
+                <div class="container-xl mt-2">
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        {{ session('warning') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            @endif
+
             @if ($errors->any())
                 <div class="container-xl mt-2">
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">

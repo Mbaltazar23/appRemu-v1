@@ -5,7 +5,7 @@
         <!-- Page title -->
         <div class="page-header d-print-none">
             <h2 class="page-title">
-                Actualizar el nuevo bono o descuento
+                Actualizar bono o descuento
             </h2>
         </div>
     </div>

@@ -12,7 +12,7 @@ class InsurancePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isContador();
+        return $user->isContador() && ( in_array('MANAFP', $user->permissions) || in_array('MANISAPRETR', $user->permissions));
     }
 
     /**
@@ -20,7 +20,7 @@ class InsurancePolicy
      */
     public function view(User $user, Insurance $insurance): bool
     {
-        return $user->isContador();
+        return $user->isContador() && ( in_array('MANAFP', $user->permissions) || in_array('MANISAPRETR', $user->permissions));
     }
 
     /**
@@ -36,7 +36,7 @@ class InsurancePolicy
      */
     public function create(User $user): bool
     {
-        return  $user->isContador();
+        return  $user->isContador() && ( in_array('MANAFP', $user->permissions) || in_array('MANISAPRETR', $user->permissions));
     }
 
     /**
@@ -44,7 +44,7 @@ class InsurancePolicy
      */
     public function update(User $user, Insurance $insurance): bool
     {
-        return $user->isContador();
+        return $user->isContador() && ( in_array('MANAFP', $user->permissions) || in_array('MANISAPRETR', $user->permissions));
     }
 
     /**
@@ -52,7 +52,7 @@ class InsurancePolicy
      */
     public function delete(User $user, Insurance $insurance): bool
     {
-        return $user->isContador();
+        return $user->isContador() && ( in_array('MANAFP', $user->permissions) || in_array('MANISAPRETR', $user->permissions));
     }
 
     /**

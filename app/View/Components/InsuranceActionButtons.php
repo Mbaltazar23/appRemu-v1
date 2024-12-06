@@ -47,7 +47,7 @@ class InsuranceActionButtons extends Component
             [
                 'name' => 'Agregar Trabajadores',
                 'route' => route('insurances.link_worker', [$this->insurance, 'type' => $this->type]),
-                'icon' => 'bx bx-file',
+                'icon' => 'bx bxs-user-plus',
                 'permission' => 'linkWorker',  // Permiso personalizado para linkear trabajadores
                 'type' => 'dark',
                 'popup' => true,  // Indicamos que este botón debe abrir un popup

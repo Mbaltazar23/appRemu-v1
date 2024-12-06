@@ -167,8 +167,7 @@
                                 @endcan
                             </ul>
                         </li>
-                        <li class="nav-item dropdown @if (request()->is('templates*') ||
-                                request()->is('liquidations*')) active @endif">
+                        <li class="nav-item dropdown @if (request()->is('templates*') || request()->is('liquidations*')) active @endif">
                             <a class="nav-link dropdown-toggle" href="#" id="administrationDropdown"
                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -186,22 +185,57 @@
                                             <span class="nav-link-icon">
                                                 <i class='bx bx-money' style="font-size: 20px;"></i>
                                             </span>
-                                            {{ __('Liquidaciones') }}
+                                            {{ __("Item's Liquidaciones") }}
                                         </a>
                                     </li>
                                 @endcan
-
                                 @can('viewAny', App\Models\Liquidation::class)
-                                <li>
-                                    <a class="dropdown-item @if (request()->is('liquidations*')) active @endif"
-                                        href="{{ route('liquidations.index') }}">
-                                        <span class="nav-link-icon">
-                                            <i class='bx bx-money-withdraw' style="font-size: 20px;"></i>
-                                        </span>
-                                        {{ __('Emitir Liquidaciones') }}
-                                    </a>
-                                </li>
-                            @endcan
+                                    <li>
+                                        <a class="dropdown-item @if (request()->is('liquidations*')) active @endif"
+                                            href="{{ route('liquidations.index') }}">
+                                            <span class="nav-link-icon">
+                                                <i class='bx bx-money-withdraw' style="font-size: 20px;"></i>
+                                            </span>
+                                            {{ __('Emitir Liquidaciones') }}
+                                        </a>
+                                    </li>
+                                @endcan
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown @if (request()->is('reports*')|| request()->is('payrolls*')) active @endif">
+                            <a class="nav-link dropdown-toggle" href="#" id="administrationDropdown"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <i class="bx bx-file" style="font-size: 24px;"></i>
+                                </span>
+                                <span class="nav-link-title">
+                                    {{ __('Consultas') }}
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="administrationDropdown">
+                                @can('viewAny', App\Models\Report::class)
+                                    <li>
+                                        <a class="dropdown-item @if (request()->is('reports*')) active @endif"
+                                            href="{{ route('reports.index') }}">
+                                            <span class="nav-link-icon">
+                                                <i class='bx bx-folder' style="font-size: 20px;"></i>
+                                            </span>
+                                            {{ __('Informes previsionales') }}
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('viewAny', App\Models\Payroll::class)
+                                    <li>
+                                        <a class="dropdown-item @if (request()->is('payrolls*')) active @endif"
+                                            href="{{ route('payrolls.index') }}">
+                                            <span class="nav-link-icon">
+                                                <i class='bx bx-file' style="font-size: 20px;"></i>
+                                            </span>
+                                            {{ __('Planilla de Remuneraciones') }}
+                                        </a>
+                                    </li>
+                                @endcan
                             </ul>
                         </li>
                         <li class="nav-item @if (request()->is('select-school')) active @endif">

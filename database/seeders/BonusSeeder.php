@@ -39,7 +39,7 @@ class BonusSeeder extends Seeder
                 'imputable' => 0,
                 'is_bonus' => 0,
                 'factor' => 100,
-                'application' => 'H',
+                'application' => 'D',
                 'months' => $this->generateDynamicMonths([1,2,3,4,5,6,7,8,9,10,11,12]), // Ejemplo de meses específicos
                 'school_id' => $school_id,
                 'amount' => 0,
@@ -88,18 +88,6 @@ class BonusSeeder extends Seeder
                 'is_bonus' => 1,
                 'factor' => 1,
                 'application' => 'I',
-                'months' => $this->generateDynamicMonths([1,2,3,4,5,6,7,8,9,10,11,12]), // Ejemplo de meses específicos
-                'school_id' => $school_id,
-                'amount' => 0,
-            ],
-            [
-                'title' => 'Asignacion Voluntaria',
-                'type' => 3,
-                'taxable' => 0,
-                'imputable' => 0,
-                'is_bonus' => 0,
-                'factor' => 100,
-                'application' => 'D',
                 'months' => $this->generateDynamicMonths([1,2,3,4,5,6,7,8,9,10,11,12]), // Ejemplo de meses específicos
                 'school_id' => $school_id,
                 'amount' => 0,
@@ -196,11 +184,11 @@ class BonusSeeder extends Seeder
                 'is_bonus' => 0,
                 'factor' => 100,
                 'application' => 'T',
-                'months' => $this->generateDynamicMonths([1,2,3,4,5,6,7,8,9,10,12]), // Ejemplo de meses específicos
+                'months' => $this->generateDynamicMonths([1,2,3,4,5,6,7,8,9,10,11,12]), // Ejemplo de meses específicos
                 'school_id' => $school_id,
                 'amount' => 663,
             ],
-			[
+			/*[
                 'title' => 'Todos por igual',
                 'type' => 2,
                 'taxable' => 0,
@@ -210,7 +198,7 @@ class BonusSeeder extends Seeder
                 'application' => 'F',
                 'months' => $this->generateDynamicMonths([1,2,3,4,5,6,7,8,9,10,11,12]), // Ejemplo de meses específicos
                 'school_id' => $school_id,
-            ],
+            ],*/
         ];
     }
 

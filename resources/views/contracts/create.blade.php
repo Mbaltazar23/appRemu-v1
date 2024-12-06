@@ -5,7 +5,8 @@
         <!-- Page title -->
         <div class="page-header d-print-none">
             <h2 class="page-title">
-                Contrato para el Trabajador: &nbsp;&nbsp;<span style="opacity: 0.7;">{{ $worker->name }} {{ $worker->last_name }}</span>
+                Contrato para el Trabajador: &nbsp;&nbsp;<span style="opacity: 0.7;">{{ $worker->name }}
+                    {{ $worker->last_name }}</span>
             </h2>
         </div>
     </div>
@@ -42,23 +43,27 @@
                                     </select>
                                 </div>
                             </div>
-                        
+
                             <!-- Fila 2 -->
                             <div class="row mb-3">
                                 <div class="col-md-4">
-                                    <label for="total_remuneration" class="form-label">Remuneración total (ej.300.000)</label>
-                                    <input type="number" name="total_remuneration" id="total_remuneration" class="form-control" required>
+                                    <label for="total_remuneration" class="form-label">Remuneración total
+                                        (ej.300.000)</label>
+                                    <input type="number" name="total_remuneration" id="total_remuneration"
+                                        class="form-control" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="remuneration_gloss" class="form-label">Glosa de remuneración (ej: Trecientos mil)</label>
-                                    <input type="text" name="remuneration_gloss" id="remuneration_gloss" class="form-control" required>
+                                    <label for="remuneration_gloss" class="form-label">Glosa de remuneración (ej: Trecientos
+                                        mil)</label>
+                                    <input type="text" name="remuneration_gloss" id="remuneration_gloss"
+                                        class="form-control" required>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="origin_city" class="form-label">Ciudad de procedencia</label>
                                     <input type="text" name="origin_city" id="origin_city" class="form-control">
                                 </div>
                             </div>
-                        
+
                             <!-- Fila 3 -->
                             <div class="row mb-3">
                                 <div class="col-md-4">
@@ -70,26 +75,29 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                
+
                                 <!-- Solo mostrar estos campos si el tipo de trabajador es Docente -->
                                 @if ($worker->worker_type == App\Models\Worker::WORKER_TYPE_TEACHER)
                                     <div class="col-md-4">
                                         <label for="teaching_hours" class="form-label">Horas de docencia</label>
-                                        <input type="text" name="teaching_hours" id="teaching_hours" class="form-control">
+                                        <input type="text" name="teaching_hours" id="teaching_hours"
+                                            class="form-control">
                                     </div>
                                     <div class="col-md-4">
-                                        <label for="curricular_hours" class="form-label">Horas actividades curriculares</label>
-                                        <input type="text" name="curricular_hours" id="curricular_hours" class="form-control">
+                                        <label for="curricular_hours" class="form-label">Horas actividades
+                                            curriculares</label>
+                                        <input type="text" name="curricular_hours" id="curricular_hours"
+                                            class="form-control">
                                     </div>
                                 @endif
                             </div>
-                        
+
                             <div class="d-flex justify-content-between">
                                 <a href="{{ route('workers.index') }}" class="btn btn-secondary">Regresar al índice</a>
                                 <button type="submit" class="btn btn-primary">Crear contrato</button>
                             </div>
                         </form>
-                        
+
                     </div>
                 </div>
             </div>

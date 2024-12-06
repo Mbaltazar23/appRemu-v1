@@ -20,7 +20,7 @@ class WorkerFactory extends Factory
         // Definimos los datos base del trabajador
         $workerData = [
             'school_id' => null, // Se asignará más tarde
-            'rut' => $this->faker->unique()->numerify('########-#'),
+            'rut' => $this->faker->unique()->numerify('##.###.###-#'),
             'name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
             'birth_date' => $this->faker->date(),
@@ -29,8 +29,8 @@ class WorkerFactory extends Factory
             'commune' => $this->faker->randomElement($communes),
             'region' => $this->faker->randomElement($regions),
             'nationality' => $this->faker->country,
-            'marital_status' => $this->faker->randomElement([1, 2, 3, 4]), // Estado civil
-            'worker_type' => $this->faker->randomElement([1, 2]), // Docente o No docente
+            'marital_status' => $this->faker->randomElement(array_keys(Worker::MARITAL_STATUS)), 
+            'worker_type' => $this->faker->randomElement(array_keys(Worker::WORKER_TYPES)), 
             'function_worker' => $this->faker->randomElement(array_keys(Worker::getFunctionWorkerTypes())),
         ];
 

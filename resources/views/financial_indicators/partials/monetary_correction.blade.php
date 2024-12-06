@@ -1,5 +1,5 @@
 @php
-    $selectedYear = request()->input('year', '2024');
+    $selectedYear = request()->input('year', now()->year);
     // Verifica si el año seleccionado existe en los datos
     if (isset($data[$selectedYear])) {
         $dataToShow = $data[$selectedYear];

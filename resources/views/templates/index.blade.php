@@ -27,7 +27,6 @@
                             <a href="{{ route('templates.create', ['typeItem' => $typeItem]) }}"
                                 class="btn btn-primary ml-3">Agregar Línea</a>
                         @endcan
-
                     </div>
                 </div>
             </div>
@@ -50,7 +49,7 @@
                             @foreach ($templates as $template)
                                 <tr>
                                     <!-- Mostrar el título procesado -->
-                                    <td>{{ $template->tuition->title }}</td>
+                                    <td>{{ $template->tuition->title ?? $template->tuition_id }}</td>
                                     <!-- Mostrar la fecha de actualización -->
                                     <td>{{ \Carbon\Carbon::parse($template['updated_at'])->diffForHumans() }}</td>
                                     <td>
@@ -62,26 +61,22 @@
                                             </a>
                                         @endcan
 
-                                        <!-- Botón para mover hacia arriba (si no es el primero) -->
+                                        <!-- Mostrar botones de posición según la lógica -->
                                         @if ($template->position > 1)
+                                            <!-- Botón para mover hacia arriba -->
                                             <a href="{{ route('templates.moveUp', ['template' => $template, 'position' => $template->position]) }}"
                                                 class="btn btn-secondary">
                                                 <i class="bx bx-up-arrow-alt"></i>
                                             </a>
-                                        @else
-                                            <a disabled>
-                                                <i class="bx bx-up-arrow-alt"></i>
-                                            </a>
                                         @endif
 
-                                        <!-- Botón para mover hacia abajo (si no es el último) -->
+                                        <!-- Botón para mover hacia abajo, si no es el último registro -->
                                         @if ($template->position < $templates->count())
                                             <a href="{{ route('templates.moveDown', ['template' => $template, 'position' => $template->position]) }}"
                                                 class="btn btn-secondary">
                                                 <i class="bx bx-down-arrow-alt"></i>
                                             </a>
                                         @endif
-
 
                                         @can('delete', $template)
                                             <!-- Botón para eliminar plantilla -->
@@ -99,6 +94,7 @@
                                     </td>
                                 </tr>
                             @endforeach
+
                         </tbody>
                     </table>
 

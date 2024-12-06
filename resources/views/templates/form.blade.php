@@ -1,31 +1,28 @@
 <!-- Fila para Insertar línea después de y Tipo de línea -->
 <table class="table table-bordered mb-3" style="width: 100%; table-layout: fixed;">
     <tbody>
-        @if (isset($template) && $template->position)
-        <!-- Si existe un template con valor de posición, lo mostramos como hidden -->
-        <input type="hidden" name="position" value="{{ $template->position }}">
-    @elseif ($templates->isEmpty())
-        <!-- Si no hay registros de template, asignamos la posición 1 -->
-        <input type="hidden" name="position" value="1">
-    @else
-        <!-- Si existen templates y no tenemos un valor de posición, mostramos el select -->
-        <tr>
-            <td class="w-50" style="vertical-align: middle; padding: 8px;">
-                <label for="position" class="form-label mb-0">Insertar línea después de</label>
-            </td>
-            <td style="padding: 8px;">
-                <select name="position" id="position" class="form-select">
-                    <option value="0">Seleccione la línea donde irá el ítem</option>
-                    @foreach ($templates as $tmpl)
-                        <option value="{{ $tmpl->position }}" 
-                            {{ old('position', $template->position) == $tmpl->position ? 'selected' : '' }}>
-                            {{ $tmpl->tuition->title }}
-                        </option>
-                    @endforeach
-                </select>
-            </td>
-        </tr>
-    @endif
+        @if ($templates->isEmpty() || $template->position > 0)
+            <!-- Si no hay registros de template, asignamos la posición 1 -->
+            <input type="hidden" name="position" value="1">
+        @else
+            <!-- Si existen templates y no tenemos un valor de posición, mostramos el select -->
+            <tr>
+                <td class="w-50" style="vertical-align: middle; padding: 8px;">
+                    <label for="position" class="form-label mb-0">Insertar línea después de</label>
+                </td>
+                <td style="padding: 8px;">
+                    <select name="position" id="position" class="form-select">
+                        <option value="0">Seleccione la línea donde irá el ítem</option>
+                        @foreach ($templates as $tmpl)
+                            <option value="{{ $tmpl->position }}"
+                                {{ old('position', $template->position) == $tmpl->position ? 'selected' : '' }}>
+                                {{ $tmpl->tuition->title ?? $tmpl->tuition_id }}
+                            </option>
+                        @endforeach
+                    </select>
+                </td>
+            </tr>
+        @endif
         <tr>
             <td class="w-50" style="vertical-align: middle; padding: 8px;">
                 <label for="code" class="form-label mb-0">Tipo de línea</label>
@@ -52,7 +49,7 @@
             </td>
             <td style="padding: 8px;">
                 <select name="tuition_id" id="tuition_id" class="form-select">
-                    <option value="0">Seleccione el item para esta Línea</option>
+                    <option value="">Seleccione el item para esta Línea</option>
                     @foreach ($tuitions as $tuition)
                         <option value="{{ $tuition->tuition_id }}"
                             {{ old('tuition_id', $template->tuition_id) == $tuition->tuition_id ? 'selected' : '' }}>
@@ -108,9 +105,9 @@
                 </label>
             </td>
             <td style="padding: 8px;">
-                <input type="text" name="text" id="text" value="{{ old('text', $template->code === 'TEX' ? $template->tuition_id : '') }}"
-                    class="form-control" 
-                    @if (old('code', $template->code ?? '') !== 'TEX') disabled @endif>
+                <input type="text" name="text" id="text"
+                    value="{{ old('text', $template->code === 'TEX' ? $template->tuition_id : '') }}"
+                    class="form-control" @if (old('code', $template->code ?? '') !== 'TEX') disabled @endif>
 
                 <small class="form-text text-muted">
                     Este campo solo es editable si el tipo de línea es "Texto".

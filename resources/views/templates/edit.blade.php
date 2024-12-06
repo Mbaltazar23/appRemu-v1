@@ -5,7 +5,7 @@
         <!-- Page title -->
         <div class="page-header d-print-none">
             <h2 class="page-title">
-                <h3>{{ __('Agregar ítem de liquidaciones para ') }}{{ $typeTitle }}</h3>
+                <h3>{{ __('Editar ítem de liquidaciones para ') }}{{ $typeTitle }}</h3>
             </h2>
         </div>
     </div>
@@ -18,6 +18,7 @@
 
                     <input type="hidden" name="type" value="{{ $typeItem }}" />
                     <input type="hidden" name="school_id" value="{{ auth()->user()->school_id_session }}" />
+                    <input type="hidden" name="position" value="{{ $template->position }}">
                     @include('templates.form')
                     <div class="d-flex justify-content-between mt-3">
                         <a class="text-decoration-none" href="{{ route('templates.index', ['typeItem' => $typeItem]) }}">

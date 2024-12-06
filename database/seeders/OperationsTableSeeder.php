@@ -1,6 +1,7 @@
 <?php
 namespace Database\Seeders;
 
+use App\Models\Bonus;
 use App\Models\Operation;
 use App\Models\Tuition;
 use App\Models\User;
@@ -13,7 +14,25 @@ class OperationsTableSeeder extends Seeder
      */
     public function run(): void
     {
-        // Obtener los tuition_id previamente
+
+         // Obtener el primer contador
+         $contadorUser = User::where('role', User::CONTADOR)->first();
+         // Verificar si se encontró un contador
+         if ($contadorUser) {
+             // Obtener el primer colegio asociado a este contador
+             $schoolId = $contadorUser->schools->first()->id; // Obtener el primer colegio de los colegios asociados al contador
+             // Generamos una vez los bonos
+             $bonuses = $this->generateBonuses($schoolId);
+             // Insertamos los bonos para cada escuela
+             foreach ($bonuses as $bonusData) {
+                 // Añadimos el school_id al bono antes de guardarlo
+                 Bonus::processCreateBonuses($bonusData);
+             }
+         }
+
+        $tuitionAsignacionVoluntariaId = Tuition::where('title', 'Asignacion Voluntaria')->value('tuition_id');
+
+        /* Obtener los tuition_id previamente
         $tuitionLey19410Id = Tuition::where('title', 'Ley 19410')->value('tuition_id');
         $tuitionLey19933Id = Tuition::where('title', 'Ley 19933')->value('tuition_id');
         $tuitionLey19464Id = Tuition::where('title', 'Ley 19464')->value('tuition_id');
@@ -25,7 +44,6 @@ class OperationsTableSeeder extends Seeder
         $tuitionFundacionLopezPerezId = Tuition::where('title', 'Fundacion Lopez Perez')->value('tuition_id');
         $tuitionRBMNId = Tuition::where('title', 'RBMN')->value('tuition_id');
         $tuitionUMPId = Tuition::where('title', 'UMP')->value('tuition_id');
-        $tuitionAsignacionVoluntariaId = Tuition::where('title', 'Asignacion Voluntaria')->value('tuition_id');
         /*$tuitionLey19410IdAplicacion = Tuition::where('title', 'Valor de Bono de Ley 19410')->value('tuition_id');
         $tuitionLey19933IdAplicacion = Tuition::where('title', 'Valor de Ley 19933')->value('tuition_id');*/
 
@@ -70,7 +88,7 @@ class OperationsTableSeeder extends Seeder
                 "VALORIMD  / SUMACARGAS M - MR * CARGAHORARIA * FACTORASIST",
                 '', 0, 0, 0, '111111111111'],
             ['IMPONIBLEEIMPUTABLE', 1,
-                "",'', 0, 0, 0, '111111111111'],
+                "$tuitionAsignacionVoluntariaId",'', 0, 0, 0, '111111111111'],
             ['IMPONIBLEYNOIMPUTABLE', 1,
                 "HORASPERFECCIONAMIENTO",
                 '', 0, 0, 0, '111111111111'],
@@ -110,4 +128,39 @@ class OperationsTableSeeder extends Seeder
             }
         }
     }
+
+    private function generateBonuses($school_id)
+    {
+        return [
+         
+            [
+                'title' => 'Asignacion Voluntaria',
+                'type' => 3,
+                'taxable' => 0,
+                'imputable' => 0,
+                'is_bonus' => 0,
+                'factor' => 100,
+                'application' => 'D',
+                'months' => $this->generateDynamicMonths([1,2,3,4,5,6,7,8,9,10,11,12]), // Ejemplo de meses específicos
+                'school_id' => $school_id,
+                'amount' => 0,
+            ],
+         
+        ];
+    }
+
+    private function generateDynamicMonths($selectedMonths = null)
+    {
+        // Si no se pasa un arreglo con meses específicos, generamos un rango de meses por defecto (por ejemplo, de 2 a 11)
+        if ($selectedMonths === null) {
+            $selectedMonths = range(2, 11); // Genera un arreglo de [2, 3, 4, ..., 11]
+        }
+
+        // Convertir los números de meses en strings, si es necesario (aunque PHP manejaría correctamente los enteros)
+        $selectedMonths = array_map('strval', $selectedMonths);
+
+        // Ahora, tenemos un arreglo de los meses seleccionados, por ejemplo ["2", "3", "4", ..., "11"]
+        return $selectedMonths;
+    }
+
 }

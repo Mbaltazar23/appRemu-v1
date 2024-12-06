@@ -102,34 +102,34 @@ class License extends Model
     public static function sumLicenseHours($workerId, $month, $year, $startDay, $endDay)
     {
         // Sum the 'exists' field (which represents 'Hay' in your original table)
-        $licenseHours = HourLicense::selectRaw('hour_licenses.hours')
-            ->leftJoin('licenses', 'hour_licenses.license_id', '=', 'licenses.id') // Left join with licenses table
-            ->where('licenses.worker_id', $workerId) // Filter by worker ID
-            ->where('hour_licenses.month', $month) // Filter by month
-            ->where('hour_licenses.year', $year) // Filter by year
-            ->where('hour_licenses.day', '>', $startDay) // Filter by day range (greater than start day)
-            ->where('hour_licenses.day', '<', $endDay) // Filter by day range (less than end day)
-            ->first(); // Get the first row, as we are selecting a single sum
+        $licenseHours = HourLicense::whereHas('license', function ($query) use ($workerId, $month, $year, $startDay, $endDay) {
+            $query->where('worker_id', $workerId)
+                ->where('month', $month)
+                ->where('year', $year)
+                ->where('day', '>', $startDay)
+                ->where('day', '<', $endDay);
+        })
+        ->get(); // Obtener todos los registros de horas de licencia
 
         // Return the sum or 0 if no records are found
-        return $licenseHours ;
+        return $licenseHours->count();
     }
 
     //Metodo para sumar los dias de licencias
 
-    public static function sumDaysLicence($idTrabajador, $mes, $year, $fromDay, $hasta)
+    public static function sumDaysLicence($worker_id, $mes, $year, $fromDay, $hasta)
     {
-        return HourLicense::selectRaw('COUNT(DISTINCT hour_licenses.day) as total_days')
-            ->leftJoin('licenses', 'hour_licenses.license_id', '=', 'licenses.id') // Left join with licenses table
-            ->where('licenses.worker_id', $idTrabajador) // Filter by worker ID
-            ->where('hour_licenses.month', $mes) // Filter by month
-            ->where('hour_licenses.year', $year) // Filter by year
-            ->where('hour_licenses.day', '>', $fromDay) // Filter by day range (greater than from day)
-            ->where('hour_licenses.day', '<', $hasta) // Filter by day range (less than until day)
-            ->first(); // Get the first row
+        $totalDays = HourLicense::whereHas('license', function ($query) use ($worker_id, $mes, $year, $fromDay, $hasta) {
+            $query->where('worker_id', $worker_id)
+                ->where('month', $mes)
+                ->where('year', $year)
+                ->where('day', '>', $fromDay)
+                ->where('day', '<', $hasta);
+        })
+            ->sum('exists'); //
 
         // Return the count or 0 if no records are found
-        return $licenseDays ? $licenseDays->total_days : 0;
+        return $totalDays;
     }
 
     public function worker()

@@ -8,6 +8,8 @@ use App\Models\Absence;
 use App\Models\FinancialIndicator;
 use App\Models\Insurance;
 use App\Models\Liquidation;
+use App\Models\Payroll;
+use App\Models\Report;
 use App\Models\School;
 use App\Models\Sustainer;
 use App\Models\Template;
@@ -17,6 +19,8 @@ use App\Policies\AbsencePolicy;
 use App\Policies\FinancialIndicatorPolicy;
 use App\Policies\InsurancePolicy;
 use App\Policies\LiquidationPolicy;
+use App\Policies\PayrollPolicy;
+use App\Policies\ReportPolicy;
 use App\Policies\SchoolPolicy;
 use App\Policies\SustainerPolicy;
 use App\Policies\TemplatePolicy;
@@ -41,6 +45,8 @@ class AuthServiceProvider extends ServiceProvider
         Absence::class => AbsencePolicy::class,
         Template::class => TemplatePolicy::class,
         Liquidation::class => LiquidationPolicy::class,
+        Report::class => ReportPolicy::class,
+        Payroll::class => PayrollPolicy::class
     ];
 
     /**

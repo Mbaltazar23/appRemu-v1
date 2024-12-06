@@ -144,7 +144,7 @@ class Parameter extends Model
         $query = self::where('name', $classId)
             ->where('school_id', $schoolId);
 
-        if ($workerId !== null) {
+        if ($workerId !== 0) {
             $query->where('worker_id', $workerId);
         }
 
@@ -222,22 +222,19 @@ class Parameter extends Model
     {
         // Start the query with the 'name' filter
         $query = self::where('name', $name);
-    
+
         // If schoolId is not null or empty, apply the filter for school_id
         if (!is_null($schoolId)) {
-            $query->where(function($query) use ($schoolId) {
-                $query->where('school_id', $schoolId)
-                      ->orWhere('school_id', 0);  // Mimicking SQL 'id_colegio=0' condition
-            });
+            $query->where('school_id', $schoolId);
         }
-    
+
         // If workerId is not null or empty, apply the filter for worker_id
         if (!is_null($workerId)) {
-            $query->where(function($query) use ($workerId) {
+            $query->where(function ($query) use ($workerId) {
                 $query->where('worker_id', $workerId)
-                      ->orWhere('worker_id', 0);  // Mimicking SQL 'id_trabajador=0' condition
+                    ->orWhere('worker_id', null); // Mimicking SQL 'id_trabajador=0' condition
             });
-        }    
+        }
         // Get the 'value' field or return 0 if no result is found
         return $query->value('value') ?? 0;
     }
@@ -274,7 +271,7 @@ class Parameter extends Model
 
     public static function getDescriptionByCode($name, $worker_id, $school_id)
     {
-        return self::where('name', $name)->where('worker_id', $worker_id)->where('school_id', $school_id)->first(['description']);
+        return self::where('name', $name)->where('worker_id', $worker_id)->where('school_id', $school_id)->value('description');
     }
 
     public static function getTitleTuition($tuition_id, $school_id)
@@ -288,18 +285,11 @@ class Parameter extends Model
     public static function getParameterValue($name, $workerId, $schoolId)
     {
         $result = self::where('name', $name)
-            ->where(function ($query) use ($schoolId) {
-                $query->where('school_id', $schoolId)
-                    ->orWhere('school_id', 0);
-            })
-            ->where(function ($query) use ($workerId) {
-                $query->where('worker_id', $workerId)
-                    ->orWhere('worker_id', 0);
-            })
-            ->orderBy('worker_id', 'desc')
-            ->first(['value']);
+            ->where('school_id', $schoolId)
+            ->where('worker_id', $workerId)
+            ->first();
 
-        return $result ? $result->value : 0;
+        return $result->value ?? 0;
     }
 
     public static function getWorkerParametersByInsuranceType($workerId, $schoolId, $insuranceType)
@@ -341,7 +331,7 @@ class Parameter extends Model
             })
             ->value('unit');
         // Si existe el parámetro, devuelve la unidad, si no, devuelve 0
-        return $parameter ?? $parameter->unit;
+        return $parameter ?? '';
     }
 
     // Método para obtener la suma del valor de los parámetros
@@ -350,10 +340,7 @@ class Parameter extends Model
         return self::join('workers', 'workers.id', '=', 'parameters.worker_id') // Asumimos que la relación es con el modelo Worker
             ->where('parameters.name', $tuitionId)
             ->where('parameters.school_id', $schoolId)
-            ->where('parameters.worker_id', 'workers.id')
-            ->where('workers.school_id', $schoolId)
-            ->where('parameters.worker_type', $workerTypeId)
-            ->whereNull('workers.settlement_date') // equivalent to fec_finiquito IS NULL
+            ->where('workers.worker_type', $workerTypeId)
             ->sum('parameters.value');
     }
 
@@ -368,7 +355,42 @@ class Parameter extends Model
             })
             ->first();
 
-        return $parameter ? $parameter->description : "";
+        return $parameter->description ?? "";
+    }
+
+    public static function getParametersWithTuitions($name, $schoolId, $workerId)
+    {
+        return self::select(
+            'tuitions.title',
+            'tuitions.tuition_id',
+            'parameters.name',
+            'parameters.description',
+            'parameters.unit',
+            'parameters.value',
+            'tuitions.type',
+            'tuitions.in_liquidation'
+        )
+            ->leftJoin('tuitions', 'tuitions.tuition_id', '=', 'parameters.name')
+            ->where('parameters.worker_id', $workerId)
+            ->where('parameters.school_id', $schoolId)
+            ->where('parameters.name', $name)
+            ->first();
+    }
+
+    public static function getParametersBySchoolAndName($schoolId, $name)
+    {
+        return self::select(
+            'parameters.name',
+            'parameters.description',
+            'parameters.unit',
+            'parameters.value',
+            'tuitions.type',
+            'parameters.worker_id'
+        )
+            ->leftJoin('tuitions', 'tuitions.tuition_id', '=', 'parameters.name')
+            ->where('parameters.school_id', $schoolId)
+            ->where('parameters.name', $name)
+            ->get();
     }
 
     public function school()

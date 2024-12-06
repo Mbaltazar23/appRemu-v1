@@ -61,15 +61,13 @@ class Template extends Model
         // Iteramos sobre cada plantilla y procesamos según el código
         foreach ($templates as $template) {
             if ($template->code == "_L_") {
-                $template->tuition->title = "(Linea de total en segunda columna)";
+                $template->tuition_id = "(Linea de total en segunda columna)";
             } elseif ($template->code == "__L") {
-                $template->tuition->title = "(Linea de total en tercera columna)";
+                $template->tuition_id = "(Linea de total en tercera columna)";
             } elseif ($template->code == "_LL") {
-                $template->tuition->title = "(Linea de total en segunda y tercera columna)";
+                $template->tuition_id = "(Linea de total en segunda y tercera columna)";
             } elseif ($template->code == "LLL") {
-                $template->tuition->title = "(Linea de total en todas las columnas)";
-            } elseif ($template->code == "TEX") {
-                $template->tuition->title = $template->tuition_id; // Asigna el título de la clase si el código es "TEX"
+                $template->tuition_id = "(Linea de total en todas las columnas)";
             }
         }
         // Devolvemos las plantillas ya procesadas
@@ -87,9 +85,9 @@ class Template extends Model
             ->exists();
     }
 
-/**
- * Gets the maximum position that exists
- */
+    /**
+     * Gets the maximum position that exists
+     */
     public static function getMaxPosition($schoolId, $type)
     {
         return self::where('school_id', $schoolId)
@@ -97,9 +95,9 @@ class Template extends Model
             ->max('position');
     }
 
-/**
- * Lists positions of a class in a template
- */
+    /**
+     * Lists positions of a class in a template
+     */
     public static function listTuitionPositionsInTemplate($schoolId, $type, $classId)
     {
         return self::where('school_id', $schoolId)
@@ -172,7 +170,7 @@ class Template extends Model
         $text = $request['text'] ?? ''; // Para código "TEX"
 
         // Si la posición es mayor que 0, incrementamos la posición
-        if ($position > 0) {
+        if ($position > 1) {
             $position = $position + 1;
         }
 
@@ -182,11 +180,11 @@ class Template extends Model
         // Si la posición máxima es mayor o igual a la posición solicitada, movemos las líneas hacia abajo
         while (self::positionExists($schoolId, $type, $maxPosition) && $maxPosition >= $position) {
             self::movePositionDown($schoolId, $type, $maxPosition);
-            $maxPosition--;
+            $maxPosition = $maxPosition - 1;
         }
 
         // Si el código es "TEX", asignamos null a tuition_id ya que no hay relación
-        if ($code == "TEX") {
+        if ($code == "TEX" && $tuitionId == "") {
             $tuitionId = $text; // No asociamos un tuition_id
         }
 
@@ -200,7 +198,7 @@ class Template extends Model
             'type' => $type,
             'position' => $position,
             'code' => $code,
-            'tuition_id' => $tuitionId,
+            'tuition_id' => $tuitionId ?? $text,
             'ignore_zero' => $ignoreIfZero,
             'parentheses' => $parentheses,
         ]);
@@ -217,9 +215,8 @@ class Template extends Model
         $parentheses = $request['parentheses'];
         $text = $request['text'] ?? ''; // Para código "TEX"
 
-        if ($code=="TEX")
-        {
-             $tuitionId=$text;
+        if ($code == "TEX") {
+            $tuitionId = $text;
         }
 
         // Si el código no comienza con "N", vaciar la clase

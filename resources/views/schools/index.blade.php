@@ -8,11 +8,13 @@
                 <span>
                     Listado de {{ __('Schools') }}
                 </span>
-                <a class="d-inline ml-3 text-decoration-none" href="{{ route('schools.create') }}">
-                    <button class="btn btn-primary rounded-3 px-3 py-1">
-                        Crear
-                    </button>
-                </a>
+                @can('create', App\Models\School::class)
+                    <a class="d-inline ml-3 text-decoration-none" href="{{ route('schools.create') }}">
+                        <button class="btn btn-primary rounded-3 px-3 py-1">
+                            Crear
+                        </button>
+                    </a>
+                @endcan
             </h2>
         </div>
     </div>

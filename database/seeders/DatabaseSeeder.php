@@ -20,10 +20,10 @@ class DatabaseSeeder extends Seeder
         $this->call(WorkerSeeder::class);
         $this->call(FinancialIndicatorsSeeder::class);
         $this->call(OperationsTableSeeder::class);
+        $this->call(TuitionsTableSeeder::class);
         $this->call(BonusSeeder::class);
         $this->call(LicenseSeeder::class);
         $this->call(AbsenceSeeder::class);
-        $this->call(TuitionsTableSeeder::class);
-        //$this->call(TemplateSeeder::class);
+        $this->call(TemplateSeeder::class);
     }
 }

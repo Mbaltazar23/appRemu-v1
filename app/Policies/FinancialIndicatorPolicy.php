@@ -12,13 +12,13 @@ class FinancialIndicatorPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isContador() || in_array('MANICOM', $user->permissions);
+        return $user->isContador() || in_array('MANIECO', $user->permissions) || in_array('MANASIGFAM', $user->permissions);
     }
 
     public function view(User $user, FinancialIndicator $financialIndicator): bool
     {
         // Verifica si el usuario tiene permiso
-        return $user->isContador() || in_array('MANICOM', $user->permissions);
+        return $user->isContador() || in_array('MANIECO', $user->permissions) || in_array('MANASIGFAM', $user->permissions);;
     }
 
 }
