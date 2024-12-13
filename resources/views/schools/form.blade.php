@@ -1,4 +1,3 @@
-<div class="table-responsive">
     <!-- Fila para Nombre, RBD y RUT -->
     <div class="row mb-3">
         <div class="col-md-4">
@@ -120,26 +119,25 @@
         </div>
     </div>
 
-</div>
 
-@push('custom_scripts')
-    <script>
-        function validadorRut(txtRut) {
-            document.getElementById(txtRut).addEventListener('input', function(evt) {
-                let value = this.value.replace(/\./g, '').replace('-', '');
-                if (value.match(/^(\d{2})(\d{3}){2}(\w{1})$/)) {
-                    value = value.replace(/^(\d{2})(\d{3})(\d{3})(\w{1})$/, '$1.$2.$3-$4');
-                } else if (value.match(/^(\d)(\d{3}){2}(\w{0,1})$/)) {
-                    value = value.replace(/^(\d)(\d{3})(\d{3})(\w{0,1})$/, '$1.$2.$3-$4');
-                } else if (value.match(/^(\d)(\d{3})(\d{0,2})$/)) {
-                    value = value.replace(/^(\d)(\d{3})(\d{0,2})$/, '$1.$2.$3');
-                } else if (value.match(/^(\d)(\d{0,2})$/)) {
-                    value = value.replace(/^(\d)(\d{0,2})$/, '$1.$2');
-                }
-                this.value = value;
-            });
-        }
-        validadorRut('rut');
-        validadorRut('rut_director');
-    </script>
-@endpush
+    @push('custom_scripts')
+        <script>
+            function validadorRut(txtRut) {
+                document.getElementById(txtRut).addEventListener('input', function(evt) {
+                    let value = this.value.replace(/\./g, '').replace('-', '');
+                    if (value.match(/^(\d{2})(\d{3}){2}(\w{1})$/)) {
+                        value = value.replace(/^(\d{2})(\d{3})(\d{3})(\w{1})$/, '$1.$2.$3-$4');
+                    } else if (value.match(/^(\d)(\d{3}){2}(\w{0,1})$/)) {
+                        value = value.replace(/^(\d)(\d{3})(\d{3})(\w{0,1})$/, '$1.$2.$3-$4');
+                    } else if (value.match(/^(\d)(\d{3})(\d{0,2})$/)) {
+                        value = value.replace(/^(\d)(\d{3})(\d{0,2})$/, '$1.$2.$3');
+                    } else if (value.match(/^(\d)(\d{0,2})$/)) {
+                        value = value.replace(/^(\d)(\d{0,2})$/, '$1.$2');
+                    }
+                    this.value = value;
+                });
+            }
+            validadorRut('rut');
+            validadorRut('rut_director');
+        </script>
+    @endpush

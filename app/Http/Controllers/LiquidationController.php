@@ -27,13 +27,13 @@ class LiquidationController extends Controller
     public function selectWorkerType($workerType)
     {
         $school_id = auth()->user()->school_id_session;
-
+        $distincYears = Liquidation::getDistinctYears();
         // Obtener los trabajadores por tipo y por escuela
         $workers = Worker::where('worker_type', $workerType)
             ->where('school_id', $school_id)
             ->get();
 
-        return view('liquidations.selectWorker', compact('workers', 'workerType'));
+        return view('liquidations.selectWorker', compact('workers', 'workerType', 'distincYears'));
     }
 
     public function workerLiquidation($workerId)
@@ -78,7 +78,7 @@ class LiquidationController extends Controller
         ])->with('warning', $warning);
     }
 
-    public function save(Request $request, Worker $worker)
+    public function store(Request $request, Worker $worker)
     {
         // Intentar almacenar la liquidación
         $liquidation = Liquidation::storeLiquidation($request, $worker->id);

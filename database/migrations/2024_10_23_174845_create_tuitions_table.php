@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title')->nullable();
             $table->string('tuition_id')->nullable(); // Asegúrate de que sea único
+            $table->string('tuition_id_description')->nullable();
             $table->char('type', 1)->nullable();
             $table->string('description')->nullable();
             $table->tinyInteger('in_liquidation')->nullable();

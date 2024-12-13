@@ -11,7 +11,7 @@
     </div>
     <div class="page-body">
         <div class="container-xl">
-            <div class="card p-3">
+            <div class="card p-5">
                 <form method="POST" action="{{ route('users.store') }}">
                     @csrf
                     @include('users.form')
@@ -20,7 +20,6 @@
                             <button type="button" class="btn btn-primary rounded-2 px-3 py-1">Regresar</button>
                         </a>
                         <button type="submit" class="btn btn-warning rounded-2 px-3 py-1">Crear</button>
-                    </div>
                     </div>
                 </form>
             </div>

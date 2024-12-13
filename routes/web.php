@@ -2,17 +2,21 @@
 
 use App\Http\Controllers\AbsenceController;
 use App\Http\Controllers\BonusController;
+use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\CostCenterController;
 use App\Http\Controllers\FinancialIndicatorController;
 use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LiquidationController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SustainerController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkerController;
+use App\Models\History;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -46,6 +50,7 @@ Auth::routes();
 Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::resource('users', UserController::class);
+    Route::resource('roles', RoleController::class);
     Route::resource('schools', SchoolController::class);
     Route::resource('sustainers', SustainerController::class);
     Route::resource('insurances', InsuranceController::class);
@@ -56,10 +61,22 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
     Route::resource('templates', TemplateController::class);
     Route::resource('reports', ReportController::class);
     Route::resource('payrolls', PayrollController::class);
+    Route::resource('certificates', CertificateController::class);
+    Route::resource('costcenters', CostCenterController::class);
     //Route::resource('financial_indicators', FinancialIndicatorController::class);
     Route::get('profile', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
     Route::put('profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 
+    Route::get('/historys', function () {
+        // Obtener todos los registros de History
+        $historys = History::all();
+        // Verificar si el usuario tiene permiso para ver el historial
+        if (Auth::check()) {
+            return view('historys.index', compact('historys'));
+        } else {
+            abort(403, 'No autorizado');
+        }
+    })->name('historys.index');
 });
 
 Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(function () {
@@ -86,14 +103,14 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
     Route::post('/insurances/setParameters', [InsuranceController::class, 'setParameters'])->name('insurances.setParameters');
 
     /* RUTAS PARA BONUSES */
-    Route::get('/bonuses/partials/list', [BonusController::class, 'list'])->name('bonuses.partials.list');
-    Route::get('/bonuses/partials/params', [BonusController::class, 'generalParams'])->name('bonuses.partials.params');
-    Route::post('/bonuses/update/params', [BonusController::class, 'updateParams'])->name('bonuses.updateParams');
-    Route::get('/bonuses/partials/worker', [BonusController::class, 'workers'])->name('bonuses.partials.worker');
-    Route::get('/bonuses/{bonus}/workers', [BonusController::class, 'showWorkers'])->name('bonuses.workers');
-    Route::get('/api/workers/{workerId}/parameters', [BonusController::class, 'fetchWorkerParameters']);
-    Route::post('/bonuses/workers/update', [BonusController::class, 'updateBonusWorker'])->name('bonuses.updateBonus');
-    Route::post('/bonuses/{bonus}/update-workers', [BonusController::class, 'updateWorkers'])->name('bonuses.update-workers');
+    Route::get('bonuses/partials/list', [BonusController::class, 'list'])->name('bonuses.partials.list');
+    Route::get('bonuses/partials/params', [BonusController::class, 'generalParams'])->name('bonuses.partials.params');
+    Route::post('bonuses/update/params', [BonusController::class, 'updateParams'])->name('bonuses.updateParams');
+    Route::get('bonuses/partials/worker', [BonusController::class, 'workers'])->name('bonuses.partials.worker');
+    Route::get('bonuses/{bonus}/workers', [BonusController::class, 'showWorkers'])->name('bonuses.workers');
+    Route::get('api/workers/{workerId}/parameters', [BonusController::class, 'fetchWorkerParameters']);
+    Route::post('bonuses/workers/update', [BonusController::class, 'updateBonusWorker'])->name('bonuses.updateBonus');
+    Route::post('bonuses/{bonus}/update-workers', [BonusController::class, 'updateWorkers'])->name('bonuses.update-workers');
 
     /** RUTAS PARA LOS INDICADORES ECONOMICOS */
     Route::get('financial-indicators', [FinancialIndicatorController::class, 'index'])->name('financial-indicators.index');
@@ -121,5 +138,5 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
 
     /** RUTAS PARA LA GENERACION DE INFORMES PREVISIONALES */
     Route::get('reports/typeInsurance/{type}', [ReportController::class, 'typeInsurance'])->name('reports.type');
-    Route::get('/reports/generate/{typeInsurance}/{month}/{year}/{insurance}', [ReportController::class, 'generateReport'])->name('reports.generate');
+    Route::get('reports/generate/{typeInsurance}/{month}/{year}/{insurance}', [ReportController::class, 'generateReport'])->name('reports.generate');
 });

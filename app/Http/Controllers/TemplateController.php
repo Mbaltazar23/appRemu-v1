@@ -9,12 +9,16 @@ use Illuminate\Http\Request;
 
 class TemplateController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Template::class, 'template');
+    }
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $typeItem = $request->get('typeItem',1); // '1' por defecto para docentes
+        $typeItem = $request->get('typeItem', 1); // '1' por defecto para docentes
         $schoolId = auth()->user()->school_id_session; // Obtener el ID del colegio del usuario autenticado
         // Obtener plantillas
         $templates = Template::getTemplate($schoolId, $typeItem);
@@ -46,7 +50,6 @@ class TemplateController extends Controller
         $templates = Template::getTemplate($schoolId, $typeItem);
 
         $templates = Template::processTemplates($templates);
-
 
         $lineTypes = Template::getLineTypes();
 
@@ -109,7 +112,7 @@ class TemplateController extends Controller
             Template::swapPositions($template->school_id, $template->type, $position, $position - 1);
         }
 
-        return redirect()->route('templates.index', ['typeItem' => $template->type]);
+        return redirect()->route('templates.index', ['typeItem' => $template->type])->with('success', 'Item Subido en la Plantilla Exitosamente !!');
     }
 
     public function moveDown(Template $template, $position)
@@ -119,7 +122,7 @@ class TemplateController extends Controller
             Template::swapPositions($template->school_id, $template->type, $position, $position + 1);
         }
 
-        return redirect()->route('templates.index', ['typeItem' => $template->type]);
+        return redirect()->route('templates.index', ['typeItem' => $template->type])->with('success', 'Item Bajado en la Plantilla Exitosamente !!');
     }
     /**
      * Remove the specified resource from storage.
@@ -133,6 +136,6 @@ class TemplateController extends Controller
 
         // Redirigir después de la eliminación
         return redirect()->route('templates.index', ['typeItem' => $typeItem])
-            ->with('success', 'Plantilla eliminada correctamente');
+            ->with('success', 'Item de Plantilla Eliminado correctamente !!');
     }
 }

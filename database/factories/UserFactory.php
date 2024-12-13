@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Role;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -25,18 +26,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => Hash::make("password25"),
             'remember_token' => Str::random(10),
-            'role' => rand(1, 5),
-            'permissions' => [] // Añadido para permitir la asignación de permisos
+            'role_id' => null,
         ];
-    }
-
-     /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
     }
 }

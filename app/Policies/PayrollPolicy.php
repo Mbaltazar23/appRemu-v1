@@ -12,17 +12,17 @@ class PayrollPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isContador() && in_array('PLANREMU', $user->permissions);
+        return in_array('PLANREMU', $user->role->permissions);
     }
 
     public function view(User $user, Payroll $payroll): bool
     {
         // Verifica si el usuario tiene permiso
-        return $user->isContador() && in_array('PLANREMU', $user->permissions) ;
+        return in_array('PLANREMU', $user->role->permissions) ;
     }
 
     public function create(User $user): bool
     {
-        return $user->isContador() && in_array('PLANREMU', $user->permissions);
+        return in_array('PLANREMU', $user->role->permissions);
     }
 }

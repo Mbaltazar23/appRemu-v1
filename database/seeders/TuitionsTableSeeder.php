@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\SchoolUser;
 use App\Models\Tuition;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -78,13 +79,12 @@ class TuitionsTableSeeder extends Seeder
             ['SUELDOBASEB', 'Sueldo base bruto', 'P', '', 0, 0],
             ['TOTALDESCUENTOS', 'Total Descuentos', 'O', '', 1, 0],
         ];
-// Obtener el primer contador
-        $contadorUser = User::where('role', User::CONTADOR)->first();
-
-// Verificar si se encontró un contador
+        // Obtener el primer contador
+        $contadorUser = SchoolUser::first();
+        // Verificar si se encontró un contador
         if ($contadorUser) {
             // Obtener el primer colegio asociado a este contador
-            $schoolId = $contadorUser->schools->first()->id;
+            $schoolId = $contadorUser->school_id; 
             // Insertar los registros en la tabla `tuitions`
             foreach ($data as $tuition) {
                 Tuition::create([

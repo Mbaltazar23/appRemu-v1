@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\School;
 use App\Models\SchoolUser;
 use App\Models\User;
@@ -15,7 +16,7 @@ class SchoolUserSeeder extends Seeder
     public function run(): void
     {
         // Obtener todos los usuarios con el rol 'Contador'
-        $contadores = User::where('role', User::CONTADOR)->get();
+        $contadores = User::where('role_id', Role::where('name', 'Contador')->value('id'))->get();
 
         // Verificar si existen usuarios con el rol 'Contador'
         if ($contadores->isNotEmpty()) {

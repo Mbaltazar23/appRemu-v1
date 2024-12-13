@@ -11,8 +11,6 @@
         <div class="card p-5">
             <form action="{{ route('bonuses.updateParams') }}" method="POST">
                 @csrf
-                @method('PUT')
-
                 <div class="mb-3 row">
                     <label for="CIERREMES" class="col-sm-4 col-form-label">Día del cierre de mes</label>
                     <div class="col-sm-8">

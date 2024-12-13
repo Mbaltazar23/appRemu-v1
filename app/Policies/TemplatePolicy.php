@@ -13,7 +13,7 @@ class TemplatePolicy
     public function viewAny(User $user): bool
     {
         // Lógica de autorización: el usuario debe ser contador para ver ausencias.
-        return $user->isContador();
+        return in_array('MANLIQ', $user->role->permissions);
     }
 
     /**
@@ -21,9 +21,7 @@ class TemplatePolicy
      */
     public function view(User $user, Template $template): bool
     {
-        // Lógica de autorización: el usuario puede ver la ausencia si es el mismo trabajador
-        // o si es un contador.
-        return $user->isContador();
+        return in_array('MANLIQ', $user->role->permissions);
     }
     /**
      * Determine whether the user can create an absence.
@@ -31,7 +29,7 @@ class TemplatePolicy
     public function create(User $user): bool
     {
         // Lógica de autorización: el usuario debe ser contador para crear ausencias.
-        return $user->isContador();
+        return in_array('MANLIQ', $user->role->permissions);
     }
 
     /**
@@ -39,8 +37,7 @@ class TemplatePolicy
      */
     public function update(User $user, Template $template): bool
     {
-        // Lógica de autorización: el usuario debe ser contador o ser el trabajador que está registrando la ausencia.
-        return $user->isContador();
+        return in_array('MANLIQ', $user->role->permissions);
     }
 
     /**
@@ -49,7 +46,7 @@ class TemplatePolicy
     public function delete(User $user, Template $template): bool
     {
         // Lógica de autorización: el usuario debe ser contador para eliminar una ausencia.
-        return $user->isContador();
+        return in_array('MANLIQ', $user->role->permissions);
     }
 
     /**
@@ -58,7 +55,7 @@ class TemplatePolicy
     public function restore(User $user, Template $template): bool
     {
         // Lógica de autorización: el usuario debe ser contador para restaurar ausencias.
-        return $user->isContador();
+        return in_array('MANLIQ', $user->role->permissions);
     }
 
     /**
@@ -67,6 +64,6 @@ class TemplatePolicy
     public function forceDelete(User $user, Template $template): bool
     {
         // Lógica de autorización: el usuario debe ser contador para eliminar permanentemente una ausencia.
-        return $user->isContador();
+        return in_array('MANLIQ', $user->role->permissions);
     }
 }

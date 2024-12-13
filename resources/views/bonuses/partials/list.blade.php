@@ -85,11 +85,6 @@
                         </tbody>
                     </table>
                 </div>
-                @if ($bonuses->hasPages())
-                    <div class="card-footer pb-0">
-                        {{ $bonuses->links() }}
-                    </div>
-                @endif
             </div>
         </div>
     </div>

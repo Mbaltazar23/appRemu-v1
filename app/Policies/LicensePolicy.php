@@ -12,7 +12,7 @@ class LicensePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isContador() && in_array('MANLIC', $user->permissions);
+        return in_array('MANLIC', $user->role->permissions);
     }
 
     /**
@@ -20,7 +20,7 @@ class LicensePolicy
      */
     public function view(User $user, License $license): bool
     {
-        return $user->isContador() && in_array('MANLIC', $user->permissions);
+        return in_array('MANLIC', $user->role->permissions);
     }
 
     /**
@@ -28,7 +28,7 @@ class LicensePolicy
      */
     public function create(User $user): bool
     {
-        return $user->isContador() && in_array('MANLIC', $user->permissions);
+        return in_array('MANLIC', $user->role->permissions);
     }
 
     /**
@@ -36,7 +36,7 @@ class LicensePolicy
      */
     public function update(User $user, License $license): bool
     {
-        return $user->isContador() && in_array('MANLIC', $user->permissions);
+        return in_array('MANLIC', $user->role->permissions);
     }
 
     /**
@@ -44,6 +44,6 @@ class LicensePolicy
      */
     public function delete(User $user, License $license): bool
     {
-        return $user->isContador() && in_array('MANLIC', $user->permissions);
+        return in_array('MANLIC', $user->role->permissions);
     }
 }

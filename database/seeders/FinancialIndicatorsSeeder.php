@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Operation;
 use App\Models\Parameter;
+use App\Models\SchoolUser;
 use App\Models\Tuition;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -17,12 +18,11 @@ class FinancialIndicatorsSeeder extends Seeder
     public function run()
     {
         // Insertar los tres parámetros para cada escuela asociada a un contador
-        $contadorUser = User::where('role', User::CONTADOR)->first();
-
-        // Verificar si existen usuarios con el rol 'Contador'
+        $contadorUser = SchoolUser::first();
+        // Verificar si se encontró un contador
         if ($contadorUser) {
             // Obtener todas las escuelas asociadas a los contadores
-            $schoolId = $contadorUser->schools->first()->id; // Obtener el primer colegio de los colegios asociados al contador
+            $schoolId = $contadorUser->school_id; // Obtener el primer colegio de los colegios asociados al contador
             // Obtener un mes aleatorio entre 1 (Enero) y 12 (Diciembre)
             $randomMonth = rand(1, 12);
 

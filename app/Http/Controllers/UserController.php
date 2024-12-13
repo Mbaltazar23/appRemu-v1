@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserFormRequest;
+use App\Models\Role;
 use App\Models\School;
 use App\Models\User;
 
@@ -33,13 +34,11 @@ class UserController extends Controller
     {
         $user = new User();
 
-        $role = auth()->user()->role;
-
-        $roles = User::getRolesAccordingToUserRole($role);
+        $roles = Role::all();
 
         $schools = School::all();
 
-        return view('users.create', compact('user', 'schools', 'role', 'roles'));
+        return view('users.create', compact('user', 'schools', 'roles'));
     }
 
     /**
@@ -54,12 +53,7 @@ class UserController extends Controller
             $user->schools()->attach($request->input('school_ids'));
         }
 
-        // Asignar permisos
-        if ($request->has('permissions')) {
-            $user->updatePermissions($request->input('permissions'));
-        }
-
-        return redirect()->route('users.index');
+        return redirect()->route('users.index')->with('success', 'Usuario Registrado Exitosamente !!');
     }
     /**
      * Display the specified resource.
@@ -76,13 +70,11 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        $role = auth()->user()->role;
-
-        $roles = User::getRolesAccordingToUserRole($role);
+        $roles = Role::all();
 
         $schools = School::all();
 
-        return view('users.edit', compact('user', 'schools', 'role', 'roles'));
+        return view('users.edit', compact('user', 'schools','roles'));
     }
 
     /**
@@ -99,12 +91,8 @@ class UserController extends Controller
             // Sincronizar las relaciones de colegios
             $user->schools()->sync($schoolIds);
         }
-        // Obtener los permisos seleccionados y actualizarlos
-        $permissions = $request->input('permissions', []); // Asegúrate de que el input se llame 'permissions'
-        $user->permissions = $permissions;
-        $user->save();
 
-        return redirect()->route('users.show', $user);
+        return redirect()->route('users.show', $user)->with('success', 'Usuario Actualizado Exitosamente !!');
     }
 
     /**
@@ -114,6 +102,6 @@ class UserController extends Controller
     {
         $user->delete();
 
-        return redirect()->route('users.index');
+        return redirect()->route('users.index')->with('success', 'Usuario Eliminado Exitosamente !!');
     }
 }

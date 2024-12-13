@@ -12,12 +12,12 @@ class ReportPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isContador() || in_array('CONPREVISAPRE', $user->permissions) || in_array('CONPREVAFP', $user->permissions);
+        return  in_array('CONPREVISAPRE', $user->role->permissions) || in_array('CONPREVAFP', $user->role->permissions);
     }
 
     public function view(User $user, Report $report): bool
     {
         // Verifica si el usuario tiene permiso
-        return $user->isContador() || in_array('CONPREVISAPRE', $user->permissions) || in_array('CONPREVAFP', $user->permissions);;
+        return in_array('CONPREVISAPRE', $user->role->permissions) || in_array('CONPREVAFP', $user->role->permissions);;
     }
 }

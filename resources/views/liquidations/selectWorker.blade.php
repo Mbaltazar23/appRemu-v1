@@ -58,7 +58,7 @@
                                 <label for="year" class="form-label">Año</label>
                                 <select name="year" id="year" required class="form-control">
                                     <option value="0">Seleccione el año para la emisión</option>
-                                    @foreach (\App\Models\Liquidation::getDistinctYears() as $year)
+                                    @foreach ($distincYears as $year)
                                         <option value="{{ $year }}">{{ $year }}</option>
                                     @endforeach
                                 </select>

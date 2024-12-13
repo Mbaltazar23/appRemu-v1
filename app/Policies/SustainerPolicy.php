@@ -12,7 +12,7 @@ class SustainerPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isSuperAdmin();
+        return in_array('MANSOST', $user->role->permissions) ;
     }
 
     /**
@@ -20,7 +20,7 @@ class SustainerPolicy
      */
     public function view(User $user, Sustainer $sustainer): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin() ;
+        return in_array('MANSOST', $user->role->permissions) ;
     }
 
     /**
@@ -28,7 +28,7 @@ class SustainerPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin();
+        return in_array('MANSOST', $user->role->permissions) ;
     }
 
     /**
@@ -36,7 +36,7 @@ class SustainerPolicy
      */
     public function update(User $user, Sustainer $sustainer): bool
     {
-        return $user->isContador() || in_array('MANISAPRE', $user->permissions) || in_array('MANAFPTR', $user->permissions);
+        return in_array('MANSOST', $user->role->permissions) ;
     }
 
     /**
@@ -44,7 +44,7 @@ class SustainerPolicy
      */
     public function delete(User $user, Sustainer $sustainer): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin() || in_array('MANISAPRE', $user->permissions) || in_array('MANAFPTR', $user->permissions);
+        return in_array('MANSOST', $user->role->permissions);
     }
 
     /**
@@ -52,7 +52,7 @@ class SustainerPolicy
      */
     public function restore(User $user, Sustainer $sustainer): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin() || in_array('MANISAPRE', $user->permissions) || in_array('MANAFPTR', $user->permissions);
+        return in_array('MANSOST', $user->role->permissions);
     }
 
     /**
@@ -60,6 +60,6 @@ class SustainerPolicy
      */
     public function forceDelete(User $user, Sustainer $sustainer): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin() || in_array('MANISAPRE', $user->permissions) || in_array('MANAFPTR', $user->permissions);
+        return in_array('MANSOST', $user->role->permissions);
     }
 }

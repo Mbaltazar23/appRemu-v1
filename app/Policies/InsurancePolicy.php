@@ -12,7 +12,7 @@ class InsurancePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isContador() && ( in_array('MANAFP', $user->permissions) || in_array('MANISAPRETR', $user->permissions));
+        return ( in_array('MANAFP', $user->role->permissions) || in_array('MANISAPRETR', $user->role->permissions));
     }
 
     /**
@@ -20,7 +20,7 @@ class InsurancePolicy
      */
     public function view(User $user, Insurance $insurance): bool
     {
-        return $user->isContador() && ( in_array('MANAFP', $user->permissions) || in_array('MANISAPRETR', $user->permissions));
+        return ( in_array('MANAFP', $user->role->permissions) || in_array('MANISAPRETR', $user->role->permissions));
     }
 
     /**
@@ -29,14 +29,14 @@ class InsurancePolicy
     public function linkWorker(User $user, Insurance $insurance)
     {
         // Asegúrate de que la lógica de permisos sea adecuada para tu aplicación
-        return $user->isContador() && $insurance->type !== null;
+        return $insurance->type !== null;
     }
     /**
      * Determine whether the user can create models.
      */
     public function create(User $user): bool
     {
-        return  $user->isContador() && ( in_array('MANAFP', $user->permissions) || in_array('MANISAPRETR', $user->permissions));
+        return  ( in_array('MANAFP', $user->role->permissions) || in_array('MANISAPRETR', $user->role->permissions));
     }
 
     /**
@@ -44,7 +44,7 @@ class InsurancePolicy
      */
     public function update(User $user, Insurance $insurance): bool
     {
-        return $user->isContador() && ( in_array('MANAFP', $user->permissions) || in_array('MANISAPRETR', $user->permissions));
+        return ( in_array('MANAFP', $user->role->permissions) || in_array('MANISAPRETR', $user->role->permissions));
     }
 
     /**
@@ -52,22 +52,6 @@ class InsurancePolicy
      */
     public function delete(User $user, Insurance $insurance): bool
     {
-        return $user->isContador() && ( in_array('MANAFP', $user->permissions) || in_array('MANISAPRETR', $user->permissions));
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Insurance $insurance): bool
-    {
-        return $user->isContador();
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Insurance $insurance): bool
-    {
-        return $user->isContador();
+        return ( in_array('MANAFP', $user->role->permissions) || in_array('MANISAPRETR', $user->role->permissions));
     }
 }

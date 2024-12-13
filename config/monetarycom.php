@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 return [
     'datos' => [
@@ -86,40 +86,40 @@ return [
         ],
         '2024' => [
             'capital_inicial' => [
-                -0.5, 0.1, 0.7, 1.1, 1.6, 1.9, 1.8, 2.6, 2.8, 2.9, null, null,
+                -0.5, 0.1, 0.7, 1.1, 1.6, 1.9, 1.8, 2.6, 2.8, 2.9, 3.9, 4.2,
             ],
             'enero' => [
-                null, 0.7, 1.3, 1.6, 2.2, 2.5, 2.4, 3.1, 3.4, 3.5, null, null,
+                null, 0.7, 1.3, 1.6, 2.2, 2.5, 2.4, 3.1, 3.4, 3.5, 4.5, 4.7,
             ],
             'febrero' => [
-                null, null, 0.6, 1.0, 1.5, 1.8, 1.7, 2.4, 2.7, 2.8, null, null,
+                null, null, 0.6, 1.0, 1.5, 1.8, 1.7, 2.4, 2.7, 2.8, 3.8, 4.0,
             ],
             'marzo' => [
-                null, null, 0.4, 0.9, 1.2, 1.1, 1.8, 2.1, 2.2, null, null, null,
+                null, null, null, 0.4, 0.9, 1.2, 1.1, 1.8, 2.1, 2.2, 3.2, 3.4,
             ],
             'abril' => [
-                null, null, 0.5, 0.8, 0.7, 1.5, 1.7, 1.8, null, null, null, null,
+                null, null, null, null, 0.5, 0.8, 0.7, 1.5, 1.7, 1.8, 2.8, 3.0,
             ],
             'mayo' => [
-                null, null, 0.3, 0.2, 0.9, 1.2, 1.3, null, null, null, null, null,
+                null, null, null, null, null, 0.3, 0.2, 0.9, 1.2, 1.3, 2.2, 2.5,
             ],
             'junio' => [
-                null, null, -0.1, 0.6, 0.9, 1.0, null, null, null, null, null, null,
+                null, null, null, null, null, null,0.1, 0.6, 0.9, 1.0, 2.0, 2.2,
             ],
             'julio' => [
-                null, null, null, 0.7, 1.0, 1.1, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, 0.7, 1.0, 1.1, 2.1, 2.3,
             ],
             'agosto' => [
-                null, null, null, null, 0.2, 0.3, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, 0.2, 0.3, 1.3, 1.6,
             ],
             'septiembre' => [
-                null, null, null, null, null, 0.1, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, 0.1, 1.1, 1.3,
             ],
             'octubre' => [
-                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null, 1.0, 1.2,
             ],
             'noviembre' => [
-                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null, null, 0.3,
             ],
             'diciembre' => [
                 null, null, null, null, null, null, null, null, null, null, null, null,

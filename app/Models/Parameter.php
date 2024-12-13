@@ -250,28 +250,28 @@ class Parameter extends Model
     public static function getTitleByParameter($classId, $workerId, $schoolId)
     {
         // Check if classId is empty
-        if (empty($classId)) {
+        if ($classId == "") {
             return '';
         }
         // Get the description associated with the classId and schoolId
         $classDescription = self::getTuitionDescription($classId, $schoolId);
-        // If no class description is found, return the title of the class
-        if (empty($classDescription)) {
-            return Tuition::getTuitionTitleAndDescription($classId, $schoolId);
+  
+        if ($classDescription == "") {
+            return Tuition::getTuitionTitle($classId, $schoolId);
         } else {
             // If class description exists, return the parameter description
-            return self::getDescriptionByTuitionWorkerAndSchool($classDescription['tuition_id'], $workerId, $schoolId);
+            return self::getDescriptionByTuitionWorkerAndSchool($classDescription, $workerId, $schoolId);
         }
     }
 
     public static function getTuitionDescription($tuition_id, $school_id)
     {
-        return Tuition::where('tuition_id', $tuition_id)->where('school_id', $school_id)->first(['description']);
+        return Tuition::where('tuition_id', $tuition_id)->where('school_id', $school_id)->first()->tuition_id_description;
     }
 
     public static function getDescriptionByCode($name, $worker_id, $school_id)
     {
-        return self::where('name', $name)->where('worker_id', $worker_id)->where('school_id', $school_id)->value('description');
+        return self::where('name', $name)->where('worker_id', $worker_id)->where('school_id', $school_id)->description;
     }
 
     public static function getTitleTuition($tuition_id, $school_id)
@@ -351,7 +351,7 @@ class Parameter extends Model
             ->where('school_id', $schoolId)
             ->where(function ($query) use ($workerId) {
                 $query->where('worker_id', $workerId)
-                    ->orWhere('worker_id', 0); // 0 permite el valor global
+                    ->orWhere('worker_id', NULL); // 0 permite el valor global
             })
             ->first();
 

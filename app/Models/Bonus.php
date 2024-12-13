@@ -22,6 +22,7 @@ class Bonus extends Model
         'imputable',
     ];
 
+
     const APPLICATION_OPTIONS = [
         'H' => 'Es un monto que se reparte dependiendo de la cantidad de horas contratadas',
         'D' => 'Es un monto fijo que depende de cada trabajador',
@@ -174,16 +175,17 @@ class Bonus extends Model
 
             // Obtener el objeto Bonus por su ID
             $bonus = Bonus::find($id); // Asegúrate de que 'bonus_id' está en $data
+            $namev = $bonus['tuition_id'];
 
             if ($bonus) {
-                $nameValue = $bonus->tuition_id; // Acceder a tuition_id desde el objeto Bonus
+                $nameValue = $bonus->title; // Acceder a tuition_id desde el objeto Bonus
 
                 Tuition::updateTitleTuition($nameValue, $name, $data['school_id']);
-                Parameter::updateParamValue($bonus->tuition_id, $data['school_id'], $monto);
+                Parameter::updateParamValue($bonus['tuition_id'], $data['school_id'], $monto);
                 self::deleteOldFunction($id, $data['school_id']);
 
                 // Adding operation
-                $operation = Operation::generateOperation($data, $name, $nameValue, $factor);
+                $operation = Operation::generateOperation($data, $nameValue, $namev, $factor);
 
                 // Crear la cadena de meses
                 $meses = '';

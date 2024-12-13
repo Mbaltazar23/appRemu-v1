@@ -13,28 +13,28 @@ class WorkerPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isContador() && in_array('MANTRA', $user->permissions);
+        return in_array('MANTRA',$user->role->permissions);
     }
     /**
      * Determine whether the user can view the worker.
      */
     public function view(User $user, Worker $worker): bool
     {
-        return $user->isContador() && in_array('MANTRA', $user->permissions);
+        return in_array('MANTRA',$user->role->permissions);
     }
     /**
      * Determine whether the user can create workers.
      */
     public function create(User $user): bool
     {
-        return $user->isContador() && in_array('MANTRA', $user->permissions);
+        return in_array('MANTRA',$user->role->permissions);
     }
     /**
      * Determine whether the user can update the worker.
      */
     public function update(User $user, Worker $worker): bool
     {
-        return $user->isContador() && in_array('MANTRA', $user->permissions);
+        return in_array('MANTRA',$user->role->permissions);
     }
 
     /**
@@ -42,7 +42,7 @@ class WorkerPolicy
      */
     public function delete(User $user, Worker $worker): bool
     {
-        return $user->isContador() && in_array('MANTRA', $user->permissions);
+        return in_array('MANTRA',$user->role->permissions);
     }
 
     /**
@@ -50,7 +50,7 @@ class WorkerPolicy
      */
     public function restore(User $user, Worker $worker): bool
     {
-        return $user->isContador();
+        return in_array('MANTRA',$user->role->permissions);
     }
 
     /**
@@ -58,23 +58,22 @@ class WorkerPolicy
      */
     public function forceDelete(User $user, Worker $worker): bool
     {
-        return $user->isContador();
+        return in_array('MANTRA',$user->role->permissions);
     }
 
     public function viewContract(User $user, Worker $worker): bool
     {
-        return $user->isContador() && Contract::contractExists($worker->id) && in_array('MANTRA', $user->permissions);
+        return Contract::contractExists($worker->id) && in_array('MANTRA',$user->role->permissions);
     }
 
     public function settlement(User $user, Worker $worker): bool
     {
-        return $user->isContador() && in_array('MANTRA', $user->permissions);
+        return in_array('MANTRA',$user->role->permissions);
     }
-
 
     public function viewSettlement(User $user, Worker $worker): bool
     {
-        return $user->isContador() && in_array('MANTRA', $user->permissions);
+        return in_array('MANTRA',$user->role->permissions);
     }
 
 }

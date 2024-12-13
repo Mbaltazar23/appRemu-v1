@@ -28,12 +28,12 @@
                     </button>
                     <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
                         <a href="{{ route('home') }}">
-                            @if (auth()->check() && auth()->user()->isContador())
+                            @if (auth()->check())
                                 @php
-                                    $school = App\Models\School::find(auth()->user()->school_id_session);
+                                    $detailSchool = App\Models\SchoolUser::where('school_id', auth()->user()->school_id_session)->first();
                                 @endphp
-                                @if ($school)
-                                    {{ auth()->user()->getRoleNameAttribute() . ' - ' . $school->name }}
+                                @if ($detailSchool)
+                                    {{ auth()->user()->name . ' - ' . $detailSchool->school->name }}
                                 @else
                                     {{ config('app.name') }}
                                 @endif
@@ -41,7 +41,6 @@
                                 {{ config('app.name') }}
                             @endif
                         </a>
-
                     </h1>
                     <div class="navbar-nav flex-row order-md-last">
 
@@ -77,7 +76,6 @@
 
         </div>
         <div class="page-wrapper">
-
             <br>
             @if (session('success'))
                 <div class="container-xl mt-2">

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Role;
 use App\Models\School;
 use App\Models\SchoolUser;
 use App\Models\User;
@@ -18,7 +19,7 @@ class SchoolUserFactory extends Factory
     {
         return [
             // Seleccionamos un usuario con el rol 'Contador' de manera aleatoria
-            'user_id' => User::where('role', User::CONTADOR)->inRandomOrder()->first()->id, // Filtra solo los 'Contadores'
+            'user_id' =>User::where('role_id', Role::where('name', 'Contador')->value('id'))->inRandomOrder()->first()->id, // Filtra solo los 'Contadores'
 
             // Seleccionamos una escuela de manera aleatoria
             'school_id' => School::inRandomOrder()->first()->id, 

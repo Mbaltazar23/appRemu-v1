@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Contract;
 use App\Models\Parameter;
+use App\Models\SchoolUser;
 use App\Models\User;
 use App\Models\Worker;
 use Faker\Factory as Faker;
@@ -22,12 +23,12 @@ class WorkerSeeder extends Seeder
         $faker = Faker::create();
 
         // Obtener el primer contador
-        $contadorUser = User::where('role', User::CONTADOR)->first();
+        $contadorUser = SchoolUser::first();
 
         // Verificar si se encontró un contador
         if ($contadorUser) {
             // Obtener el primer colegio asociado a este contador
-            $schoolId = $contadorUser->schools->first()->id; // Obtener el primer colegio de los colegios asociados al contador
+            $schoolId = $contadorUser->school_id; // Obtener el primer colegio de los colegios asociados al contador
             // Crear varios trabajadores para ese colegio
             $workers = Worker::factory()->count(15)->create(['school_id' => $schoolId]);
 

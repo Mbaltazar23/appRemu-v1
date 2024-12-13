@@ -1,4 +1,3 @@
-<div class="table-responsive">
     <input type="hidden" name="school_id" value="{{ auth()->user()->school_id_session }}" />
 
     <!-- Datos del Trabajador -->
@@ -159,14 +158,15 @@
         <div class="col-md-4">
             <label for="hourly_load" class="form-label" style="opacity: 0.7;">Carga Horaria</label>
             <input id="hourly_load" type="number" class="form-control" name="hourly_load" min="1"
-                max="45" value="{{ old('hourly_load') ?? optional($worker->parameters->where('name', 'CARGAHORARIA')->first())->value }}" />
+                max="45"
+                value="{{ old('hourly_load') ?? optional($worker->parameters->where('name', 'CARGAHORARIA')->first())->value }}" />
         </div>
         <div class="col-md-4">
             <label for="contract_type" class="form-label" style="opacity: 0.7;">Tipo de Contrato</label>
             <select id="contract_type" class="form-select" name="contract_type">
                 <option value="">Seleccione un tipo de contrato</option>
                 @foreach ($contractTypes as $key => $type)
-                   <option value="{{ $key }}"
+                    <option value="{{ $key }}"
                         {{ (old('contract_type') ?? optional($worker->contract)->contract_type) == $key ? 'selected' : '' }}>
                         {{ $type }}
                     </option>
@@ -179,84 +179,97 @@
         <label class="form-label">Carga Horaria por Día</label>
         <div class="row" id="horas_dia">
             @foreach (['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'] as $day)
-            <div class="col-md-2 mb-3">
-                <label class="form-label">{{ ucfirst($day) }}</label>
-                <input type="number" id="carga_{{ $day }}" name="carga_{{ $day }}" class="form-control"
-                    value="{{ json_decode($worker->load_hourly_work)->$day ?? '' }}" disabled />
-            </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">{{ ucfirst($day) }}</label>
+                    <input type="number" id="carga_{{ $day }}" name="carga_{{ $day }}"
+                        class="form-control" value="{{ json_decode($worker->load_hourly_work)->$day ?? '' }}"
+                        disabled />
+                </div>
             @endforeach
         </div>
-        <small class="form-text text-muted">En caso de que el trabajador sea docente inserte la carga horaria por día (en horas).</small>
+        <small class="form-text text-muted">En caso de que el trabajador sea docente inserte la carga horaria por día
+            (en horas).</small>
     </div>
 
     <div class="row mb-4">
         <div class="col-md-4">
-            <label for="unemployment_insurance" class="form-label" style="opacity: 0.7;">Adhiere a seguro de cesantía?</label>
+            <label for="unemployment_insurance" class="form-label" style="opacity: 0.7;">Adhiere a seguro de
+                cesantía?</label>
             <select id="unemployment_insurance" class="form-select" name="unemployment_insurance">
-                <option value="1" {{ (old('unemployment_insurance') ?? optional($worker->parameters->where('name', 'ADHIEREASEGURO')->first())->value) == 1 ? 'selected' : '' }}>Sí</option>
-                <option value="0" {{ (old('unemployment_insurance') ?? optional($worker->parameters->where('name', 'ADHIEREASEGURO')->first())->value) == 0 ? 'selected' : '' }}>No</option>
+                <option value="1"
+                    {{ (old('unemployment_insurance') ?? optional($worker->parameters->where('name', 'ADHIEREASEGURO')->first())->value) == 1 ? 'selected' : '' }}>
+                    Sí</option>
+                <option value="0"
+                    {{ (old('unemployment_insurance') ?? optional($worker->parameters->where('name', 'ADHIEREASEGURO')->first())->value) == 0 ? 'selected' : '' }}>
+                    No</option>
             </select>
         </div>
         <div class="col-md-4">
             <label for="retired" class="form-label" style="opacity: 0.7;">¿Es Jubilado?</label>
             <select id="retired" class="form-select" name="retired">
-                <option value="0" {{ (old('retired') ?? optional($worker->parameters->where('name', 'JUBILADO')->first())->value) == 0 ? 'selected' : '' }}>No</option>
-                <option value="1" {{ (old('retired') ?? optional($worker->parameters->where('name', 'JUBILADO')->first())->value) == 1 ? 'selected' : '' }}>Sí</option>
+                <option value="0"
+                    {{ (old('retired') ?? optional($worker->parameters->where('name', 'JUBILADO')->first())->value) == 0 ? 'selected' : '' }}>
+                    No</option>
+                <option value="1"
+                    {{ (old('retired') ?? optional($worker->parameters->where('name', 'JUBILADO')->first())->value) == 1 ? 'selected' : '' }}>
+                    Sí</option>
             </select>
         </div>
         <div class="col-md-4">
-            <label for="service_start_year" class="form-label" style="opacity: 0.7;">Año inicio labor docente (si corresponde)</label>
-            <input id="service_start_year" type="text" class="form-control" name="service_start_year" maxlength="4"
+            <label for="service_start_year" class="form-label" style="opacity: 0.7;">Año inicio labor docente (si
+                corresponde)</label>
+            <input id="service_start_year" type="text" class="form-control" name="service_start_year"
+                maxlength="4"
                 value="{{ old('service_start_year') ?? optional($worker->parameters->where('name', 'YEARINICIOSERVICIO')->first())->value }}" />
         </div>
     </div>
-    
+
     <div class="row mb-4">
         <div class="col-md-6">
-            <label for="base_salary" class="form-label" style="opacity: 0.7;">Sueldo base (en caso de ser un trabajador no docente)</label>
+            <label for="base_salary" class="form-label" style="opacity: 0.7;">Sueldo base (en caso de ser un
+                trabajador no docente)</label>
             <input id="base_salary" type="text" class="form-control" name="base_salary" maxlength="7"
                 value="{{ old('base_salary') ?? optional($worker->parameters->where('name', 'SUELDOBASEB')->first())->value }}"
                 onblur="if (!isInteger(this.value)) { alert('El número es inválido'); this.focus(); }" />
         </div>
     </div>
-</div>
 
-@push('custom_scripts')
-    <script>
-        function toggleInputs() {
-        const workerType = document.getElementById('worker_type').value;
-        const cargaInputs = document.querySelectorAll('#horas_dia input');
-        const baseSalaryInput = document.getElementById('base_salary');
+    @push('custom_scripts')
+        <script>
+            function toggleInputs() {
+                const workerType = document.getElementById('worker_type').value;
+                const cargaInputs = document.querySelectorAll('#horas_dia input');
+                const baseSalaryInput = document.getElementById('base_salary');
 
-        if (workerType === '1') { // Si el tipo de trabajador es 'Docente'
-            cargaInputs.forEach(input => input.disabled = false);
-            baseSalaryInput.disabled = true;
-        } else { // Para cualquier otro tipo de trabajador
-            cargaInputs.forEach(input => input.disabled = true);
-            baseSalaryInput.disabled = false;
-        }
-    }
-
-        function validadorRut(txtRut) {
-            document.getElementById(txtRut).addEventListener('input', function(evt) {
-                let value = this.value.replace(/\./g, '').replace('-', '');
-                if (value.match(/^(\d{2})(\d{3}){2}(\w{1})$/)) {
-                    value = value.replace(/^(\d{2})(\d{3})(\d{3})(\w{1})$/, '$1.$2.$3-$4');
-                } else if (value.match(/^(\d)(\d{3}){2}(\w{0,1})$/)) {
-                    value = value.replace(/^(\d)(\d{3})(\d{3})(\w{0,1})$/, '$1.$2.$3-$4');
-                } else if (value.match(/^(\d)(\d{3})(\d{0,2})$/)) {
-                    value = value.replace(/^(\d)(\d{3})(\d{0,2})$/, '$1.$2.$3');
-                } else if (value.match(/^(\d)(\d{0,2})$/)) {
-                    value = value.replace(/^(\d)(\d{0,2})$/, '$1.$2');
+                if (workerType === '1') { // Si el tipo de trabajador es 'Docente'
+                    cargaInputs.forEach(input => input.disabled = false);
+                    baseSalaryInput.disabled = true;
+                } else { // Para cualquier otro tipo de trabajador
+                    cargaInputs.forEach(input => input.disabled = true);
+                    baseSalaryInput.disabled = false;
                 }
-                this.value = value;
-            });
-        }
-        
-        // Llama a la función para validar el RUT
-        validadorRut('rut');
+            }
 
-        // Llama a la función toggleInputs al cargar la página
-        document.addEventListener('DOMContentLoaded', toggleInputs);
-    </script>
-@endpush
+            function validadorRut(txtRut) {
+                document.getElementById(txtRut).addEventListener('input', function(evt) {
+                    let value = this.value.replace(/\./g, '').replace('-', '');
+                    if (value.match(/^(\d{2})(\d{3}){2}(\w{1})$/)) {
+                        value = value.replace(/^(\d{2})(\d{3})(\d{3})(\w{1})$/, '$1.$2.$3-$4');
+                    } else if (value.match(/^(\d)(\d{3}){2}(\w{0,1})$/)) {
+                        value = value.replace(/^(\d)(\d{3})(\d{3})(\w{0,1})$/, '$1.$2.$3-$4');
+                    } else if (value.match(/^(\d)(\d{3})(\d{0,2})$/)) {
+                        value = value.replace(/^(\d)(\d{3})(\d{0,2})$/, '$1.$2.$3');
+                    } else if (value.match(/^(\d)(\d{0,2})$/)) {
+                        value = value.replace(/^(\d)(\d{0,2})$/, '$1.$2');
+                    }
+                    this.value = value;
+                });
+            }
+
+            // Llama a la función para validar el RUT
+            validadorRut('rut');
+
+            // Llama a la función toggleInputs al cargar la página
+            document.addEventListener('DOMContentLoaded', toggleInputs);
+        </script>
+    @endpush

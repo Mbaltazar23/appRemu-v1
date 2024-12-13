@@ -36,7 +36,7 @@ class Worker extends Model
 
     const WORKER_TYPES = [
         1 => "Docente",
-        2 => "No Docente" 
+        2 => "No Docente",
     ];
 
     const FUNCTION_WORKER = [
@@ -211,6 +211,11 @@ class Worker extends Model
     public function contract()
     {
         return $this->hasOne(Contract::class, 'worker_id');
+    }
+
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class);
     }
 
     public function school()

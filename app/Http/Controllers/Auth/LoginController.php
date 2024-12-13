@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\History;
+use App\Models\SchoolUser;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,7 +20,7 @@ class LoginController extends Controller
     | redirecting them to your home screen. The controller uses a trait
     | to conveniently provide its functionality to your applications.
     |
-    */
+     */
 
     use AuthenticatesUsers;
 
@@ -39,22 +41,51 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
     }
+    /**
+     * The user has been authenticated.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $user
+     * @return mixed
+     */
+    protected function authenticated($request, $user)
+    {
+        // Obtener la fecha y hora actual
+        $currentDateTime = Carbon::now();
+        // Verificamos si ya existe un historial de ingreso para el usuario
+        $exists = History::where('user_id', $user->id)
+            ->whereDate('created_at', $currentDateTime->toDateString()) // Misma fecha
+            ->whereBetween('created_at', [
+                $currentDateTime->copy()->startOfHour(), // Hora de inicio de la hora actual
+                $currentDateTime->copy()->endOfHour(), // Hora final de la hora actual
+            ])
+            ->exists();
+
+        // Si no existe, creamos el nuevo registro de ingreso
+        if (!$exists) {
+            History::create([
+                'user_id' => $user->id,
+                'action' => 'Ingreso',
+            ]);
+        }
+
+        return redirect()->intended($this->redirectTo);
+    }
 
     public function logout()
     {
-        $user = User::find(auth()->user()->id);
+        $userDetail = SchoolUser::where('user_id', auth()->user()->id)->first();
 
         // Verifica si el rol del usuario es "Contador"
-        if ($user && $user->isContador() && $user->school_id_session) {
+        if ($userDetail && $userDetail->user->school_id_session) {
             // Establece school_id_session a null
-            $user->school_id_session = null;
-            $user->save();
+            $userDetail->user->school_id_session = null;
+            $userDetail->user->save();
         }
 
         Auth::logout();
 
         return redirect('/'); // Redirige a donde desees después del logout
     }
-
 
 }

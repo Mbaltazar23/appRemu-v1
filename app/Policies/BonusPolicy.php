@@ -12,7 +12,17 @@ class BonusPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isContador() && in_array('MANBODESCOL', $user->permissions);
+        return in_array('MANBODESCOL', $user->role->permissions);
+    }
+
+    public function viewWorkers(User $user): bool
+    {
+        return in_array('MANBODESTRA', $user->role->permissions);
+    }
+
+    public function parametersGen(User $user): bool
+    {
+        return in_array('MANBODESGEN', $user->role->permissions);
     }
 
     /**
@@ -20,7 +30,7 @@ class BonusPolicy
      */
     public function view(User $user, Bonus $bonuses): bool
     {
-        return $user->isContador() && in_array('MANBODESCOL', $user->permissions);
+        return in_array('MANBODESCOL', $user->role->permissions);
     }
 
     /**
@@ -28,7 +38,7 @@ class BonusPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isContador() && in_array('MANBODESCOL', $user->permissions);
+        return in_array('MANBODESCOL', $user->role->permissions);
     }
 
     /**
@@ -36,7 +46,7 @@ class BonusPolicy
      */
     public function update(User $user, Bonus $bonuses): bool
     {
-        return $user->isContador() && in_array('MANBODESCOL', $user->permissions);
+        return in_array('MANBODESCOL', $user->role->permissions);
     }
 
     /**
@@ -44,13 +54,12 @@ class BonusPolicy
      */
     public function delete(User $user, Bonus $bonuses): bool
     {
-        return $user->isContador() || in_array('MANBODESCOL', $user->permissions);
+        return in_array('MANBODESCOL', $user->role->permissions);
     }
-
 
     public function workers(User $user, Bonus $bonuses): bool
     {
-        return $user->isContador() || in_array('MANBODESTRA', $user->permissions);
+        return in_array('MANBODESTRA', $user->role->permissions);
 
     }
     /**
@@ -58,6 +67,6 @@ class BonusPolicy
      */
     public function forceDelete(User $user, Bonus $bonuses): bool
     {
-        return $user->isContador() || in_array('MANBODESCOL', $user->permissions);
+        return in_array('MANBODESCOL', $user->role->permissions);
     }
 }

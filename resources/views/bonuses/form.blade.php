@@ -12,11 +12,7 @@
                 ) }}"
                 required>
         </div>
-
-
-        @if ($bonus && $bonus->type)
-            <input type='hidden' name='type' value='{{ old('type', $bonus->type) }}'>
-        @else
+  
             <div class="col-md-6 mb-3">
                 <label for="type" class="form-label">Tipo de Trabajador</label>
                 <select id="type" class="form-select" name="type">
@@ -28,7 +24,6 @@
                     @endforeach
                 </select>
             </div>
-        @endif
 
         <div class="col-md-6 mb-3">
             <label for="is_bonus" class="form-label">¿Es un bono o un descuento?</label>
@@ -87,7 +82,7 @@
         <div class="col-md-6 mb-3">
             <label for="amount" class="form-label">Monto (en pesos)</label>
             <input type="number" class="form-control" id="amount" name="amount"
-                value="{{ old('amount', $bonus->school ? $bonus->school->parameters->where('name', $bonus->title)->value('value') ?? '' : '') }}"
+                value="{{ old('amount', $bonus->school ? $bonus->school->parameters->where('name', $bonus->tuition_id)->value('value') ?? '' : '') }}"
                 step="0.01">
         </div>
 
@@ -109,29 +104,3 @@
         </div>
     </div>
 </div>
-
-@push('custom_scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const applicationSelect = document.getElementById('application');
-            const amountInput = document.getElementById('amount');
-            const checkMonths = document.querySelectorAll('input[name="months[]"]');
-
-            function toggleInputs() {
-                const isAmountDisabled = applicationSelect.value === 'D';
-                amountInput.disabled = isAmountDisabled;
-
-                if (isAmountDisabled) {
-                    amountInput.value = ''; // Limpiar el campo si se inhabilita
-                }
-
-                checkMonths.forEach(checkbox => {
-                    checkbox.disabled = false; // Siempre habilitar los checkboxes
-                });
-            }
-
-            toggleInputs();
-            applicationSelect.addEventListener('change', toggleInputs);
-        });
-    </script>
-@endpush

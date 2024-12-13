@@ -3,8 +3,8 @@ namespace Database\Seeders;
 
 use App\Models\Bonus;
 use App\Models\Operation;
+use App\Models\SchoolUser;
 use App\Models\Tuition;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class OperationsTableSeeder extends Seeder
@@ -15,26 +15,26 @@ class OperationsTableSeeder extends Seeder
     public function run(): void
     {
 
-         // Obtener el primer contador
-         $contadorUser = User::where('role', User::CONTADOR)->first();
-         // Verificar si se encontró un contador
-         if ($contadorUser) {
-             // Obtener el primer colegio asociado a este contador
-             $schoolId = $contadorUser->schools->first()->id; // Obtener el primer colegio de los colegios asociados al contador
-             // Generamos una vez los bonos
-             $bonuses = $this->generateBonuses($schoolId);
-             // Insertamos los bonos para cada escuela
-             foreach ($bonuses as $bonusData) {
-                 // Añadimos el school_id al bono antes de guardarlo
-                 Bonus::processCreateBonuses($bonusData);
-             }
-         }
+        // Obtener el primer contador
+        $contadorUser = SchoolUser::first();
+        // Verificar si se encontró un contador
+        if ($contadorUser) {
+            // Obtener el primer colegio asociado a este contador
+            $schoolId = $contadorUser->school_id;
+            // Generamos una vez los bonos
+            $bonuses = $this->generateBonuses($schoolId);
+            // Insertamos los bonos para cada escuela
+            foreach ($bonuses as $bonusData) {
+                // Añadimos el school_id al bono antes de guardarlo
+                Bonus::processCreateBonuses($bonusData);
+            }
+        }
 
         $tuitionAsignacionVoluntariaId = Tuition::where('title', 'Asignacion Voluntaria')->value('tuition_id');
-
-        /* Obtener los tuition_id previamente
         $tuitionLey19410Id = Tuition::where('title', 'Ley 19410')->value('tuition_id');
         $tuitionLey19933Id = Tuition::where('title', 'Ley 19933')->value('tuition_id');
+        /* Obtener los tuition_id previamente
+
         $tuitionLey19464Id = Tuition::where('title', 'Ley 19464')->value('tuition_id');
         $tuitionDesempeñoDificilId = Tuition::where('title', 'Desempeño Dificil')->value('tuition_id');
         $tuitionTodosporIgualId = Tuition::where('title', 'Todos por igual')->value('tuition_id');
@@ -50,7 +50,7 @@ class OperationsTableSeeder extends Seeder
         // Definir las operaciones con los títulos que deben buscarse en la tabla Tuition
         $operations = [
             ['TOTALAPAGAR', 1, 'TOTALHABERES - TOTALDESCUENTOS', '', 0, 0, 0, '111111111111'],
-            ['EXCEDENTEBONOSAELEY19410Y19933', 1,"CARGAHORARIA / SUMACARGAS",'',0,0,0,'000000000000'],
+            ['EXCEDENTEBONOSAELEY19410Y19933', 1, "$tuitionLey19410Id + $tuitionLey19933Id / 0.8 * 12 * 0.2 * CARGAHORARIA / SUMACARGAS", '', 0, 0, 0, '000000000000'],
             ['AFP', 1, 'COTIZACIONAFP / 100 * RENTAIMPONIBLE', '', 0, 0, 0, '111111111111'],
             ['SALUD', 1, 'COTIZACIONISAPRE * RENTAIMPONIBLE / 100', '', 0, 0, 0, '111111111111'],
             ['DESCUENTOSLEGALES', 1, 'AFP + SALUD + SEGUROCESANTIA', '', 0, 0, 0, '111111111111'],
@@ -88,7 +88,7 @@ class OperationsTableSeeder extends Seeder
                 "VALORIMD  / SUMACARGAS M - MR * CARGAHORARIA * FACTORASIST",
                 '', 0, 0, 0, '111111111111'],
             ['IMPONIBLEEIMPUTABLE', 1,
-                "$tuitionAsignacionVoluntariaId",'', 0, 0, 0, '111111111111'],
+                "$tuitionAsignacionVoluntariaId", '', 0, 0, 0, '111111111111'],
             ['IMPONIBLEYNOIMPUTABLE', 1,
                 "HORASPERFECCIONAMIENTO",
                 '', 0, 0, 0, '111111111111'],
@@ -105,12 +105,11 @@ class OperationsTableSeeder extends Seeder
         ];
 
         // Obtener el primer contador
-        $contadorUser = User::where('role', User::CONTADOR)->first();
-
+        $contadorUser = SchoolUser::first();
         // Verificar si se encontró un contador
         if ($contadorUser) {
             // Obtener el primer colegio asociado a este contador
-            $schoolId = $contadorUser->schools->first()->id;
+            $schoolId = $contadorUser->school_id;
 
             // Iterar sobre cada operación y crear la operación
             foreach ($operations as $operation) {
@@ -132,7 +131,7 @@ class OperationsTableSeeder extends Seeder
     private function generateBonuses($school_id)
     {
         return [
-         
+
             [
                 'title' => 'Asignacion Voluntaria',
                 'type' => 3,
@@ -141,11 +140,34 @@ class OperationsTableSeeder extends Seeder
                 'is_bonus' => 0,
                 'factor' => 100,
                 'application' => 'D',
-                'months' => $this->generateDynamicMonths([1,2,3,4,5,6,7,8,9,10,11,12]), // Ejemplo de meses específicos
+                'months' => $this->generateDynamicMonths([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]), // Ejemplo de meses específicos
                 'school_id' => $school_id,
                 'amount' => 0,
             ],
-         
+            [
+                'title' => 'Ley 19410',
+                'type' => 1,
+                'taxable' => 0,
+                'imputable' => 0,
+                'is_bonus' => 0,
+                'factor' => 80,
+                'application' => 'H',
+                'months' => $this->generateDynamicMonths([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]), // Ejemplo de meses específicos
+                'school_id' => $school_id,
+                'amount' => 795260,
+            ],
+            [
+                'title' => 'Ley 19933',
+                'type' => 1,
+                'taxable' => 0,
+                'imputable' => 0,
+                'is_bonus' => 0,
+                'factor' => 80,
+                'application' => 'H',
+                'months' => $this->generateDynamicMonths([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]), // Ejemplo de meses específicos
+                'school_id' => $school_id,
+                'amount' => 2057449,
+            ],
         ];
     }
 

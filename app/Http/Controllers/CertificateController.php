@@ -1,0 +1,76 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Certificate;
+use App\Models\Worker;
+use Illuminate\Http\Request;
+
+class CertificateController extends Controller
+{
+    /*public function __construct()
+    {
+    $this->authorizeResource(Certificate::class, 'certificates');
+    }*/
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $school_id = auth()->user()->school_id_session;
+
+        $certificates = Certificate::getCertificateForSchool($school_id);
+
+        return view('certificates.index', compact('certificates'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        //dd($request->all());  // Muestra todos los datos del formulario
+
+        $year = $request->input('year');
+
+        $school_id = auth()->user()->school_id_session;
+
+        $workers = Worker::where('school_id', $school_id)->get();
+
+        //dd($workers);
+
+        foreach ($workers as $worker) {
+            Certificate::createCertificate($school_id, $worker->id, $year);
+        }
+
+        return redirect()->route('certificates.index')->with('success', 'Los certificados se han creado con exito');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show($year)
+    {
+        $school_id = auth()->user()->school_id_session;
+        $impresCertificates = Certificate::getCertificates($year, $school_id);
+        //dd($impresCertificates);
+        return view('certificates.show', ['workersData' => $impresCertificates]);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy($id)
+    {
+        $school_id = auth()->user()->school_id_session;
+
+        // Eliminar los certificados del año especificado
+        Certificate::where('school_id', $school_id)
+            ->where('year', $id)
+            ->delete();
+
+        return redirect()->route('certificates.index')->with('success', 'Certificados eliminados exitosamente.');
+    }
+
+}

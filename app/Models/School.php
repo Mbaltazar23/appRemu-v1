@@ -123,4 +123,9 @@ class School extends Model
     {
         return $this->hasMany(Payroll::class);
     }
+
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class);
+    }
 }

@@ -97,31 +97,6 @@ class Tuition extends Model//Clase
             ->distinct() // Obtener solo títulos distintos
             ->get(['title', 'tuition_id']); // Obtener los campos 'title' y 'tuition_id'
     }
-
-    /*public static function getAllOperationsForWorker($schoolId, $workerTypeId)
-    {
-    return self::select(
-    'tuitions.title', // Seleccionar el título de tuition
-    'tuitions.tuition_id', // Seleccionar el ID de tuition
-    'operations.operation', // Seleccionar la operación
-    'tuitions.type', // Tipo de tuition
-    'operations.application', // Aplicación de la operación
-    'tuitions.in_liquidation', // Verificar si está en liquidación
-    'operations.limit_unit', // Límite de unidad de la operación
-    'operations.min_limit', // Límite mínimo
-    'operations.max_limit', // Límite máximo
-    'operations.max_value', // Valor máximo de la operación
-    'operations.worker_type' // Tipo de trabajador relacionado a la operación
-    ) // Filtrar por las operaciones
-    ->leftJoin('operations', 'operations.tuition_id', '=', 'tuitions.tuition_id') // Unir con la tabla tuitions
-    ->leftJoin('parameters', 'operations.tuition_id','=', 'parameters.name')
-    ->where('tuitions.school_id', $schoolId) // Filtrar por el school_id
-    ->where('operations.worker_type', $workerTypeId) // Filtrar por worker_type
-    ->where('operations.in_liquidation', 1) // Asegurar que está en liquidación
-    ->where('operations.limit_unit', "0")
-    ->get();
-    }*/
-
     // Método para obtener las operaciones por clase (tuition), tipo de trabajador y colegio
     public static function getOperationsByTuitionAndWorkerType($tuitionId, $workerTypeId, $schoolId)
     {
@@ -147,22 +122,7 @@ class Tuition extends Model//Clase
 
         return $result;
     }
-
-    // Método combinado para obtener el título y la descripción de la clase
-    public static function getTuitionTitleAndDescription($tuitionId, $schoolId)
-    {
-        $tuition = self::where('tuition_id', $tuitionId)
-            ->where('school_id', $schoolId)
-            ->first();
-
-        if ($tuition) {
-            return [
-                'title' => $tuition->title,
-                'description' => $tuition->description,
-            ];
-        }
-    }
-
+    
     // Método para obtener el título del parámetro
     public static function getTitleOfParameter($tuitionId, $workerId, $workerTypeId, $schoolId)
     {

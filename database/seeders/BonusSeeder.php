@@ -3,19 +3,19 @@
 namespace Database\Seeders;
 
 use App\Models\Bonus;
-use App\Models\User;
+use App\Models\SchoolUser;
 use Illuminate\Database\Seeder;
 
 class BonusSeeder extends Seeder
 {
     public function run()
     {
-        // Obtener el primer contador
-        $contadorUser = User::where('role', User::CONTADOR)->first();
-        // Verificar si se encontró un contador
-        if ($contadorUser) {
-            // Obtener el primer colegio asociado a este contador
-            $schoolId = $contadorUser->schools->first()->id; // Obtener el primer colegio de los colegios asociados al contador
+       // Obtener el primer contador
+       $contadorUser = SchoolUser::first();
+       // Verificar si se encontró un contador
+       if ($contadorUser) {
+           // Obtener el primer colegio asociado a este contador
+           $schoolId = $contadorUser->school_id;
             // Generamos una vez los bonos
             $bonuses = $this->generateBonuses($schoolId);
             // Insertamos los bonos para cada escuela
@@ -43,18 +43,6 @@ class BonusSeeder extends Seeder
                 'months' => $this->generateDynamicMonths([1,2,3,4,5,6,7,8,9,10,11,12]), // Ejemplo de meses específicos
                 'school_id' => $school_id,
                 'amount' => 0,
-            ],
-            [
-                'title' => 'Ley 19410',
-                'type' => 1,
-                'taxable' => 0,
-                'imputable' => 0,
-                'is_bonus' => 0,
-                'factor' => 80,
-                'application' => 'H',
-                'months' => $this->generateDynamicMonths([1,2,3,4,5,6,7,8,9,10,11,12]), // Ejemplo de meses específicos
-                'school_id' => $school_id,
-                'amount' => 795260,
             ],
             [
                 'title' => 'Prestamo Social Caja los heroes',
@@ -127,18 +115,6 @@ class BonusSeeder extends Seeder
                 'months' => $this->generateDynamicMonths([1,2,3,4,5,6,7,8,9,10,11,12]), // Ejemplo de meses específicos
                 'school_id' => $school_id,
                 'amount' => 466607,
-            ],
-            [
-                'title' => 'Ley 19933',
-                'type' => 1,
-                'taxable' => 0,
-                'imputable' => 0,
-                'is_bonus' => 0,
-                'factor' => 80,
-                'application' => 'H',
-                'months' => $this->generateDynamicMonths([1,2,3,4,5,6,7,8,9,10,11,12]), // Ejemplo de meses específicos
-                'school_id' => $school_id,
-                'amount' => 2057449,
             ],
             [
                 'title' => 'Otros',

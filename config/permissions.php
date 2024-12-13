@@ -2,8 +2,9 @@
 
 return [
     'MANUSU' => 'Mantener usuarios',
+    'MANPER' => 'Mantener perfiles',
     'MANCOL' => 'Mantener centros',
-    'MANSOST' => 'Mantener Sostenedores',
+    'MANSOST' => 'Mantener sostenedores',
     'MANTRA' => 'Mantener personal',
     'REMEMI' => 'Emitir liquidaciones de sueldo',
     'MANISAPRE' => 'Mantenedor de cotizaciones de salud',

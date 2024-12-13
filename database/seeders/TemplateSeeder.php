@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\SchoolUser;
 use App\Models\Template;
 use App\Models\Tuition;
 use App\Models\User;
@@ -16,11 +17,11 @@ class TemplateSeeder extends Seeder
     public function run(): void
     {
         // Obtener el primer contador
-        $contadorUser = User::where('role', User::CONTADOR)->first();
-        // Verificar si se encontró un contador
-        if ($contadorUser) {
-            // Obtener el primer colegio asociado a este contador
-            $school_id = $contadorUser->schools->first()->id; // Obtener el primer colegio de los colegios asociados al contador
+       $contadorUser = SchoolUser::first();
+       // Verificar si se encontró un contador
+       if ($contadorUser) {
+           // Obtener el primer colegio asociado a este contador
+           $school_id = $contadorUser->school_id; // Obtener el primer colegio de los colegios asociados al contador
 
             $tuitionRBMN = Tuition::where('title', 'RBMN')->where('school_id', $school_id)->value('tuition_id');
             $tuitionUMP = Tuition::where('title', 'UMP')->where('school_id', $school_id)->value('tuition_id');

@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\School;
+use App\Models\SchoolUser;
 use App\Models\User;
 
 class SchoolPolicy
@@ -12,7 +13,13 @@ class SchoolPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin() && in_array('MANCOL', $user->permissions);
+        return in_array('MANCOL', $user->role->permissions);
+    }
+
+    public function viewSchools(User $user): bool
+    {
+        // Verificamos si el usuario tiene registros asociados en SchoolUser
+        return SchoolUser::where('user_id', $user->id)->exists();
     }
 
     /**
@@ -20,7 +27,7 @@ class SchoolPolicy
      */
     public function view(User $user, School $school): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin() && in_array('MANCOL', $user->permissions);
+        return in_array('MANCOL', $user->role->permissions);
     }
 
     /**
@@ -28,7 +35,7 @@ class SchoolPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin() && in_array('MANCOL', $user->permissions);
+        return in_array('MANCOL', $user->role->permissions);
     }
 
     /**
@@ -36,7 +43,7 @@ class SchoolPolicy
      */
     public function update(User $user, School $school): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin() && in_array('MANCOL', $user->permissions);
+        return in_array('MANCOL', $user->role->permissions);
     }
 
     /**
@@ -44,7 +51,7 @@ class SchoolPolicy
      */
     public function delete(User $user, School $school): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin() && in_array('MANCOL', $user->permissions);
+        return in_array('MANCOL', $user->role->permissions);
     }
 
     /**
@@ -52,7 +59,7 @@ class SchoolPolicy
      */
     public function restore(User $user, School $school): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin() && in_array('MANCOL', $user->permissions);
+        return in_array('MANCOL', $user->role->permissions);
     }
 
     /**
@@ -60,6 +67,6 @@ class SchoolPolicy
      */
     public function forceDelete(User $user, School $school): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin() && in_array('MANCOL', $user->permissions);
+        return in_array('MANCOL', $user->role->permissions);
     }
 }

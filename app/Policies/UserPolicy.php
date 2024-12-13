@@ -14,7 +14,7 @@ class UserPolicy
      */
     public function viewAny(User $user)
     {
-        return $user->isAdmin() || $user->isSuperAdmin();
+        return in_array('MANUSU', $user->role->permissions);
     }
 
     /**
@@ -26,8 +26,7 @@ class UserPolicy
      */
     public function view(User $user, User $model)
     {
-        return $user->isAdmin() || 
-               $user->isSuperAdmin() ; 
+        return in_array('MANUSU', $user->role->permissions);
     }
 
     /**
@@ -35,7 +34,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin();
+        return in_array('MANUSU', $user->role->permissions);
     }
 
     /**
@@ -43,7 +42,7 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return $user->isSuperAdmin() ;
+        return in_array('MANUSU', $user->role->permissions);
     }
 
     /**
@@ -51,9 +50,8 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return $user->isSuperAdmin();
+        return in_array('MANUSU', $user->role->permissions);
     }
 }
-
 
 //$user->schools()->where('schools.id', $model->school_id)->exists()
