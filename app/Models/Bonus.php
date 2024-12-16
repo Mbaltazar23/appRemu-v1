@@ -21,8 +21,7 @@ class Bonus extends Model
         'factor',
         'imputable',
     ];
-
-
+    
     const APPLICATION_OPTIONS = [
         'H' => 'Es un monto que se reparte dependiendo de la cantidad de horas contratadas',
         'D' => 'Es un monto fijo que depende de cada trabajador',

@@ -21,6 +21,7 @@ class RoleController extends Controller
     public function index()
     {
         $roles = Role::query()
+            ->where('id', '!=', auth()->user()->role_id) // Excluir el rol del usuario autenticado
             ->orderBy('created_at', 'DESC')
             ->paginate(5);
 
@@ -77,14 +78,13 @@ class RoleController extends Controller
     public function update(RoleFormRequest $request, Role $role)
     {
         $role->update($request->validated());
-    
+
         if ($request->has('permissions')) {
             $role->updatePermissions($request->input('permissions'));
         }
-    
+
         return redirect()->route('roles.show', $role)->with('success', "Rol Actualizado Exitosamente !!");
     }
-    
 
     /**
      * Remove the specified resource from storage.

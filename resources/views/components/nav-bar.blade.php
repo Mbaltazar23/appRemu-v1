@@ -110,24 +110,25 @@
 <!-- Dropdown Mantenedor -->
 @php
     $hasLaborPermission =
-        auth()
+        (auth()
             ->user()
             ->can('viewAny', App\Models\Worker::class) ||
-        auth()
-            ->user()
-            ->can('viewAny', App\Models\Insurance::class) ||
-        auth()
-            ->user()
-            ->can('viewAny', App\Models\FinancialIndicator::class) ||
-        auth()
-            ->user()
-            ->can('viewAny', App\Models\Bonus::class) ||
-        auth()
-            ->user()
-            ->can('viewAny', App\Models\License::class) ||
-        auth()
-            ->user()
-            ->can('viewAny', App\Models\Absence::class);
+            auth()
+                ->user()
+                ->can('viewAny', App\Models\Insurance::class) ||
+            auth()
+                ->user()
+                ->can('viewAny', App\Models\FinancialIndicator::class) ||
+            auth()
+                ->user()
+                ->can('viewAny', App\Models\Bonus::class) ||
+            auth()
+                ->user()
+                ->can('viewAny', App\Models\License::class) ||
+            auth()
+                ->user()
+                ->can('viewAny', App\Models\Absence::class)) &&
+        App\Models\SchoolUser::where('user_id', auth()->user()->id)->exists();
 @endphp
 @if ($hasLaborPermission)
     <li class="nav-item dropdown @if (request()->is('insurances*') ||
@@ -159,21 +160,44 @@
             @endcan
             @can('viewAny', App\Models\Insurance::class)
                 @foreach (App\Models\Insurance::TYPES as $type => $name)
-                    <li>
-                        <a class="dropdown-item @if (request()->input('type') == $type) active @endif"
-                            href="{{ route('insurances.index', ['type' => $type]) }}">
-                            <span class="nav-link-icon">
-                                @if ($type == 1)
-                                    <i class='bx bxs-shield-minus' style="font-size: 20px;"></i>
-                                @elseif ($type == 2)
-                                    <i class='bx bx-shield-minus' style="font-size: 20px;"></i>
-                                @else
+                    @if ($type == 1)
+                        <!-- Li para el tipo 1 (Afp) -->
+                        @can('viewAnyAfp', App\Models\Insurance::class)
+                            <li>
+                                <a class="dropdown-item @if (request()->input('type') == $type) active @endif"
+                                    href="{{ route('insurances.index', ['type' => $type]) }}">
+                                    <span class="nav-link-icon">
+                                        <i class='bx bxs-shield-minus' style="font-size: 20px;"></i>
+                                    </span>
+                                    {{ __('Seguro ' . $name) }}
+                                </a>
+                            </li>
+                        @endcan
+                    @elseif ($type == 2)
+                        <!-- Li para el tipo 2 (Isapre) -->
+                        @can('viewAnyIsapre', App\Models\Insurance::class)
+                            <li>
+                                <a class="dropdown-item @if (request()->input('type') == $type) active @endif"
+                                    href="{{ route('insurances.index', ['type' => $type]) }}">
+                                    <span class="nav-link-icon">
+                                        <i class='bx bx-shield-minus' style="font-size: 20px;"></i>
+                                    </span>
+                                    {{ __('Seguro ' . $name) }}
+                                </a>
+                            </li>
+                        @endcan
+                    @else
+                        <!-- Li para otros tipos -->
+                        <li>
+                            <a class="dropdown-item @if (request()->input('type') == $type) active @endif"
+                                href="{{ route('insurances.index', ['type' => $type]) }}">
+                                <span class="nav-link-icon">
                                     <i class='bx bx-shield-plus' style="font-size: 20px;"></i>
-                                @endif
-                            </span>
-                            {{ __('Seguro ' . $name) }}
-                        </a>
-                    </li>
+                                </span>
+                                {{ __('Seguro ' . $name) }}
+                            </a>
+                        </li>
+                    @endif
                 @endforeach
             @endcan
             @can('viewAny', App\Models\FinancialIndicator::class)
@@ -227,12 +251,13 @@
 <!-- Dropdown Remuneraciones -->
 @php
     $hasRemuneracionesPermission =
-        auth()
+        (auth()
             ->user()
             ->can('viewAny', App\Models\Template::class) ||
-        auth()
-            ->user()
-            ->can('viewAny', App\Models\Liquidation::class);
+            auth()
+                ->user()
+                ->can('viewAny', App\Models\Liquidation::class)) &&
+        App\Models\SchoolUser::where('user_id', auth()->user()->id)->exists();
 @endphp
 @if ($hasRemuneracionesPermission)
     <li class="nav-item dropdown @if (request()->is('templates*') || request()->is('liquidations*')) active @endif">
@@ -274,15 +299,16 @@
 <!-- Dropdown Consultas -->
 @php
     $hasConsultasPermission =
-        auth()
+        (auth()
             ->user()
             ->can('viewAny', App\Models\Report::class) ||
-        auth()
-            ->user()
-            ->can('viewAny', App\Models\Payroll::class) ||
-        auth()
-            ->user()
-            ->can('viewAny', App\Models\Certificate::class);
+            auth()
+                ->user()
+                ->can('viewAny', App\Models\Payroll::class) ||
+            auth()
+                ->user()
+                ->can('viewAny', App\Models\Certificate::class)) &&
+        App\Models\SchoolUser::where('user_id', auth()->user()->id)->exists();
 @endphp
 @if ($hasConsultasPermission)
     <li class="nav-item dropdown @if (request()->is('reports*') || request()->is('payrolls*') || request()->is('certificates*')) active @endif">

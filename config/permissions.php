@@ -7,7 +7,7 @@ return [
     'MANSOST' => 'Mantener sostenedores',
     'MANTRA' => 'Mantener personal',
     'REMEMI' => 'Emitir liquidaciones de sueldo',
-    'MANISAPRE' => 'Mantenedor de cotizaciones de salud',
+    //'MANISAPRE' => 'Mantenedor de cotizaciones de salud',
     'MANAFPTR' => 'Mantener AFPs trabajadores',
     'CONPREVAFP' => 'Informe previsional AFP',
     'MANBODESCOL' => 'Mantenedor de bonos y descuentos por centro',

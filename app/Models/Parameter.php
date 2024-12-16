@@ -271,7 +271,7 @@ class Parameter extends Model
 
     public static function getDescriptionByCode($name, $worker_id, $school_id)
     {
-        return self::where('name', $name)->where('worker_id', $worker_id)->where('school_id', $school_id)->description;
+        return self::where('name', $name)->where('worker_id', $worker_id)->where('school_id', $school_id)->value('description');
     }
 
     public static function getTitleTuition($tuition_id, $school_id)

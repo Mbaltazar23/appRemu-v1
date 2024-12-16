@@ -15,6 +15,7 @@ class UserSeeder extends Seeder
     {
         $permissionsAdmin = [
             'MANUSU',
+            'MANPER',
             'VERHISTORIAL',
             'MANSOST',
             'CCOST',
@@ -59,14 +60,14 @@ class UserSeeder extends Seeder
 
         // Crear usuarios
         User::factory()->create([
-            'name' => 'Super User',
-            'email' => 'admin@mail.com',
+            'name' => 'Super Admin',
+            'email' => 'superadmin@mail.com',
             'role_id' => $superAdminRole->id, // Asigna por ID
         ]);
 
         User::factory()->create([
-            'name' => 'Administrador User',
-            'email' => 'adminuser@mail.com',
+            'name' => 'Administrador',
+            'email' => 'admin@mail.com',
             'role_id' => $adminRole->id,
         ]);
 

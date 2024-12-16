@@ -56,10 +56,10 @@
             <div class="chart-container">
                 <div class="filters mb-4">
                     <div class="filter-buttons">
-                        
+                        {{App\Helpers\CalculateLiquidation::processCalculation('TOTALAPAGAR', 15,1,4)}}
                     </div>
                     <div class="filter-info">
-                    
+                      {{App\Models\TmpLiquidation::all()}}
                     </div>
                 </div>
                 <div>

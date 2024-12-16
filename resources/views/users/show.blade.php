@@ -16,7 +16,7 @@
                     <p>
                         <strong>Nombre:</strong> {{ $user->name }} <br />
                         <strong>Email:</strong> {{ $user->email }} <br />
-                        <strong>Rol:</strong> {{ $user->roleName }} <br />
+                        <strong>Rol:</strong> {{ $user->role->name }} <br />
 
                         <strong>Colegios Asociados:</strong>
                         @if ($schools->isEmpty())

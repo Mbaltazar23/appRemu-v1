@@ -8,19 +8,35 @@ use App\Models\User;
 class InsurancePolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Determine whether the user can view any Afp insurances.
+     */
+    public function viewAnyAfp(User $user): bool
+    {
+        // Si el usuario tiene permiso para gestionar Afps
+        return in_array('MANAFP', $user->role->permissions);
+    }
+
+    /**
+     * Determine whether the user can view any Isapre insurances.
+     */
+    public function viewAnyIsapre(User $user): bool
+    {
+        // Si el usuario tiene permiso para gestionar Isapres
+        return in_array('MANISAPRETR', $user->role->permissions);
+    }
+    /**
+     * Determine whether the user can view any insurances in general.
      */
     public function viewAny(User $user): bool
     {
-        return ( in_array('MANAFP', $user->role->permissions) || in_array('MANISAPRETR', $user->role->permissions));
+        return $this->viewAnyAfp($user) || $this->viewAnyIsapre($user);
     }
-
     /**
      * Determine whether the user can view the model.
      */
     public function view(User $user, Insurance $insurance): bool
     {
-        return ( in_array('MANAFP', $user->role->permissions) || in_array('MANISAPRETR', $user->role->permissions));
+        return in_array('MANAFP', $user->role->permissions) || in_array('MANISAPRETR', $user->role->permissions);
     }
 
     /**
@@ -36,7 +52,7 @@ class InsurancePolicy
      */
     public function create(User $user): bool
     {
-        return  ( in_array('MANAFP', $user->role->permissions) || in_array('MANISAPRETR', $user->role->permissions));
+        return (in_array('MANAFP', $user->role->permissions) || in_array('MANISAPRETR', $user->role->permissions));
     }
 
     /**
@@ -44,7 +60,7 @@ class InsurancePolicy
      */
     public function update(User $user, Insurance $insurance): bool
     {
-        return ( in_array('MANAFP', $user->role->permissions) || in_array('MANISAPRETR', $user->role->permissions));
+        return (in_array('MANAFP', $user->role->permissions) || in_array('MANISAPRETR', $user->role->permissions));
     }
 
     /**
@@ -52,6 +68,6 @@ class InsurancePolicy
      */
     public function delete(User $user, Insurance $insurance): bool
     {
-        return ( in_array('MANAFP', $user->role->permissions) || in_array('MANISAPRETR', $user->role->permissions));
+        return (in_array('MANAFP', $user->role->permissions) || in_array('MANISAPRETR', $user->role->permissions));
     }
 }

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class Tuition extends Model//Clase
-
 {
     use HasFactory;
 

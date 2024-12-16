@@ -30,18 +30,4 @@ class UserFormRequest extends FormRequest
             'role_id' => 'required|integer|between:1,4',
         ];
     }
-
-    protected function prepareForValidation()
-    {
-        if ($this->input('role_id') == 1) {
-            $this->merge(['school_ids' => null]); // Sin escuela asignada
-        }
-        
-        if (!$this->input('password')) {
-            // No hacer nada, se mantendrá la contraseña actual
-            return;
-        }
-        // Si se ingresó una nueva contraseña, la encriptamos.
-        $this->merge(['password' => Hash::make($this->input('password'))]);
-    }
 }

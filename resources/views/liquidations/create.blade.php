@@ -4,14 +4,19 @@
     <div class="page-body">
         <div class="container-xl">
             <div class="card" id="selectionCard">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex flex-column align-items-center justify-content-center text-center">
                     <!-- Título centrado con mes y año en español -->
                     <h3 class="mx-auto">
-                        Valores calculados -
-                        {{ \App\Helpers\MonthHelper::integerToMonth(now()->month) }} {{ now()->year }}
+                        Valores calculados - {{ \App\Helpers\MonthHelper::integerToMonth(now()->month) }} {{ now()->year }}
                     </h3>
+                    <!-- Información del trabajador centrada en la cabecera -->
+                    <div>
+                        <p class="mb-1">{{ $worker->name }}</p>
+                        <p class="mb-1">Rut: {{ $worker->rut }}</p>
+                        <p class="mb-1">Tipo Trabajador: {{ $worker->getDescriptionWorkerTypes() }}</p>
+                    </div>
                     <!-- Botón Volver al costado derecho -->
-                    <a href="{{ route('liquidations.workerLiquidation', [$worker->id]) }}" class="btn btn-secondary">
+                    <a href="{{ route('liquidations.workerLiquidation', [$worker->id]) }}" class="btn btn-secondary mt-2">
                         Volver
                     </a>
                 </div>

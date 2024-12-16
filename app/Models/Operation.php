@@ -257,6 +257,27 @@ class Operation extends Model
         }
     }
 
+    public static function getOperationsWithTuitionAndTemplates($tuitionId, $workerType, $schoolId)
+    {
+        $result = self::select(
+            'tuitions.type',
+            'operations.operation',
+            'operations.limit_unit',
+            'operations.min_limit',
+            'operations.max_limit',
+            'operations.max_value',
+            'operations.application',
+            'tuitions.in_liquidation',
+            'operations.worker_type'
+        )
+            ->leftJoin('operations', 'operations.tuition_id', '=', 'tuitions.tuition_id')
+            ->where('tuitions.school_id', $schoolId)
+            ->where('operations.worker_type', $workerType)
+            ->where('tuitions.tuition_id', $tuitionId)
+            ->first();
+
+        return $result;
+    }
     // Relación: Una Operation pertenece a una Tuition
     public function tuition()
     {

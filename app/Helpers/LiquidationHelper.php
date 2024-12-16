@@ -74,6 +74,7 @@ class LiquidationHelper
         self::updateOrInsertFactorasist($workerId, $schoolId, $factorasist);
         //self::createTemporaryTable();
         CalculateLiquidation::procesingCalculate($workerId, $workerType, $schoolId);
+        //CalculateLiquidation::processCalculation("TOTALAPAGAR", $workerId,$workerType, $schoolId);
         CalculateLiquidation::saveInTemporaryTable("DIASTRABAJADOS", "Dias trabajados", 0, 1);
     }
 

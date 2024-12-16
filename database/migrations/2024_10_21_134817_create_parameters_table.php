@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('parameters', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('school_id')->nullable()->constrained('schools')->onDelete('cascade');
-            $table->unsignedBigInteger('worker_id')->nullable(); // Puede ser null y no tiene restricción
+            $table->unsignedBigInteger('school_id')->default(0);
+            $table->unsignedBigInteger('worker_id')->default(0); // Puede ser null y no tiene restricción
             $table->string('description')->nullable();
             $table->string('unit', 10)->nullable();
             $table->string('start_date', 4)->nullable();

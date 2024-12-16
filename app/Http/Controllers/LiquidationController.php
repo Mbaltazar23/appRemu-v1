@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\LiquidationHelper;
 use App\Helpers\MonthHelper;
 use App\Models\Liquidation;
+use App\Models\TmpLiquidation;
 use App\Models\Worker;
 use Illuminate\Http\Request;
 
@@ -39,7 +40,7 @@ class LiquidationController extends Controller
     public function workerLiquidation($workerId)
     {
         // Eliminar la sesión 'tmp' si existe
-        session()->forget('tmp');
+        TmpLiquidation::truncate();
         $worker = Worker::findOrFail($workerId);
         $liquidations = Liquidation::where('worker_id', $workerId)->get();
 
@@ -74,7 +75,7 @@ class LiquidationController extends Controller
         // Pasar los datos a la vista 'liquidations.create'
         return view('liquidations.create', [
             'worker' => $worker,
-            'tmp' => session()->get('tmp'), // Pasar los datos de la "tabla temporal" para la liquidación
+            'tmp' => TmpLiquidation::all(), // Pasar los datos de la "tabla temporal" para la liquidación
         ])->with('warning', $warning);
     }
 

@@ -18,7 +18,7 @@ class FinancialIndicatorPolicy
     public function view(User $user, FinancialIndicator $financialIndicator): bool
     {
         // Verifica si el usuario tiene permiso
-        return in_array('MANIECO', $user->role->permissions) || in_array('MANASIGFAM', $user->role->permissions);;
+        return in_array('MANIECO', $user->role->permissions) || in_array('MANASIGFAM', $user->role->permissions);
     }
 
 }
