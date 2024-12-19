@@ -6,7 +6,6 @@ use App\Models\Operation;
 use App\Models\Parameter;
 use App\Models\SchoolUser;
 use App\Models\Tuition;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class FinancialIndicatorsSeeder extends Seeder
@@ -50,8 +49,8 @@ class FinancialIndicatorsSeeder extends Seeder
 
             // Insertar valores en la tabla Parameter usando el factory para los impuesto_renta
             for ($i = 2; $i <= 8; $i++) {
-                Parameter::factory()->create(['name' => "FACTORIMPTRAMO$i", 'description' => "Factor Impuesto tramo $i", 'value' => rand(1, 10), 'school_id' => $schoolId]);
-                Parameter::factory()->create(['name' => "FACTORREBAJAIMPTRAMO$i", 'value' => rand(1, 5), 'school_id' => $schoolId]);
+                Parameter::factory()->create(['name' => "FACTORIMPTRAMO$i", 'description' => "Factor Impuesto tramo $i", 'value' => rand(1, 10)]);
+                Parameter::factory()->create(['name' => "FACTORREBAJAIMPTRAMO$i", 'value' => rand(1, 5), 'unit' => 'UTM']);
                 Tuition::factory()->create(['tuition_id' => "FACTORIMPTRAMO$i", 'title' => "Factor Impuesto tramo $i", 'type' => 'P', 'school_id' => $schoolId]);
                 Tuition::factory()->create(['tuition_id' => "FACTORREBAJAIMPTRAMO$i", 'title' => "Factor Rebaja Impuesto tramo $i", 'type' => 'P', 'school_id' => $schoolId]);
             }
@@ -81,12 +80,10 @@ class FinancialIndicatorsSeeder extends Seeder
                     'name' => "FILTROASIGFAMT$i",
                     'description' => 'RENTAIMPONIBLE',
                     'value' => rand(1000, 5000),
-                    'school_id' => $schoolId,
                 ]);
                 Parameter::factory()->create([
                     'name' => "ASIGCAR.FAMTRAMO$i",
                     'value' => rand(1000, 5000),
-                    'school_id' => $schoolId,
                 ]);
                 Tuition::factory()->create([
                     'tuition_id' => "ASIGCAR.FAMTRAMO$i",
@@ -97,12 +94,26 @@ class FinancialIndicatorsSeeder extends Seeder
                 Operation::factory()->create([
                     'tuition_id' => "FILTROASIGFAMT$i",
                     'operation' => 'RENTAIMPONIBLE',
+                    'limit_unit' => '',
                     'min_limit' => rand(1000, 5000),
                     'max_limit' => rand(6000, 10000),
                     'application' => 111111111111,
                     'school_id' => $schoolId,
                 ]);
             }
+
+            Parameter::factory()->create(['name' => 'COSTODIALICENCIANODOCENTE',
+                'school_id' => $schoolId,
+                'value' => 0]);
+            Parameter::factory()->create(['name' => 'COSTOHORALICENCIADOCENTE',
+                'school_id' => $schoolId,
+                'value' => 0]);
+            Parameter::factory()->create(['name' => 'COSTOHORAINASISTENCIADOCENTE',
+                'school_id' => $schoolId,
+                'value' => 0]);
+            Parameter::factory()->create(['name' => 'COSTOHORAINASISTENCIANODOCENTE',
+                'school_id' => $schoolId,
+                'value' => 0]);
         }
     }
 

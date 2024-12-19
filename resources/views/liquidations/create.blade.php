@@ -4,23 +4,34 @@
     <div class="page-body">
         <div class="container-xl">
             <div class="card" id="selectionCard">
-                <div class="card-header d-flex flex-column align-items-center justify-content-center text-center">
+                <div class="card-header d-flex align-items-center text-center">
                     <!-- Título centrado con mes y año en español -->
                     <h3 class="mx-auto">
-                        Valores calculados - {{ \App\Helpers\MonthHelper::integerToMonth(now()->month) }} {{ now()->year }}
+                        Valores calculados - {{ \App\Helpers\MonthHelper::integerToMonth(now()->month) }}
+                        {{ now()->year }}
                     </h3>
-                    <!-- Información del trabajador centrada en la cabecera -->
-                    <div>
-                        <p class="mb-1">{{ $worker->name }}</p>
-                        <p class="mb-1">Rut: {{ $worker->rut }}</p>
-                        <p class="mb-1">Tipo Trabajador: {{ $worker->getDescriptionWorkerTypes() }}</p>
-                    </div>
+
                     <!-- Botón Volver al costado derecho -->
                     <a href="{{ route('liquidations.workerLiquidation', [$worker->id]) }}" class="btn btn-secondary mt-2">
                         Volver
                     </a>
                 </div>
+
                 <div class="card-body">
+                    <!-- Información del trabajador centrada en el body -->
+                    <div class="d-flex justify-content-center align-items-center w-100 mt-3 mb-4">
+                        <!-- Contenedor con más espacio entre los elementos, usando flexbox para que se distribuyan en fila -->
+                        <div class="mx-4">
+                            <p class="mb-1"><strong>{{ $worker->name }}</strong></p>
+                        </div>
+                        <div class="mx-4">
+                            <p class="mb-1"><strong>Rut:</strong> {{ $worker->rut }}</p>
+                        </div>
+                        <div class="mx-4">
+                            <p class="mb-1"><strong>Tipo Trabajador:</strong> {{ $worker->getDescriptionWorkerTypes() }}
+                            </p>
+                        </div>
+                    </div>
                     <!-- Texto explicativo sobre el formulario -->
                     <p>
                         Los siguientes parámetros solo deben ser modificados en casos de <br>

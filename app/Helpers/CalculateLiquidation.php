@@ -22,9 +22,9 @@ class CalculateLiquidation
         return $st;
     }
     // Check limits. If the value exceeds the limit, return the limit. If below the limit, return 0.
-    public static function checkLimits($value, $tuitionId, $schoolId, $min, $max, $maxValue)
+    public static function checkLimits($value, $tuitionId, $min, $max, $maxValue)
     {
-        $unitValue = Parameter::getParameterValue($tuitionId, 0, $schoolId);
+        $unitValue = Parameter::getParameterValue($tuitionId, 0, 0);
         if ($unitValue == 0) {
             $unitValue = 1;
         }
@@ -57,7 +57,7 @@ class CalculateLiquidation
             return true;
         }
 
-        if ($monthString == 1) {
+        if ($monthString == "1") {
             return true;
         } else {
             return false;
@@ -76,7 +76,7 @@ class CalculateLiquidation
             return $exists;
         }
         // Get operations related to this tuition
-        $operations = Operation::getOperationsWithTuitionAndTemplates($tuitionId, $workerTypeId, $schoolId);
+        $operations = Tuition::getOperationsWithTuitionAndTemplates($tuitionId, $workerTypeId, $schoolId);
         $act = 0;
         $inLiquidation = 0;
         if ($operations) {
@@ -114,13 +114,13 @@ class CalculateLiquidation
                                         $op = "";
                                         break;
                                     case "/":
-                                        $act = ($item == 0) ? 0 : ($act / $item);
-                                        $op = "";
+                                        if ($item == 0) {$act = 0;} else { $act = $act / $item;
+                                            $op = "";}
                                         break;
                                     default:
                                         $act = $item;
                                         $op = "";
-                                        break;
+
                                 }
                             } elseif (($item == "*") or ($item == "/") or ($item == "+") or ($item == "-")) {
                                 $op = $item;
@@ -162,7 +162,7 @@ class CalculateLiquidation
                             }
                         }
                         // Check limits
-                        $act = round(self::checkLimits($act, $unitLimit,$schoolId, $minLimit, $maxLimit, $maxValueLimit));
+                        $act = round(self::checkLimits($act, $unitLimit, $minLimit, $maxLimit, $maxValueLimit));
                         break;
                     case "P": // Parameter
                         $act = Parameter::getParameterValue($tuitionId, $workerId, $schoolId);
@@ -183,7 +183,6 @@ class CalculateLiquidation
                 }
             }
         }
-
         // Special case for "Family Allowance" tuition
         if ($tuitionId == "ASIGNACIONFAMILIAR") {
             if (0.8333 >= Parameter::getParameterValue("FACTORASIST", $workerId, $schoolId)) {
@@ -205,7 +204,7 @@ class CalculateLiquidation
         return $act;
     }
 
-    public static function procesingCalculate($workerId, $workerType, $schoolId)
+  /*  public static function procesingCalculate($workerId, $workerType, $schoolId)
     {
 
         if ($workerType == Worker::WORKER_TYPE_NON_TEACHER) {
@@ -436,7 +435,7 @@ class CalculateLiquidation
             }
         }
 
-        $operation = Tuition::getOperationsByTuitionAndWorkerType("Asignacion familiar", 2, $schoolId);
+        $operation = Tuition::getOperationsByTuitionAndWorkerType("Asignacion familiar", 1, $schoolId);
 
         if ($operation['title'] == "Asignacion familiar" && self::checkApplication($operation['application'])) {
             $parts = explode(" ", $operation["operation"]);
@@ -772,20 +771,24 @@ class CalculateLiquidation
     /**
      * Save a calculation in the "temporary table" (session).
      *
-     * @param string $id         The ID of the calculation
+     * @param string $tuition_id The ID of the calculation
      * @param string $title      The title of the calculation
      * @param float  $value      The value of the calculation
      * @param int    $inLiquidation Indicates if it is in liquidation (1 or 0)
      */
     public static function saveInTemporaryTable($id, $title, $value, $inLiquidation)
     {
-        // Crear un nuevo registro en la tabla tmp_liquidation
-        TmpLiquidation::create([
-            'tuition_id' => $id, // Asignamos el tuition_id
-            'title' => $title, // Título del cálculo
-            'value' => $value, // Valor del cálculo
-            'in_liquidation' => $inLiquidation, // Indica si está en liquidación
-        ]);
+        // Verificar si el tuition_id ya existe en la tabla tmp_liquidation
+        $exists = TmpLiquidation::where('tuition_id', $id)->exists();
+        // Si no existe, hacer la inserción
+        if (!$exists) {
+            TmpLiquidation::create([
+                'tuition_id' => $id, // Asignamos el tuition_id
+                'title' => $title, // Título del cálculo
+                'value' => $value, // Valor del cálculo
+                'in_liquidation' => $inLiquidation, // Indica si está en liquidación
+            ]);
+        }
     }
     /**
      * Retrieve a calculation from the "temporary table" by its ID.
@@ -806,7 +809,7 @@ class CalculateLiquidation
         $record = TmpLiquidation::where('tuition_id', $id)->first();
 
         // Si existe, devuelve el valor del cálculo, sino devuelve false
-        return $record ? $record->value : false;
+        return $record ? $record->value : -1;
     }
 
 }

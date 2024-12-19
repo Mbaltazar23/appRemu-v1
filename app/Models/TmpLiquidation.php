@@ -13,6 +13,6 @@ class TmpLiquidation extends Model
  protected $primaryKey = 'id'; // Usamos 'id' como clave primaria autoincrementable
 
  // Definir los campos que se pueden asignar masivamente
- protected $fillable = ['tuition_id', 'title', 'value', 'in_liquidation'];
+ protected $fillable = ['tuition_id', 'title', 'value','type' ,'in_liquidation'];
 
 }

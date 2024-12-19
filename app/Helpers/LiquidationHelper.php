@@ -10,16 +10,6 @@ use App\Models\Worker;
 
 class LiquidationHelper
 {
-
-    // Remove unnecessary spaces from a string
-    public function removeExcessSpaces($st)
-    {
-        $st = trim($st);
-        while (strstr($st, "  ") != "") {
-            $st = str_replace("  ", " ", $st);
-        }
-        return $st;
-    }
     // Verificar si el trabajador tiene los parámetros de AFP e ISAPRE (o Fonasa)
     public function checkAFPandISAPRE($workerId, $schoolId)
     {
@@ -49,20 +39,20 @@ class LiquidationHelper
         $worker = Worker::find($workerId);
         $workerType = $worker->worker_type;
 
-        $mesl = (int) date("n"); // Convert the month to an integer
-        $cierremes = (int) Parameter::getValueByName("CIERREMES", $schoolId);
-        //dd($cierremes);
+        $mesl = date("n"); // Convert the month to an integer
+        $cierremes = Parameter::getParameterValue('CIERREMES', $workerId, $schoolId);
+
         if ($mesl == 1) {
             $mount = 12; // December (previous year)
-            $yearant = (int) date("y") - 1; // Current year (2 digits) minus 1
-            $yearantina = (int) date("Y") - 1; // Current year (4 digits) minus 1
+            $yearant = date("y") - 1; // Current year (2 digits) minus 1
+            $yearantina = date("Y") - 1; // Current year (4 digits) minus 1
         } else {
-            $mount = (int) ($mesl - 1); // Previous month
-            $yearant = (int) date("y"); // Current year (2 digits)
-            $yearantina = (int) date("Y"); // Current year (4 digits)
+            $mount = ($mesl - 1); // Previous month
+            $yearant = date("y"); // Current year (2 digits)
+            $yearantina = date("Y"); // Current year (4 digits)
         }
 
-        $workload = Parameter::where('name', "CARGAHORARIA")->where('worker_id', $workerId)->where('school_id', $schoolId)->value('value');
+        $workload = Parameter::getParameterValue("CARGAHORARIA", $workerId, $schoolId);
 
         $minutesAbsence = self::getTotalAbsenceMinutes($workerId, $mount, $mesl, $yearantina, $cierremes);
         //dd($minutesAbsence);
@@ -73,8 +63,8 @@ class LiquidationHelper
         }
         self::updateOrInsertFactorasist($workerId, $schoolId, $factorasist);
         //self::createTemporaryTable();
-        CalculateLiquidation::procesingCalculate($workerId, $workerType, $schoolId);
-        //CalculateLiquidation::processCalculation("TOTALAPAGAR", $workerId,$workerType, $schoolId);
+        //CalculateLiquidation::procesingCalculate($workerId, $workerType, $schoolId);
+        CalculateLiquidation::processCalculation("TOTALAPAGAR", $workerId, $workerType, $schoolId);
         CalculateLiquidation::saveInTemporaryTable("DIASTRABAJADOS", "Dias trabajados", 0, 1);
     }
 
@@ -85,7 +75,7 @@ class LiquidationHelper
         $monthTxt = MonthHelper::integerToMonth($month);
         $worker = Worker::find($workerId);
 
-        $workload = Parameter::getValueByName("CARGAHORARIA", $schoolId, $workerId);
+        $workload = Parameter::getParameterValue("CARGAHORARIA", $schoolId, $workerId);
         if ($workload < 10) {
             $workload = "0" . $workload;
         }
@@ -111,7 +101,8 @@ class LiquidationHelper
         return License::sumLicenseHours($workerId, $month, $year, $cierremes, 32) +
         License::sumLicenseHours($workerId, $mesl, (int) date("Y"), 0, $cierremes + 1);
     }
-// Calcular el factor de asistencia para trabajadores docentes
+
+    // Calcular el factor de asistencia para trabajadores docentes
     public function calculateAttendanceFactorForTeacher($workerId, $previousMonth, $mesl, $previousYear, $cierremes, $hourlyRate, $absenceMinutes)
     {
         $licenseHours = self::getLicenseHours($workerId, $previousMonth, $mesl, $previousYear, $cierremes);
@@ -123,19 +114,16 @@ class LiquidationHelper
         }
         return 1 - (($hourlyRate * $licenseHours * 8 + $absenceMinutes) / $denominator);
     }
-
     // Calcular el factor de asistencia para trabajadores no docentes
     public function calculateAttendanceFactorForNonTeacher($workerId, $previousMonth, $mesl, $previousYear, $cierremes, $hourlyRate, $absenceMinutes)
     {
         $licenseDays = self::sumLicenseDays($workerId, $previousMonth, $mesl, $previousYear, $cierremes);
-
         // Asegurarse de que el denominador no sea cero
         $denominator = $hourlyRate * 60 * 4;
         if ($denominator == 0) {
             // Aquí también puedes manejar el error, retornando 0 o lanzando una excepción
             return 0;
         }
-
         return 1 - (($hourlyRate * $licenseDays * 8 + $absenceMinutes) / $denominator);
     }
 

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class Tuition extends Model//Clase
+
 {
     use HasFactory;
 
@@ -36,7 +37,6 @@ class Tuition extends Model//Clase
             'tuition_id' => $name,
             'title' => $title,
             'type' => $type,
-            'description' => $title,
             'in_liquidation' => $liquidation,
             'editable' => $editable,
             'school_id' => $schoolId,
@@ -121,7 +121,32 @@ class Tuition extends Model//Clase
 
         return $result;
     }
-    
+
+    public static function getOperationsWithTuitionAndTemplates($tuitionId, $workerType, $schoolId)
+    {
+        $result = self::select(
+            'tuitions.type',
+            'op.operation',
+            'op.limit_unit',
+            'op.min_limit',
+            'op.max_limit',
+            'op.max_value',
+            'op.application',
+            'tuitions.in_liquidation',
+            'op.worker_type'
+        )
+            ->leftJoin('operations as op', 'op.tuition_id', '=', 'tuitions.tuition_id') // Alias para 'operations'
+            ->leftJoin('parameters', 'parameters.name', '=', 'tuitions.tuition_id')
+            ->whereRaw('(tuitions.tuition_id = op.tuition_id or parameters.name = tuitions.tuition_id)')
+            ->where('tuitions.school_id', $schoolId)
+            ->where('tuitions.tuition_id', $tuitionId)
+            ->where('op.school_id', $schoolId) // Usamos el alias 'op' para referirnos a 'operations'
+            ->where('op.worker_type',$workerType) // Usamos el alias 'op' para referirnos a 'operations'
+            ->first();
+
+        return $result;
+    }
+
     // Método para obtener el título del parámetro
     public static function getTitleOfParameter($tuitionId, $workerId, $workerTypeId, $schoolId)
     {

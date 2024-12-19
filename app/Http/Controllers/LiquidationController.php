@@ -75,7 +75,7 @@ class LiquidationController extends Controller
         // Pasar los datos a la vista 'liquidations.create'
         return view('liquidations.create', [
             'worker' => $worker,
-            'tmp' => TmpLiquidation::all(), // Pasar los datos de la "tabla temporal" para la liquidación
+            'tmp' => TmpLiquidation::where('in_liquidation', 1)->get(), // Pasar los datos de la "tabla temporal" para la liquidación
         ])->with('warning', $warning);
     }
 
