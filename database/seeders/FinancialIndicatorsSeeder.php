@@ -10,111 +10,194 @@ use Illuminate\Database\Seeder;
 
 class FinancialIndicatorsSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-
     public function run()
     {
-        // Insertar los tres parámetros para cada escuela asociada a un contador
         $contadorUser = SchoolUser::first();
-        // Verificar si se encontró un contador
-        if ($contadorUser) {
-            // Obtener todas las escuelas asociadas a los contadores
-            $schoolId = $contadorUser->school_id; // Obtener el primer colegio de los colegios asociados al contador
-            // Obtener un mes aleatorio entre 1 (Enero) y 12 (Diciembre)
-            $randomMonth = rand(1, 12);
 
-            // Determinar el valor de CIERREMES dependiendo del mes
-            if ($randomMonth == 2) {
-                $cierremes = 28; // Febrero tiene 28 días
-            } else {
-                $cierremes = rand(30, 31); // Los demás meses tienen 30 o 31 días
-            }
+        if (!$contadorUser) {
+            return; // Si no se encuentra un contador, salimos del método.
+        }
 
-            // Los otros dos parámetros se asignan de manera aleatoria
-            $paramsToInsert = [
-                'CIERREMES' => $cierremes, // Valor de ejemplo, puedes ajustar según lo que necesites
-                'FACTORRBMNBASICA' => rand(100, 500), // Valor aleatorio entre 100 y 500
-                'VALORIMD' => rand(1, 1000), // Valor aleatorio entre 1 y 1000
-            ];
+        $schoolId = $contadorUser->school_id;
+        $randomMonth = rand(1, 12);
+        $cierremes = ($randomMonth == 2) ? 28 : rand(30, 31); // Asignar el valor de CIERREMES
 
-            // Insertar los tres parámetros en la tabla Parameter
-            foreach ($paramsToInsert as $name => $value) {
-                Parameter::updateOrCreate(
-                    ['name' => $name, 'school_id' => $schoolId],
-                    ['value' => $value, 'created_at' => now(), 'updated_at' => now()]
-                );
-            }
+        // Parámetros comunes para insertar
+        $paramsToInsert = [
+            'CIERREMES' => $cierremes,
+            'FACTORRBMNBASICA' => rand(1000, 6000),
+            'VALORIMD' => rand(1, 1000),
+        ];
 
-            // Insertar valores en la tabla Parameter usando el factory para los impuesto_renta
-            for ($i = 2; $i <= 8; $i++) {
-                Parameter::factory()->create(['name' => "FACTORIMPTRAMO$i", 'description' => "Factor Impuesto tramo $i", 'value' => rand(1, 10)]);
-                Parameter::factory()->create(['name' => "FACTORREBAJAIMPTRAMO$i", 'value' => rand(1, 5), 'unit' => 'UTM']);
-                Tuition::factory()->create(['tuition_id' => "FACTORIMPTRAMO$i", 'title' => "Factor Impuesto tramo $i", 'type' => 'P', 'school_id' => $schoolId]);
-                Tuition::factory()->create(['tuition_id' => "FACTORREBAJAIMPTRAMO$i", 'title' => "Factor Rebaja Impuesto tramo $i", 'type' => 'P', 'school_id' => $schoolId]);
-            }
+        $this->insertParameters($paramsToInsert, $schoolId);
 
-            // Insertar valores en la tabla Operation usando el factory
-            for ($i = 2; $i <= 8; $i++) {
-                Operation::factory()->create([
-                    'tuition_id' => "IMPUESTOTRAMO$i",
-                    'operation' => 'REMUNERACIONTRIBUTABLE',
-                    'limit_unit' => 'UTM',
-                    'min_limit' => rand(1000, 5000),
-                    'max_limit' => rand(6000, 10000),
-                    'application' => 111111111111,
-                    'school_id' => $schoolId,
-                ]);
-                Tuition::factory()->create([
-                    'tuition_id' => "IMPUESTOTRAMO$i",
-                    'title' => "IMPUESTOTRAMO$i",
-                    'type' => 'O',
-                    'school_id' => $schoolId,
-                ]);
-            }
+        // Insertar valores para el Impuesto
+        for ($i = 2; $i <= 8; $i++) {
+            $this->insertImpuestoTramo($i, $schoolId);
+        }
 
-            //Insertar valores en la tabla Operation usando el factory asignacion_familiar
-            for ($i = 1; $i <= 3; $i++) {
-                Parameter::factory()->create([
-                    'name' => "FILTROASIGFAMT$i",
-                    'description' => 'RENTAIMPONIBLE',
-                    'value' => rand(1000, 5000),
-                ]);
-                Parameter::factory()->create([
-                    'name' => "ASIGCAR.FAMTRAMO$i",
-                    'value' => rand(1000, 5000),
-                ]);
-                Tuition::factory()->create([
-                    'tuition_id' => "ASIGCAR.FAMTRAMO$i",
-                    'title' => "Asignacion familiar tramo $i",
-                    'type' => 'P',
-                    'school_id' => $schoolId,
-                ]);
-                Operation::factory()->create([
-                    'tuition_id' => "FILTROASIGFAMT$i",
-                    'operation' => 'RENTAIMPONIBLE',
-                    'limit_unit' => '',
-                    'min_limit' => rand(1000, 5000),
-                    'max_limit' => rand(6000, 10000),
-                    'application' => 111111111111,
-                    'school_id' => $schoolId,
-                ]);
-            }
+        // Insertar valores para Asignación Familiar
+        for ($i = 1; $i <= 3; $i++) {
+            $this->insertAsignacionFamiliar($i, $schoolId);
+        }
 
-            Parameter::factory()->create(['name' => 'COSTODIALICENCIANODOCENTE',
-                'school_id' => $schoolId,
-                'value' => 0]);
-            Parameter::factory()->create(['name' => 'COSTOHORALICENCIADOCENTE',
-                'school_id' => $schoolId,
-                'value' => 0]);
-            Parameter::factory()->create(['name' => 'COSTOHORAINASISTENCIADOCENTE',
-                'school_id' => $schoolId,
-                'value' => 0]);
-            Parameter::factory()->create(['name' => 'COSTOHORAINASISTENCIANODOCENTE',
-                'school_id' => $schoolId,
-                'value' => 0]);
+        // Insertar valores específicos de coste
+        $this->insertCostos($schoolId);
+    }
+
+    private function insertParameters(array $params, int $schoolId)
+    {
+        foreach ($params as $name => $value) {
+            Parameter::updateOrCreate(
+                ['name' => $name, 'school_id' => $schoolId],
+                ['value' => $value, 'created_at' => now(), 'updated_at' => now()]
+            );
         }
     }
 
+    private function insertImpuestoTramo(int $i, int $schoolId)
+    {
+        $impuestos = $this->getImpuestoValues($i);
+
+        // Crear el parámetro de FACTORIMPTRAMO
+        Parameter::factory()->create([
+            'name' => "FACTORIMPTRAMO$i",
+            'description' => "Factor Impuesto tramo $i",
+            'value' => $impuestos['impuesto'],
+        ]);
+
+        // Crear el parámetro de FACTORREBAJAIMPTRAMO
+        Parameter::factory()->create([
+            'name' => "FACTORREBAJAIMPTRAMO$i",
+            'description' => "Factor Rebaja Impuesto tramo $i",
+            'value' => $impuestos['rebaja'],
+            'unit' => 'UTM',
+        ]);
+
+        // Crear las Tuiciones para los tramos
+        $this->createTuition("FACTORIMPTRAMO$i", "Factor Impuesto tramo $i", $schoolId);
+        $this->createTuition("FACTORREBAJAIMPTRAMO$i", "Factor Rebaja Impuesto tramo $i", $schoolId);
+
+        // Crear las operaciones para cada tramo
+        $this->createOperation($i, $schoolId, $impuestos['min'], $impuestos['max']);
+    }
+
+    private function getImpuestoValues(int $i): array
+    {
+        switch ($i) {
+            case 2:return ['impuesto' => 0.05, 'rebaja' => 0.675, 'min' => 13.5, 'max' => 30];
+            case 3:return ['impuesto' => 0.1, 'rebaja' => 2.175, 'min' => 30, 'max' => 50];
+            case 4:return ['impuesto' => 0.15, 'rebaja' => 4.675, 'min' => 50, 'max' => 70];
+            case 5:return ['impuesto' => 0.25, 'rebaja' => 11.675, 'min' => 70, 'max' => 90];
+            case 6:return ['impuesto' => 0.32, 'rebaja' => 17.975, 'min' => 90, 'max' => 120];
+            case 7:return ['impuesto' => 0.37, 'rebaja' => 23.975, 'min' => 120, 'max' => 120];
+            case 8:return ['impuesto' => 0.4, 'rebaja' => 28.475, 'min' => 120, 'max' => 99.999];
+            default:return ['impuesto' => 0.05, 'rebaja' => 28.475, 'min' => 13.5, 'max' => 99.999];
+        }
+    }
+
+    private function createTuition(string $tuitionId, string $title, int $schoolId)
+    {
+        Tuition::factory()->create([
+            'tuition_id' => $tuitionId,
+            'title' => $title,
+            'type' => 'P',
+            'school_id' => $schoolId,
+        ]);
+    }
+
+    private function createOperation(int $i, int $schoolId, float $minLimit, float $maxLimit)
+    {
+        foreach ([1, 2] as $workerType) {
+            Operation::factory()->create([
+                'tuition_id' => "IMPUESTOTRAMO$i",
+                'operation' => 'REMUNERACIONTRIBUTABLE',
+                'worker_type' => $workerType,
+                'limit_unit' => 'UTM',
+                'min_limit' => $minLimit,
+                'max_limit' => $maxLimit,
+                'application' => 111111111111,
+                'school_id' => $schoolId,
+            ]);
+        }
+
+        Tuition::factory()->create([
+            'tuition_id' => "IMPUESTOTRAMO$i",
+            'title' => "IMPUESTOTRAMO$i",
+            'type' => 'O',
+            'school_id' => $schoolId,
+        ]);
+    }
+
+    private function insertAsignacionFamiliar(int $i, int $schoolId)
+    {
+        $asignacion = $this->getAsignacionValues($i);
+
+        // Crear el parámetro de Asignación Familiar
+        Parameter::factory()->create([
+            'name' => "ASIGCAR.FAMTRAMO$i",
+            'value' => $asignacion['valor'],
+        ]);
+
+        // Crear la tuición
+        Tuition::factory()->create([
+            'tuition_id' => "ASIGCAR.FAMTRAMO$i",
+            'title' => "Asignacion familiar tramo $i",
+            'type' => 'P',
+            'school_id' => $schoolId,
+        ]);
+
+        // Crear las operaciones para Asignación Familiar
+        $this->createAsignacionOperation($i, $schoolId, $asignacion['min'], $asignacion['max']);
+    }
+
+    private function getAsignacionValues(int $i): array
+    {
+        switch ($i) {
+            case 1:return ['valor' => 5393, 'min' => 1, 'max' => 539328];
+            case 2:return ['valor' => 4223, 'min' => 539329, 'max' => 787746];
+            case 3:return ['valor' => 1375, 'min' => 787747, 'max' => 1228614];
+            default:return ['valor' => 5393, 'min' => 1, 'max' => 1228614];
+        }
+    }
+
+    private function createAsignacionOperation(int $i, int $schoolId, float $minLimit, float $maxLimit)
+    {
+        foreach ([1, 2] as $workerType) {
+            Operation::factory()->create([
+                'tuition_id' => "FILTROASIGFAMT$i",
+                'operation' => 'RENTAIMPONIBLE',
+                'worker_type' => $workerType,
+                'min_limit' => $minLimit,
+                'max_limit' => $maxLimit,
+                'application' => 111111111111,
+                'school_id' => $schoolId,
+            ]);
+        }
+
+        Tuition::factory()->create([
+            'tuition_id' => "FILTROASIGFAMT$i",
+            'title' => "FILTROASIGFAMT$i",
+            'type' => 'O',
+            'school_id' => $schoolId,
+        ]);
+    }
+
+    private function insertCostos(int $schoolId)
+    {
+        $costos = [
+            'COSTODIALICENCIANODOCENTE',
+            'COSTOHORALICENCIADOCENTE',
+            'COSTOHORAINASISTENCIADOCENTE',
+            'COSTOHORAINASISTENCIANODOCENTE',
+        ];
+
+        foreach ($costos as $costo) {
+            Parameter::factory()->create([
+                'name' => $costo,
+                'school_id' => $schoolId,
+                'value' => 0,
+            ]);
+        }
+    }
 }

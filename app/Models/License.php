@@ -34,7 +34,7 @@ class License extends Model
      */
     public function deleteWithHoursAndDays()
     {
-        $this->hourLicenses()->delete(); // Usar la relación correctamente
+        $this->licenseDetails()->delete(); // Usar la relación correctamente
         $this->delete(); // Eliminar la licencia
     }
 
@@ -67,7 +67,7 @@ class License extends Model
                 $hoursToAssign = $hoursArray[$dayOfWeek - 1]; // Se ajusta el índice
 
                 // Crear o actualizar las horas de licencia para ese día
-                HourLicense::updateOrCreate(
+                LicenseDetail::updateOrCreate(
                     ['license_id' => $this->id, 'day' => $currentDay, 'month' => $month, 'year' => $year],
                     ['hours' => $hoursToAssign]
                 );
@@ -86,7 +86,7 @@ class License extends Model
         // Insertar los días de licencia (sin horas asignadas)
         while ($daysRemaining > 0) {
             // Insertar día de licencia (sin horas asignadas)
-            HourLicense::insertOrUpdateDays(
+            LicenseDetail::insertOrUpdateDays(
                 $this->id, // Aquí pasamos el license_id
                 $currentDay,
                 $month,
@@ -102,7 +102,7 @@ class License extends Model
     public static function sumLicenseHours($workerId, $month, $year, $startDay, $endDay)
     {
         // Sum the 'exists' field (which represents 'Hay' in your original table)
-        $licenseHours = HourLicense::whereHas('license', function ($query) use ($workerId, $month, $year, $startDay, $endDay) {
+        $licenseHours = LicenseDetail::whereHas('license', function ($query) use ($workerId, $month, $year, $startDay, $endDay) {
             $query->where('worker_id', $workerId)
                 ->where('month', $month)
                 ->where('year', $year)
@@ -119,7 +119,7 @@ class License extends Model
 
     public static function sumDaysLicence($worker_id, $mes, $year, $fromDay, $hasta)
     {
-        $totalDays = HourLicense::whereHas('license', function ($query) use ($worker_id, $mes, $year, $fromDay, $hasta) {
+        $totalDays = LicenseDetail::whereHas('license', function ($query) use ($worker_id, $mes, $year, $fromDay, $hasta) {
             $query->where('worker_id', $worker_id)
                 ->where('month', $mes)
                 ->where('year', $year)
@@ -132,14 +132,18 @@ class License extends Model
         return $totalDays;
     }
 
+    /**
+     * Relación uno a muchos con worker.
+     */
     public function worker()
     {
         return $this->belongsTo(Worker::class);
     }
-
-    // Cambiar aquí: hacer que hourLicenses() no sea estático
-    public function hourLicenses()
+    /**
+     * Relación uno a muchos con LicenseDetail.
+     */
+    public function licenseDetails()
     {
-        return $this->hasMany(HourLicense::class); // No es necesario ser estático
+        return $this->hasMany(LicenseDetail::class);
     }
 }

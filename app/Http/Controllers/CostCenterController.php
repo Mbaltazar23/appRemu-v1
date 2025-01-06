@@ -31,7 +31,6 @@ class CostCenterController extends Controller
         $school = School::find($schoolId);
         // Obtener los totales de liquidación
         $result = CostCenter::getLiquidationSumsTotalCosts($schoolId, $item, $periodo);
-
         // Si todo es correcto, pasamos los resultados a la vista `show` para mostrar en la ventana emergente
         return view('costcenters.show', [
             'workers' => $result['workers'],

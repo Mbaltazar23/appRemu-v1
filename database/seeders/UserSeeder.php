@@ -22,14 +22,7 @@ class UserSeeder extends Seeder
         ];
 
         $permissionsContador = [
-            'MANTRA',
-            'MANBODESCOL',
-            'PLANREMU',
-            'MANISAPRE',
-            'MANAFP',
-            'MANLIC',
-            'MANIECO',
-            'MANINAS',
+            "MANTRA", "REMEMI", "MANAFPTR", "CONPREVAFP", "MANBODESCOL", "MANBODESTRA", "MANIECO", "MANBODESGEN", "MANLIQ", "MANLIC", "MANAFP", "MANISAPRETR", "MANINAS", "PLANREMU", "MANICOM", "CERTREMU"
         ];
 
         // Crear roles

@@ -25,6 +25,16 @@
                                                 <td>
                                                     @can('view', $certificate)
                                                         <!-- Acción para ver los certificados de un año -->
+                                                        <a href="{{ route('certificates.view', $certificate->year) }}"
+                                                            target="_blank"
+                                                            onclick="openPopup(event, 'Certificados de Remuneraciones')"
+                                                            class="btn btn-primary">
+                                                            <i class='bx bx-show'></i>
+                                                        </a>
+                                                    @endcan
+                                                   
+                                                    @can('view', $certificate)
+                                                        <!-- Acción para ver los certificados de un año -->
                                                         <a href="{{ route('certificates.show', $certificate->year) }}"
                                                             target="_blank"
                                                             onclick="openPopup(event, 'Certificados de Remuneraciones')"

@@ -36,7 +36,7 @@
                 <div class="col-md-6 form-group">
                     <label for="unit">Unidad APV</label>
                     <select name="unit" class="form-control">
-                        <option value="Pesos" {{ $unidad == 'Pesos' ? 'selected' : '' }}>Pesos</option>
+                        <option value="" {{ $unidad == '' ? 'selected' : '' }}>Pesos</option>
                         <option value="UF" {{ $unidad == 'UF' ? 'selected' : '' }}>UF</option>
                     </select>
                 </div>
@@ -71,7 +71,7 @@
                 <div class="col-md-6 form-group">
                     <label for="unit">Unidad</label>
                     <select name="unit" class="form-control">
-                        <option value="Pesos" {{ $unidad == 'Pesos' ? 'selected' : '' }}>Pesos</option>
+                        <option value="" {{ $unidad == '' ? 'selected' : '' }}>Pesos</option>
                         <option value="UF" {{ $unidad == 'UF' ? 'selected' : '' }}>UF</option>
                     </select>
                 </div>

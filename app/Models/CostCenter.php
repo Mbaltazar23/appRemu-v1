@@ -83,9 +83,9 @@ class CostCenter extends Model
             })
             ->get(); // Traer todos los trabajadores que coincidan con ambas condiciones
 
-// Verificar si la colección está vacía
-if ($workers->count() === 0) { // Usamos count() para obtener la cantidad de elementos en la colección
-    return [
+        // Verificar si la colección está vacía
+        if ($workers->count() === 0) { // Usamos count() para obtener la cantidad de elementos en la colección
+            return [
                 'workers' => [], // Retornamos un array vacío si no hay trabajadores
             ];
         }
@@ -174,10 +174,21 @@ if ($workers->count() === 0) { // Usamos count() para obtener la cantidad de ele
         ];
         // Mapeo de los meses
         $meses = [
-            'Enero' => "month=1", 'Febrero' => "month=2", 'Marzo' => "month=3", 'Abril' => "month=4",
-            'Mayo' => "month=5", 'Junio' => "month=6", 'Julio' => "month=7", 'Agosto' => "month=8",
-            'Septiembre' => "month=9", 'Octubre' => "month=10", 'Noviembre' => "month=11", 'Diciembre' => "month=12",
-            '1erSemestre' => "month<7", '2doSemestre' => "month>6", 'Anual' => "month>0",
+            'Enero' => "month=1",
+            'Febrero' => "month=2",
+            'Marzo' => "month=3",
+            'Abril' => "month=4",
+            'Mayo' => "month=5",
+            'Junio' => "month=6", 
+            'Julio' => "month=7",
+            'Agosto' => "month=8",
+            'Septiembre' => "month=9",
+            'Octubre' => "month=10",
+            'Noviembre' => "month=11",
+            'Diciembre' => "month=12",
+            '1erSemestre' => "month<7",
+            '2doSemestre' => "month>6",
+            'Anual' => "month>0",
         ];
         // Validación de 'item' y 'periodo' en base al mapeo
         if (!isset($funciones[$item]) || !isset($meses[$periodo])) {

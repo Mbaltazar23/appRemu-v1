@@ -182,8 +182,7 @@
                 <div class="col-md-2 mb-3">
                     <label class="form-label">{{ ucfirst($day) }}</label>
                     <input type="number" id="carga_{{ $day }}" name="carga_{{ $day }}"
-                        class="form-control" value="{{ json_decode($worker->load_hourly_work)->$day ?? '' }}"
-                        disabled />
+                        class="form-control" value="{{ json_decode($worker->load_hourly_work)->$day ?? '' }}"/>
                 </div>
             @endforeach
         </div>
@@ -236,19 +235,6 @@
 
     @push('custom_scripts')
         <script>
-            function toggleInputs() {
-                const workerType = document.getElementById('worker_type').value;
-                const cargaInputs = document.querySelectorAll('#horas_dia input');
-                const baseSalaryInput = document.getElementById('base_salary');
-
-                if (workerType === '1') { // Si el tipo de trabajador es 'Docente'
-                    cargaInputs.forEach(input => input.disabled = false);
-                    baseSalaryInput.disabled = true;
-                } else { // Para cualquier otro tipo de trabajador
-                    cargaInputs.forEach(input => input.disabled = true);
-                    baseSalaryInput.disabled = false;
-                }
-            }
 
             function validadorRut(txtRut) {
                 document.getElementById(txtRut).addEventListener('input', function(evt) {
@@ -269,7 +255,5 @@
             // Llama a la función para validar el RUT
             validadorRut('rut');
 
-            // Llama a la función toggleInputs al cargar la página
-            document.addEventListener('DOMContentLoaded', toggleInputs);
         </script>
     @endpush

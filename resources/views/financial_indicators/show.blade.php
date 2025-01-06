@@ -4,7 +4,7 @@
     <div class="page-body">
         <div class="container-xl">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h3>
                         @if ($index === 'correccion_monetaria')
                             {{ __('Índice de Corrección Monetaria') }}
@@ -16,7 +16,7 @@
                             {{ __('Mantenedor de valores y topes para Asignación familiar') }}
                         @endif
                     </h3>
-                    <br>
+                    <button id="backButton" class="btn btn-secondary">{{ __('Volver') }}</button>
                 </div>
                 <div class="card-body">
                     @if ($index === 'correccion_monetaria')
@@ -26,6 +26,7 @@
                         <p><strong>UTM:</strong> <span>${{ $values['utm'] }}</span></p>
                     @elseif($index === 'impuesto_renta' || $index === 'asignacion_familiar')
                         <form name="forma" action="{{ route('financial-indicators.modify') }}" method="POST">
+                            <input type="hidden" name="index" value="{{ $index }}" />
                             @csrf
                             @if ($index === 'impuesto_renta')
                                 @include('financial_indicators.partials.incomeTax', [
@@ -51,7 +52,6 @@
                             </div>
                         </form>
                     @endif
-                    <button id="backButton" class="btn btn-secondary mt-3">{{ __('Volver') }}</button>
                 </div>
             </div>
         </div>

@@ -12,14 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tmp_liquidation', function (Blueprint $table) {
-            $table->id(); // El campo 'id' es autoincrementable por defecto en Laravel
-              // El campo 'tuition_id' será un string y se usará como campo adicional
-              $table->string('tuition_id'); // El campo 'tuition_id' para asociar con tuición
-              // El título y valor del cálculo
-              $table->string('title');
-              $table->float('value');
-              // El campo que indica si está en liquidación o no
-              $table->boolean('in_liquidation');
+            $table->id();
+            $table->string('tuition_id');
+            $table->string('title');
+            $table->float('value', 10,2);
+            $table->boolean('in_liquidation');
             $table->timestamps();
         });
     }

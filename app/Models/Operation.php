@@ -62,7 +62,6 @@ class Operation extends Model
             'school_id' => $school_id,
             'worker_type' => $workerType,
             'operation' => $operation,
-            'limit_unit' => 0,
             'min_limit' => 0,
             'max_limit' => 0,
             'max_value' => 0,
@@ -244,7 +243,7 @@ class Operation extends Model
 
         if ($operation) {
             // Si existe, actualiza
-            $operation->update(['min_limit' => $min, 'max_limit' => $max]);
+            $operation->update(['min_limit' => $min, 'max_limit' => $max, 'updated_at'=> now()]);
         } else {
             // Si no existe, crea uno nuevo
             self::create([
@@ -256,7 +255,6 @@ class Operation extends Model
             ]);
         }
     }
-
 
     // Relación: Una Operation pertenece a una Tuition
     public function tuition()

@@ -269,9 +269,6 @@ class Bonus extends Model
             'name' => $nombrev,
             'school_id' => $school_id,
             'description' => "Valor de {$title}",
-            'unit' => '',
-            'start_date' => '',
-            'end_date' => '',
             'value' => $monto,
         ]);
     }

@@ -29,7 +29,7 @@ class LiquidationHelper
                 return "Para crear la liquidación es necesario que el trabajador esté afiliado a una AFP y a una ISAPRE (o Fonasa)";
             }
         }
-        return; // No hay errores
+        return; 
     }
 
     // Calcular el mes anterior y el año anterior y la data completa
@@ -75,7 +75,7 @@ class LiquidationHelper
         $monthTxt = MonthHelper::integerToMonth($month);
         $worker = Worker::find($workerId);
 
-        $workload = Parameter::getParameterValue("CARGAHORARIA", $schoolId, $workerId);
+        $workload = Parameter::getParameterValue("CARGAHORARIA", $workerId, $schoolId);
         if ($workload < 10) {
             $workload = "0" . $workload;
         }
@@ -92,15 +92,23 @@ class LiquidationHelper
     public function getTotalAbsenceMinutes($workerId, $month, $mesl, $year, $cierremes)
     {
         return Absence::sumAbsenceMinutes($workerId, $month, $year, $cierremes, 32) +
-        Absence::sumAbsenceMinutes($workerId, $mesl, (int) date("Y"), 0, $cierremes + 1);
+        Absence::sumAbsenceMinutes($workerId, $mesl, date("Y"), 0, $cierremes + 1);
     }
 
     // Calcular las horas de licencia para un trabajador
     public function getLicenseHours($workerId, $month, $mesl, $year, $cierremes)
     {
         return License::sumLicenseHours($workerId, $month, $year, $cierremes, 32) +
-        License::sumLicenseHours($workerId, $mesl, (int) date("Y"), 0, $cierremes + 1);
+        License::sumLicenseHours($workerId, $mesl, date("y"), 0, $cierremes + 1);
     }
+
+   // Obtener los días de licencia de un trabajador
+
+   public function sumLicenseDays($workerId, $month, $mesl, $year, $cierremes)
+   {
+       return License::sumDaysLicence($workerId, $month, $year, $cierremes, 32) + 
+       License::sumDaysLicence($workerId, $mesl, date("y"), 0, $cierremes + 1);
+   }
 
     // Calcular el factor de asistencia para trabajadores docentes
     public function calculateAttendanceFactorForTeacher($workerId, $previousMonth, $mesl, $previousYear, $cierremes, $hourlyRate, $absenceMinutes)
@@ -108,11 +116,8 @@ class LiquidationHelper
         $licenseHours = self::getLicenseHours($workerId, $previousMonth, $mesl, $previousYear, $cierremes);
         // Asegurarse de que el denominador no sea cero
         $denominator = $hourlyRate * 60 * 4;
-        if ($denominator == 0) {
-            // Aquí puedes manejar el error, por ejemplo, retornando 0 o lanzando una excepción
-            return 0;
-        }
-        return 1 - (($hourlyRate * $licenseHours * 8 + $absenceMinutes) / $denominator);
+
+        return 1 - ($hourlyRate * $licenseHours * 8 + $absenceMinutes) / ($denominator);
     }
     // Calcular el factor de asistencia para trabajadores no docentes
     public function calculateAttendanceFactorForNonTeacher($workerId, $previousMonth, $mesl, $previousYear, $cierremes, $hourlyRate, $absenceMinutes)
@@ -120,27 +125,17 @@ class LiquidationHelper
         $licenseDays = self::sumLicenseDays($workerId, $previousMonth, $mesl, $previousYear, $cierremes);
         // Asegurarse de que el denominador no sea cero
         $denominator = $hourlyRate * 60 * 4;
-        if ($denominator == 0) {
-            // Aquí también puedes manejar el error, retornando 0 o lanzando una excepción
-            return 0;
-        }
-        return 1 - (($hourlyRate * $licenseDays * 8 + $absenceMinutes) / $denominator);
-    }
 
-    // Obtener los días de licencia de un trabajador
-
-    public function sumLicenseDays($workerId, $month, $mesl, $year, $cierremes)
-    {
-        return License::sumDaysLicence($workerId, $month, $year, $cierremes, 32) + License::sumDaysLicence($workerId, $mesl, (int) date("y"), 0, $cierremes + 1);
+        return 1 - ($hourlyRate * $licenseDays * 8 + $absenceMinutes) / ($denominator);
     }
 
     // Actualizar o insertar el valor de un parámetro
     public function updateOrInsertFactorasist($workerId, $schoolId, $value)
     {
         if (Parameter::exists('FACTORASIST', $workerId, $schoolId)) {
-            Parameter::updateOrInsertParamValue('FACTORASIST', $workerId, $schoolId, $value);
+            Parameter::updateOrInsertParamValue('FACTORASIST', $workerId, $schoolId,"Factor de asistencia",  $value);
         } else {
-            Parameter::updateOrInsertParamValue('FACTORASIST', $workerId, $schoolId, $value);
+            Parameter::updateOrInsertParamValue('FACTORASIST', $workerId, $schoolId,"Factor de asistencia", $value);
         }
     }
 }

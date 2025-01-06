@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class Parameter extends Model
 {
@@ -131,16 +130,7 @@ class Parameter extends Model
         return self::create($data);
     }
 
-    public static function obt_cotizacion_afp($afp)
-    {
-        $cotizacion = self::where('name', 'COTIZACIONAFP')
-            ->where('value', $afp)
-            ->first();
-
-        return $cotizacion ? $cotizacion->value : null; // Retorna el valor de cotización o null si no existe
-    }
-
-    public static function updateParamValue($classId, $schoolId, $value, $workerId = null)
+    public static function updateParamValue($classId, $schoolId, $value, $workerId = 0)
     {
         $query = self::where('name', $classId)
             ->where('school_id', $schoolId);
@@ -152,16 +142,14 @@ class Parameter extends Model
         $query->update(['value' => $value]);
     }
 
-    public static function updateOrInsertParamValue($classId, $workerId = null, $school_id = null, $value)
+    public static function updateOrInsertParamValue($classId, $workerId = 0, $school_id = 0, $description = "", $value)
     {
         // Crea la consulta básica buscando por el nombre (classId)
-        $query = self::where('name', $classId);
+        $query = self::where('name', $classId)->where('school_id', $school_id);
 
-        // Si workerId no es null, añade la condición
-        if ($workerId !== null) {
+        if ($workerId != 0) {
             $query->where('worker_id', $workerId);
         }
-
         // Ejecuta la consulta para obtener el parámetro
         $param = $query->first();
 
@@ -174,6 +162,7 @@ class Parameter extends Model
                 'name' => $classId,
                 'worker_id' => $workerId,
                 'school_id' => $school_id,
+                'description' => $description,
                 'value' => $value,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -181,10 +170,10 @@ class Parameter extends Model
         }
     }
 
-    public static function createOrUpdateParamIndicators($classId, $value, $school_id)
+    public static function createOrUpdateParamIndicators($classId, $value)
     {
         // Crea la consulta básica buscando por el nombre (classId) y el school_id
-        $query = self::where('name', $classId)->where('school_id', $school_id);
+        $query = self::where('name', $classId);
         // Ejecuta la consulta para obtener el parámetro
         $param = $query->first();
         // Si existe el parámetro, realiza un update
@@ -197,7 +186,6 @@ class Parameter extends Model
             // Si no existe el parámetro, crea uno nuevo
             self::create([
                 'name' => $classId,
-                'school_id' => $school_id,
                 'value' => $value,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -302,20 +290,11 @@ class Parameter extends Model
     // Método para obtener el valor de parámetro del trabajador y colegio al que pertenece
     public static function getParameterValue($name, $workerId, $schoolId)
     {
-        // Usamos el query builder para obtener el valor del parámetro
-        $query = self::select('value')
-            ->where('name', $name)
-            ->where(function ($query) use ($schoolId) {
-                $query->where('school_id', $schoolId) // Condición para school_id
-                    ->orWhere('school_id', 0); // También acepta cuando school_id es 0
-            })
-            ->where(function ($query) use ($workerId) {
-                $query->where('worker_id', $workerId) // Condición para worker_id
-                    ->orWhere('worker_id', 0); // También acepta cuando worker_id es 0
-            })
-            ->orderByDesc('worker_id')
-            ->get(); // Solo necesitamos el primer resultado
-
+        // Usamos el query builder con raw SQL cuando es necesario
+        $query = self::where('name', $name)
+            ->whereRaw('(school_id = ? OR school_id = 0)', $schoolId) // Usamos raw para la condición OR
+            ->whereRaw('(worker_id = ? OR worker_id = 0)', $workerId) // Usamos raw para la condición OR
+            ->orderByDesc('worker_id');
         // Ejecutamos la consulta y obtenemos el primer valor
         $parameter = $query->first();
 
@@ -325,34 +304,24 @@ class Parameter extends Model
     // Método para obtener la unidad de parámetro por clase, tipo de trabajador y colegio
     public static function getUnitByTuitionWorkerAndSchool($tuitionId, $workerId, $schoolId)
     {
-        // Usamos el query builder para obtener la unidad del parámetro
-        $query = DB::table('parameters')
-            ->select('parameters.unit')
-            ->where('parameters.name', $tuitionId)
-            ->where(function ($query) use ($schoolId) {
-                $query->where('parameters.school_id', $schoolId) // Condición para school_id
-                    ->orWhere('parameters.school_id', 0); // También acepta cuando school_id es 0
-            })
-            ->where(function ($query) use ($workerId) {
-                $query->where('parameters.worker_id', $workerId) // Condición para worker_id
-                    ->orWhere('parameters.worker_id', 0); // También acepta cuando worker_id es 0
-            })
-            ->first(); // Obtener el primer resultado directamente
+        $query = self::where('name', $tuitionId)
+            ->whereRaw('(school_id = ? OR school_id = 0)', $schoolId)
+            ->whereRaw('(worker_id = ? OR worker_id = 0)', $workerId);
+        // Ejecutamos la consulta y obtenemos el primer resultado
+        $parameter = $query->first();
 
-        return $query->unit ?? 0; // Si no existe, devolvemos 0
+        return $parameter->unit ?? ""; // Si no existe, devolvemos ""
     }
 
     // Método para obtener la suma del valor de los parámetros
     public static function getSumValueByTuitionSchoolAndWorkerType($tuitionId, $schoolId, $workerTypeId)
     {
-        // Realizamos un LEFT JOIN con la tabla 'workers' y sumamos el valor de los parámetros
-        $query = DB::table('parameters')
-            ->selectRaw('SUM(parameters.value) as total_value')
-            ->leftJoin('workers', 'workers.id', '=', 'parameters.worker_id') // LEFT JOIN con 'workers'
+        $query = self::selectRaw('SUM(parameters.value) as total_value')
+            ->leftJoin('workers', 'parameters.worker_id', '=', 'workers.id') // Realizamos un LEFT JOIN con la tabla workers
             ->where('parameters.name', $tuitionId)
             ->where('parameters.school_id', $schoolId)
             ->where('workers.worker_type', $workerTypeId)
-            ->whereNull('workers.settlement_date'); // Aseguramos que settlement_date sea NULL
+            ->whereRaw('workers.settlement_date IS NULL'); // Aseguramos que settlement_date sea NULL
 
         // Ejecutamos la consulta y obtenemos el valor total
         $result = $query->first();
@@ -370,10 +339,7 @@ class Parameter extends Model
         // Usando Eloquent para manejar las condiciones con orWhere
         $parameter = self::where('name', $tuitionId)
             ->where('school_id', $schoolId) // Filtramos por el colegio
-            ->where(function ($query) use ($workerId) {
-                $query->where('worker_id', $workerId)
-                    ->orWhere('worker_id', 0); // Condición OR para worker_id
-            })
+            ->whereRaw('(worker_id = ? OR worker_id = 0)', [$workerId])
             ->get();
         // Si existe un parámetro, retornar su descripción. Si no, retornar cadena vacía.
         return $parameter->first()->description ?? "";

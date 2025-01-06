@@ -104,13 +104,13 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
 
     /* RUTAS PARA BONUSES */
     Route::get('bonuses/partials/list', [BonusController::class, 'list'])->name('bonuses.partials.list');
+    Route::get('bonuses/{bonus}/workers', [BonusController::class, 'showWorkers'])->name('bonuses.workers');
+    Route::post('bonuses/{bonus}/update-workers', [BonusController::class, 'updateWorkers'])->name('bonuses.update-workers');
     Route::get('bonuses/partials/params', [BonusController::class, 'generalParams'])->name('bonuses.partials.params');
     Route::post('bonuses/update/params', [BonusController::class, 'updateParams'])->name('bonuses.updateParams');
     Route::get('bonuses/partials/worker', [BonusController::class, 'workers'])->name('bonuses.partials.worker');
-    Route::get('bonuses/{bonus}/workers', [BonusController::class, 'showWorkers'])->name('bonuses.workers');
-    Route::get('api/workers/{workerId}/parameters', [BonusController::class, 'fetchWorkerParameters']);
+    Route::post('bonuses/select-worker', [BonusController::class, 'selectWorker'])->name('bonuses.select.worker');
     Route::post('bonuses/workers/update', [BonusController::class, 'updateBonusWorker'])->name('bonuses.updateBonus');
-    Route::post('bonuses/{bonus}/update-workers', [BonusController::class, 'updateWorkers'])->name('bonuses.update-workers');
 
     /** RUTAS PARA LOS INDICADORES ECONOMICOS */
     Route::get('financial-indicators', [FinancialIndicatorController::class, 'index'])->name('financial-indicators.index');
@@ -133,10 +133,14 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
     // Ruta GET para crear una liquidación, mantiene el workerId y workerType como parámetros
     Route::get('liquidations/create/{workerId}', [LiquidationController::class, 'create'])->name('liquidations.create');
     Route::post('liquidations/store/{worker}', [LiquidationController::class, 'store'])->name('liquidations.store');
+    Route::delete('liquidations/delete/{liquidation}/{workerId}', [LiquidationController::class, 'destroy'])->name('liquidations.destroy');
     Route::get('liquidations/{id}/glosa', [LiquidationController::class, 'getGlosa'])->name('liquidations.getGlosa');
     Route::get('liquidations/printGlosas/{type}', [LiquidationController::class, 'printGlosas'])->name('liquidations.printGlosas');
 
     /** RUTAS PARA LA GENERACION DE INFORMES PREVISIONALES */
     Route::get('reports/typeInsurance/{type}', [ReportController::class, 'typeInsurance'])->name('reports.type');
     Route::get('reports/generate/{typeInsurance}/{month}/{year}/{insurance}', [ReportController::class, 'generateReport'])->name('reports.generate');
+
+    /** RUTA PARA VISUALIZAR DOCUMENTOS (CERTIFICADOS) */
+    Route::get('certificates/view/{year}', [CertificateController::class, 'view'])->name('certificates.view');
 });

@@ -58,57 +58,55 @@ class BonusController extends Controller
         foreach ($paramsToUpdate as $name) {
             Parameter::updateOrCreate(
                 ['name' => $name, 'school_id' => $schoolId],
-                ['value' => $request->$name, 'created_at' => now(),
-                    'updated_at' => now()]
+                ['value' => $request->$name, 'updated_at' => now()]
             );
         }
 
         return redirect()->back()->with('success', 'Parametros generales Actualizado..');
     }
 
-    public function workers()
+    public function workers(Request $request)
     {
-        $this->authorize('viewWorkers', Bonus::class); // Verifica si el usuario tiene el permiso adecuado
-
         $schoolId = auth()->user()->school_id_session;
         $workers = Worker::getWorkersBySchoolAndType($schoolId);
+
         return view('bonuses.partials.worker', compact('workers'));
     }
 
-    public function fetchWorkerParameters($workerId)
+    public function selectWorker(Request $request)
     {
         $schoolId = auth()->user()->school_id_session;
-        $worker = Worker::find($workerId);
+        $workers = Worker::getWorkersBySchoolAndType($schoolId);
 
-        if (!$worker) {
-            return response()->json(['error' => 'Trabajador no encontrado.'], 404);
-        }
-
-        $bonuses = Bonus::getBonusesByTypeAndApplication($schoolId, $worker->worker_type, 'D');
-
+        // Inicializar variables para almacenar el trabajador seleccionado y sus bonos
+        $selectedWorker = null;
         $bonusData = [];
-        if ($bonuses->count() > 0) {
-            foreach ($bonuses as $bonus) {
-                $value = Parameter::getParameterValue($bonus->tuition_id, $workerId, $schoolId);
-                $aplicable = Parameter::getParameterValue("APLICA" . $bonus->title, $workerId, $schoolId);
-                $title = Tuition::getTuitionTitle($bonus->title, $schoolId);
 
-                if ($aplicable == 1) {
-                    $bonusData[] = [
-                        'id' => $bonus->tuition_id,
-                        'title' => $title,
-                        'value' => $value,
-                        'aplicable' => $aplicable,
-                    ];
+        // Si se ha enviado un worker_id, buscar al trabajador y sus bonos
+        if ($request->has('worker_id')) {
+            $selectedWorker = Worker::find($request->worker_id);
+
+            if ($selectedWorker) {
+                $bonuses = Bonus::getBonusesByTypeAndApplication($schoolId, $selectedWorker->worker_type, 'D');
+
+                foreach ($bonuses as $bonus) {
+                    $value = Parameter::getParameterValue($bonus->tuition_id, $request->worker_id, $schoolId);
+                    $aplicable = Parameter::getParameterValue("APLICA" . $bonus->title, $request->worker_id, $schoolId);
+                    $title = Tuition::getTuitionTitle($bonus->title, $schoolId);
+
+                    if ($aplicable == 1) {
+                        $bonusData[] = [
+                            'id' => $bonus->tuition_id,
+                            'title' => $title,
+                            'value' => $value,
+                            'aplicable' => $aplicable,
+                        ];
+                    }
                 }
-
             }
         }
-        return response()->json([
-            'name' => $worker->name . ' ' . $worker->last_name,
-            'bonuses' => $bonusData,
-            'type' => $worker->getWorkerTypes()[$worker->worker_type],
-        ]);
+
+        return view('bonuses.partials.worker', compact('workers', 'selectedWorker', 'bonusData'));
     }
 
     public function updateBonusWorker(Request $request)
@@ -129,7 +127,7 @@ class BonusController extends Controller
                 // Validar si el bono ya existe para este trabajador
                 if (Parameter::exists($bonus->tuition_id, $worker_id, $schoolId)) {
                     // Si el parametro ya existe, actualizar el valor
-                    Parameter::updateOrInsertParamValue($bonus->tuition_id, $worker_id, $schoolId, $value);
+                    Parameter::updateOrInsertParamValue($bonus->tuition_id, $worker_id, $schoolId,"", $value);
                 } else {
                     // Si el parametro no existe, insertar el nuevo valor
                     Parameter::create([
@@ -146,8 +144,8 @@ class BonusController extends Controller
 
         // Redirigir con mensaje de éxito
         return redirect()->route('bonuses.partials.worker')
-            ->with('success', 'Bonos modificados correctamente.')
-            ->with('worker_id', $worker_id);
+            ->with('success', 'Bonos designados correctamente !!')
+            ->with('selectedWorker', $worker);
     }
 
     /*
@@ -188,7 +186,7 @@ class BonusController extends Controller
                 // Verifica si existe el parámetro
                 if (Parameter::exists("APLICA{$title}", $idWorker, $school)) {
                     // Actualiza el parámetro si ya existe
-                    Parameter::updateOrInsertParamValue("APLICA{$title}", $idWorker, 1, $school);
+                    Parameter::updateOrInsertParamValue("APLICA{$title}", $idWorker,$school, "",1);
                 } else {
                     // Si no existe, puedes también insertar directamente aquí
                     Parameter::create([

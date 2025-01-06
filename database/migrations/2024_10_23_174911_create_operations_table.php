@@ -16,13 +16,12 @@ return new class extends Migration
             $table->string('tuition_id')->nullable();
             $table->foreignId('school_id')->nullable()->constrained('schools')->onDelete('set null');
             $table->integer('worker_type')->nullable();
-            $table->text('operation')->nullable(); // Cambiar 'text' a 'binary' para almacenar BLOB
-            $table->string('limit_unit', 10)->nullable();
+            $table->binary('operation')->nullable(); 
+            $table->string('limit_unit')->nullable();
             $table->double('min_limit')->nullable();
             $table->double('max_limit')->nullable();
             $table->double('max_value')->nullable();
             $table->string('application', 12)->nullable();
-            /*$table->foreign('tuition_id')->references('tuition_id')->on('tuitions')->onDelete('cascade');*/
             $table->timestamps();
         });
     }

@@ -42,18 +42,18 @@ class FinancialIndicatorController extends Controller
         switch ($index) {
             case 'uf':
                 $values = $financialIndicator->getCurrentValues();
-                $values['uf'] = str_replace(',', '', number_format($values['uf'], 2, '.', '')); // Cambia la coma por un punto
+                $values['uf'] = str_replace(',', '', number_format($values['uf'], 0, '.', '')); // Cambia la coma por un punto
                 $values['utm'] = str_replace(',', '', number_format($values['utm'], 0, '.', '')); // Cambia la coma por un punto
-                Parameter::createOrUpdateParamIndicators("UF", $values['uf'], $schoolId);
-                Parameter::createOrUpdateParamIndicators("UTM", $values['utm'], $schoolId);
+                Parameter::createOrUpdateParamIndicators("UF", $values['uf']);
+                Parameter::createOrUpdateParamIndicators("UTM", $values['utm']);
                 break;
 
             case 'impuesto_renta':
                 for ($i = 2; $i <= 8; $i++) {
                     $minLimits[$i] = Operation::getMinLimit("IMPUESTOTRAMO$i");
                     $maxLimits[$i] = Operation::getMaxLimit("IMPUESTOTRAMO$i");
-                    $impValues[$i] = Parameter::getValueByName("FACTORIMPTRAMO$i", $schoolId, "");
-                    $rebValues[$i] = Parameter::getValueByName("FACTORREBAJAIMPTRAMO$i", $schoolId, "");
+                    $impValues[$i] = Parameter::getValueByName("FACTORIMPTRAMO$i", 0, 0);
+                    $rebValues[$i] = Parameter::getValueByName("FACTORREBAJAIMPTRAMO$i", 0, 0);
                 }
                 break;
 
@@ -61,7 +61,7 @@ class FinancialIndicatorController extends Controller
                 for ($i = 1; $i <= 3; $i++) {
                     $minLimits[$i] = Operation::getMinLimit("FILTROASIGFAMT$i");
                     $maxLimits[$i] = Operation::getMaxLimit("FILTROASIGFAMT$i");
-                    $impValues[$i] = Parameter::getValueByName("ASIGCAR.FAMTRAMO$i", $schoolId, "");
+                    $impValues[$i] = Parameter::getValueByName("ASIGCAR.FAMTRAMO$i", 0, 0);
                 }
                 break;
 
@@ -79,16 +79,16 @@ class FinancialIndicatorController extends Controller
     public function modify(FinancialIndModRequest $request)
     {
         $schoolId = auth()->user()->school_id_session;
-        $index  = $request->input('index');
+        $index = $request->input('index');
         if ($index === 'impuesto_renta') {
             for ($i = 2; $i <= 8; $i++) {
-                Parameter::updateOrInsertParamValue("FACTORIMPTRAMO$i", "", $request->input("IMP$i"), $schoolId);
-                Parameter::updateOrInsertParamValue("FACTORREBAJAIMPTRAMO$i", "", $request->input("REB$i"), $schoolId);
+                Parameter::updateOrInsertParamValue("FACTORIMPTRAMO$i",0,0,"", $request->input("IMP$i"));
+                Parameter::updateOrInsertParamValue("FACTORREBAJAIMPTRAMO$i",0,0,"", $request->input("REB$i"));
                 Operation::updOrInsertTopesOperation("IMPUESTOTRAMO$i", $request->input("MIN$i"), $request->input("MAX$i"));
             }
-        } else if ($index === 'asignacion_familiar') {
+        } else {
             for ($i = 1; $i <= 3; $i++) {
-                Parameter::updateOrInsertParamValue("ASIGCAR.FAMTRAMO$i", "", "", $request->input("VAL$i"));
+                Parameter::updateOrInsertParamValue("ASIGCAR.FAMTRAMO$i",0,0,"", $request->input("VAL$i"));
                 Operation::updOrInsertTopesOperation("FILTROASIGFAMT$i", $request->input("MIN$i"), $request->input("MAX$i"));
             }
         }

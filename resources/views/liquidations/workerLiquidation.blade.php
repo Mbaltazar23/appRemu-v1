@@ -35,20 +35,36 @@
                                         <td>{{ App\Helpers\MonthHelper::integerToMonth($liquidation->month) }}</td>
                                         <td>{{ $liquidation->year }}</td>
                                         <td> <!-- Botón "Ver Liquidación" -->
-                                            <a class="text-decoration-none">
-                                                <button class="btn btn-success rounded-3 px-3"
-                                                    onclick="viewLiquidation({{ $liquidation->id }})">
-                                                    <i class='bx bx-show'></i>
-                                                </button>
-                                            </a>
-                                            <a class="text-decoration-none">
-                                                <button class="btn btn-info rounded-3 px-3"
-                                                    onclick="printLiquidation({{ $liquidation->id }})">
-                                                    
-                                                    <i class='bx bxs-printer'></i>
-                                                </button>
-                                            </a>
+                                            @can('view', $liquidation)
+                                                <a class="text-decoration-none">
+                                                    <button class="btn btn-success rounded-3 px-3"
+                                                        onclick="viewLiquidation({{ $liquidation->id }})">
+                                                        <i class='bx bx-show'></i>
+                                                    </button>
+                                                </a>
+                                            @endcan
+                                            @can('view', $liquidation)
+                                                <a class="text-decoration-none">
+                                                    <button class="btn btn-info rounded-3 px-3"
+                                                        onclick="printLiquidation({{ $liquidation->id }})">
 
+                                                        <i class='bx bxs-printer'></i>
+                                                    </button>
+                                                </a>
+                                            @endcan
+                                            @can('delete', $liquidation)
+                                                <form method="POST"
+                                                    action="{{ route('liquidations.destroy', [$liquidation, $worker->id]) }}"
+                                                    class="d-inline"
+                                                    onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta liquidacion?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-danger rounded-3 px-3">
+                                                        <i class='bx bx-trash'></i>
+                                                    </button>
+                                                </form>
+                                            @endcan
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>

@@ -54,7 +54,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($license->hourLicenses as $hourLicense)
+                                @foreach ($license->licenseDetails as $hourLicense)
                                     <tr>
                                         <td class="p-1">{{ \Carbon\Carbon::createFromDate($hourLicense->year, $hourLicense->month, $hourLicense->day)->format('d-m-Y') }}</td>
                                         <td class="p-1">{{ $hourLicense->hours }} horas</td>

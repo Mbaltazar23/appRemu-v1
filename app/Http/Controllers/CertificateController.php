@@ -30,15 +30,11 @@ class CertificateController extends Controller
      */
     public function store(Request $request)
     {
-        //dd($request->all());  // Muestra todos los datos del formulario
-
         $year = $request->input('year');
 
         $school_id = auth()->user()->school_id_session;
 
         $workers = Worker::where('school_id', $school_id)->get();
-
-        //dd($workers);
 
         foreach ($workers as $worker) {
             Certificate::createCertificate($school_id, $worker->id, $year);
@@ -56,6 +52,14 @@ class CertificateController extends Controller
         $impresCertificates = Certificate::getCertificates($year, $school_id);
         //dd($impresCertificates);
         return view('certificates.show', ['workersData' => $impresCertificates]);
+    }
+
+    public function view($year)
+    {
+        $school_id = auth()->user()->school_id_session;
+        $impresCertificates = Certificate::getCertificates($year, $school_id);
+        //dd($impresCertificates);
+        return view('certificates.view', ['workersData' => $impresCertificates]);
     }
 
     /**

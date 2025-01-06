@@ -51,18 +51,24 @@ class LiquidationController extends Controller
     {
         $school_id = auth()->user()->school_id_session; // Obtener el ID de la escuela del usuario
         $worker = Worker::findOrFail($workerId);
-
-        $warning = "";
+        $messageLiquidation = "";
+    
         // Verificar si ya existe una liquidación para el trabajador en el mes y año actuales
         if (Liquidation::exists(now()->month, now()->year, $workerId)) {
-            // Si existe una liquidación, redirigir de nuevo con el mensaje de advertencia
-            $warning = 'La liquidación existente será reemplazada en caso de que desee guardar esta';
+            // Si existe una liquidación, establecer el mensaje de advertencia
+            $messageLiquidation = 'La liquidación existente será reemplazada en caso de que desee guardar esta';
+    
+            // Solo redirigir si no estamos en la vista actual con el mensaje
+            if (!session()->has('warning')) {
+                return redirect()->route('liquidations.create', ['workerId' => $workerId])
+                    ->with('warning', $messageLiquidation);  // Pasamos el mensaje de advertencia
+            }
         }
-
+    
         // Validar si el workerType coincide con el trabajador
         $liquidationHelper = new LiquidationHelper();
         $errorMessage = $liquidationHelper->checkAFPandISAPRE($workerId, $school_id);
-
+        
         // Si hay un error, redirigir de nuevo con el mensaje de error
         if ($errorMessage) {
             return redirect()->back()
@@ -70,29 +76,35 @@ class LiquidationController extends Controller
                 ->with('error', $errorMessage)
                 ->with('workerId', $workerId); // Pasamos el workerId como parámetro
         }
+    
         // Obtener los datos para la liquidación
         $liquidationHelper->getLiquidationData($workerId, $school_id);
+    
+        // Obtener información temporal
+        $tmp = TmpLiquidation::where('in_liquidation', 1)->get();
+    
         // Pasar los datos a la vista 'liquidations.create'
         return view('liquidations.create', [
             'worker' => $worker,
-            'tmp' => TmpLiquidation::where('in_liquidation', 1)->get(), // Pasar los datos de la "tabla temporal" para la liquidación
-        ])->with('warning', $warning);
+            'tmp' => $tmp,
+        ])->with('warning', $messageLiquidation); // Aquí se pasa el mensaje de advertencia directamente a la vista
     }
+    
 
     public function store(Request $request, Worker $worker)
     {
         // Intentar almacenar la liquidación
         $liquidation = Liquidation::storeLiquidation($request, $worker->id);
         // Comprobar si la liquidación fue creada correctamente
-        if ($liquidation) {
-            // Si se ha creado correctamente, mensaje de éxito
-            session()->flash('success', 'La liquidación se ha creado correctamente.');
-        } else {
+        if (!$liquidation) {
             // Si no se pudo crear la liquidación (por ejemplo, un error de validación)
-            session()->flash('error', 'Hubo un problema al crear la liquidación.');
+            return redirect()->back()
+                ->withInput() // Esto es opcional, pero mantiene los valores del formulario previo
+                ->with('error', "Hubo un error al momento de crear la liquidacion !!")
+                ->with('workerId', $worker->id); // Pasamos el workerId como parámetro
         }
         // Redirigimos de vuelta al formulario 'create', pasando el workerId y la escuela
-        return redirect()->route('liquidations.workerLiquidation', ['workerId' => $worker->id]);
+        return redirect()->route('liquidations.workerLiquidation', ['workerId' => $worker->id])->with('success', 'La liquidación se ha creado correctamente.');
     }
 
     public function getGlosa($id)
@@ -130,6 +142,17 @@ class LiquidationController extends Controller
 
         // Pasamos las glosas a la vista
         return view('liquidations.printGlosas', compact('glosas', 'mountText', 'year'));
+    }
+
+    public function destroy(Liquidation $liquidation, $workerId)
+    {
+        $liquidation->delete();
+
+        $worker = Worker::findOrFail($workerId);
+        $liquidations = Liquidation::where('worker_id', $workerId)->get();
+
+        return redirect()->back()->with('worker', $worker)->with('liquidations', $liquidations)
+            ->with('success', "Liquidacion Eliminado Exitosamente !!"); // Pasamos el workerId como parámetro
     }
 
 }
