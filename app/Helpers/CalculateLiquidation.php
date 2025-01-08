@@ -44,7 +44,7 @@ class CalculateLiquidation
         // Si el valor es mayor al máximo, retorna el valor máximo permitido.
         if ($max > 0) {
             if ($value > $maxLimitValue) {
-                return $unitValue * $maxValue;
+                return ($unitValue * $maxValue);
             }
         }
         // Si el valor es negativo, lo ajusta a 0.
@@ -59,7 +59,7 @@ class CalculateLiquidation
     {
         $currentMonth = date("n") - 1; // Obtiene el mes actual (0-indexed).
         $monthString = substr($months, $currentMonth, 1); // Extrae el mes correspondiente.
-
+        // se evalua su los meses estan o no con datos a evaluar
         if ($months == "") {
             return true; // Si no hay meses especificados, se considera válido.
         }
@@ -77,14 +77,12 @@ class CalculateLiquidation
         if ($tuitionId == "") {
             return 0; // Si no se proporciona un ID de matrícula, retorna 0.
         }
-
         // Verifica si la matrícula ya tiene un cálculo realizado.
         $exists = self::alreadyExists($tuitionId);
 
         if ($exists != -1) {
             return $exists; // Si ya existe, retorna el valor calculado previamente.
         }
-
         // Obtiene las operaciones relacionadas con la matrícula.
         $operations = Tuition::getTuitionAndOperationDetails($tuitionId, $workerTypeId, $schoolId);
         $act = 0;
@@ -174,8 +172,8 @@ class CalculateLiquidation
                         // Aplica los límites y retorna el valor calculado.
                         $act = round(self::checkLimits($act, $unitLimit, $minLimit, $maxLimit, $maxValueLimit));
                         break;
-
-                    case "P": // Parámetro directo
+                    // Parámetro directo
+                    case "P": 
                         $act = Parameter::getParameterValue($tuitionId, $workerId, $schoolId); // Obtiene el valor del parámetro.
                         $unitParam = Parameter::getUnitByTuitionWorkerAndSchool($tuitionId, $workerId, $schoolId);
                         if ($unitParam != "") {
@@ -184,8 +182,8 @@ class CalculateLiquidation
                             $act = $act * $unitValue;
                         }
                         break;
-
-                    case "S": // Suma de Parámetro
+                    // Suma de Parámetro
+                    case "S": 
                         if ($tuitionId != "SUMACARGASTODOS") {
                             $act = Parameter::getSumValueByTuitionSchoolAndWorkerType($operation, $schoolId, $workerTypeId);
                         } else {
@@ -203,10 +201,9 @@ class CalculateLiquidation
                 $act = round($act * Parameter::getParameterValue("FACTORASIST", $workerId, $schoolId) / 0.8333);
             }
         }
-
         // Retorna el título asociado al parámetro y realiza ajustes según AFP o ISAPRE.
         $title = Parameter::getTitleByParameter($tuitionId, $workerId, $schoolId);
-
+        // Evaluamos si la clase seleccionada es de algun Seguro que tenga el trabajador
         if ($tuitionId == "AFP") {
             $title = Parameter::getDescriptionByCode("AFPTRABAJADOR", $workerId, $schoolId);
             $title = "(" . Parameter::getParameterValue("COTIZACIONAFP", $workerId, $schoolId) . " %) " . Insurance::getNameInsurance($title);
@@ -233,7 +230,6 @@ class CalculateLiquidation
     {
         // Verifica si el tuition_id ya existe en la tabla temporal 'tmp_liquidation'.
         $exists = TmpLiquidation::where('tuition_id', $id)->exists();
-
         // Si no existe, inserta un nuevo registro con los datos proporcionados.
         if (!$exists) {
             TmpLiquidation::create([

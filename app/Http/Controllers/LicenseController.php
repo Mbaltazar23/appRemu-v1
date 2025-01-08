@@ -45,21 +45,17 @@ class LicenseController extends Controller
     {
         // Crear la licencia
         $license = License::create($request->validated());
-
         // Obtener la fecha de la licencia
         $arr = explode("-", $request->input('issue_date')); // Fecha en formato dd-mm/yyyy
         $day = (int) $arr[2];
         $month = (int) $arr[1];
         $year = (int) $arr[0];
-
         // Obtener el trabajador asociado a la licencia
         $worker = $license->worker;
-
         // Si el trabajador es docente, actualizamos las horas de la licencia
         if ($worker->worker_type == Worker::WORKER_TYPE_TEACHER) {
             $license->updateLicenseHours($day, $month, $year, $request->input('days'));
         }
-
         // Si el trabajador no es docente, solo actualizamos los días
         if ($worker->worker_type == Worker::WORKER_TYPE_NON_TEACHER) {
             $license->updateLicenseDays($day, $month, $year, $request->input('days'));
@@ -94,7 +90,6 @@ class LicenseController extends Controller
     {
         // Actualizar la licencia
         $license->update($request->validated());
-
         // Obtener la fecha de la licencia
         $arr = explode("-", $request->input('issue_date')); // Fecha en formato dd-mm/yyyy
         $day = (int) $arr[2];
@@ -102,8 +97,6 @@ class LicenseController extends Controller
         $year = (int) $arr[0];
         // Obtener el trabajador asociado a la licencia
         $worker = $license->worker;
-
-        $license->deleteWithHoursAndDays();
         // Si el trabajador es docente, actualizamos las horas de la licencia
         if ($worker->worker_type == Worker::WORKER_TYPE_TEACHER) {
             $license->updateLicenseHours($day, $month, $year, $request->input('days'));
@@ -112,6 +105,7 @@ class LicenseController extends Controller
         if ($worker->worker_type == Worker::WORKER_TYPE_NON_TEACHER) {
             $license->updateLicenseDays($day, $month, $year, $request->input('days'));
         }
+
         return redirect()->route('licenses.show', $license)->with('success', 'Licencia actualizada exitosamente.');
     }
 

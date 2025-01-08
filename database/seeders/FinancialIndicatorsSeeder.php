@@ -85,14 +85,14 @@ class FinancialIndicatorsSeeder extends Seeder
     private function getImpuestoValues(int $i): array
     {
         switch ($i) {
-            case 2:return ['impuesto' => 0.05, 'rebaja' => 0.675, 'min' => 13.5, 'max' => 30];
-            case 3:return ['impuesto' => 0.1, 'rebaja' => 2.175, 'min' => 30, 'max' => 50];
-            case 4:return ['impuesto' => 0.15, 'rebaja' => 4.675, 'min' => 50, 'max' => 70];
-            case 5:return ['impuesto' => 0.25, 'rebaja' => 11.675, 'min' => 70, 'max' => 90];
-            case 6:return ['impuesto' => 0.32, 'rebaja' => 17.975, 'min' => 90, 'max' => 120];
-            case 7:return ['impuesto' => 0.37, 'rebaja' => 23.975, 'min' => 120, 'max' => 120];
-            case 8:return ['impuesto' => 0.4, 'rebaja' => 28.475, 'min' => 120, 'max' => 99.999];
-            default:return ['impuesto' => 0.05, 'rebaja' => 28.475, 'min' => 13.5, 'max' => 99.999];
+            case 2:return ['impuesto' =>0.04, 'rebaja' => 0.539, 'min' => 13.5, 'max' => 30];
+            case 3:return ['impuesto' => 0.08, 'rebaja' => 1.737, 'min' => 30, 'max' => 50];
+            case 4:return ['impuesto' => 0.14, 'rebaja' => 4.481, 'min' => 50, 'max' => 70];
+            case 5:return ['impuesto' => 0.23, 'rebaja' => 11.117, 'min' => 70, 'max' => 90];
+            case 6:return ['impuesto' => 0.30, 'rebaja' => 17.765, 'min' => 90, 'max' => 120];
+            case 7:return ['impuesto' => 0.35, 'rebaja' => 23.272, 'min' => 120, 'max' => 120];
+            case 8:return ['impuesto' => 0.4, 'rebaja' => 38.743, 'min' => 120, 'max' => 99.999];
+            default:return ['impuesto' => 0.04, 'rebaja' => 38.743, 'min' => 13.5, 'max' => 99.999];
         }
     }
 

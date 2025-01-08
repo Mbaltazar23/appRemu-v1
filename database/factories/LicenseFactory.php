@@ -23,7 +23,7 @@ class LicenseFactory extends Factory
         $days = rand(1, 10); // Número aleatorio de días de licencia
 
         // Generamos una fecha de 'issue_date' desde este año hacia adelante
-        $currentYear = Carbon::now()->year;
+        $currentYear = Carbon::now()->year - 1;
         $issueDate = Carbon::createFromDate($currentYear, rand(1, 12), rand(1, 28)); // Fecha aleatoria de este año
 
         // Generar las fechas de 'receipt_date' y 'processing_date' dentro de este año

@@ -8,9 +8,8 @@
                     <h3>{{ __('Mantenedor de bonos y descuentos por trabajador') }}</h3>
                 </div>
                 <div class="card-body">
-                    <!-- Contenedor para el select del trabajador y el botón de regresar -->
-                    <form method="POST" action="{{ route('bonuses.select.worker') }}" class="d-flex justify-content-between align-items-center" style="flex-wrap: wrap;">
-                        @csrf
+                    <!-- Formulario de selección de trabajador -->
+                    <form method="GET" action="{{ route('bonuses.partials.worker') }}" class="d-flex justify-content-between align-items-center" style="flex-wrap: wrap;">
                         <div class="form-group mb-4" style="flex-grow: 1; margin-right: 20px; max-width: 100%;">
                             <label for="worker_id" class="h5">
                                 Acá se colocan los montos de los bonos o descuentos que fueron definidos como dependientes en forma fija del trabajador
@@ -31,7 +30,7 @@
                 </div>
             </div>
 
-            <!-- Detalles del trabajador -->
+            <!-- Si hay un trabajador seleccionado, mostramos sus datos y bonos -->
             @if (isset($selectedWorker))
                 <div id="parameter-card" class="card mt-4">
                     <div class="card-header">

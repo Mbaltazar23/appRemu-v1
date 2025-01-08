@@ -50,7 +50,6 @@ class InsuranceActionButtons extends Component
                 'icon' => 'bx bxs-user-plus',
                 'permission' => 'linkWorker',  // Permiso personalizado para linkear trabajadores
                 'type' => 'dark',
-                'popup' => true,  // Indicamos que este botón debe abrir un popup
             ]
         ];
     }

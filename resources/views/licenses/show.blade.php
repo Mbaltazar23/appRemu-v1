@@ -19,7 +19,6 @@
                         {{ \Carbon\Carbon::parse($license->issue_date)->format('d-m-Y') }} <br />
                         <strong>Motivo:</strong> {{ $license->reason }} <br />
                         <strong>Días:</strong> {{ $license->days }} <br />
-
                         <!-- Muestra otros campos solo si tienen valor -->
                         @if ($license->institution)
                             <strong>Institución:</strong> {{ $license->institution }} <br />
@@ -49,14 +48,14 @@
                         <table class="table table-sm table-bordered mb-4">
                             <thead>
                                 <tr>
-                                    <th class="p-1">Día</th>
+                                    <th class="p-1">Día y Mes</th>
                                     <th class="p-1">Horas Asignadas</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($license->licenseDetails as $hourLicense)
+                                @foreach ($license->hours as $hourLicense)
                                     <tr>
-                                        <td class="p-1">{{ \Carbon\Carbon::createFromDate($hourLicense->year, $hourLicense->month, $hourLicense->day)->format('d-m-Y') }}</td>
+                                        <td class="p-1">{{ $hourLicense->day.'/'.$hourLicense->month }}</td>
                                         <td class="p-1">{{ $hourLicense->hours }} horas</td>
                                     </tr>
                                 @endforeach

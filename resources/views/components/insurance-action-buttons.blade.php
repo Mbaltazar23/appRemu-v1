@@ -15,9 +15,7 @@
             @else
                 <!-- Si no es DELETE, generamos un enlace normal -->
                 <a href="{{ $action['route'] }}" class="btn btn-{{ $action['type'] }} rounded-3 px-4"
-                    title="{{ $action['name'] }}"
-                    @if (isset($action['popup']) && $action['popup'] === true) onclick="openPopup(event, '{{ $action['name'] }}', '{{ $action['route'] }}')"
-                       target="_blank" @endif>
+                    title="{{ $action['name'] }}">
                     <i class="{{ $action['icon'] }}"></i>
                 </a>
             @endif

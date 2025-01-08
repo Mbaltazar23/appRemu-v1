@@ -51,10 +51,8 @@ class Parameter extends Model
     {
         // Obtener la cotización del seguro
         $cotizacion = Insurance::getCotizationInsurance($insuranceID);
-
         // Inicializamos los parámetros comunes
         $params = [];
-
         // Definir los parámetros comunes por tipo de seguro
         if ($insuranceType != Insurance::AFP) {
             $params = [
@@ -72,10 +70,8 @@ class Parameter extends Model
                 'AFPOTRO' => isset($extraParams['others_discounts']) ? ['description' => 'Otro descuento en AFP', 'unit' => null, 'value' => $extraParams['others_discounts']] : null,
             ];
         }
-
         // Filtramos cualquier parámetro que sea null (no se pasa)
         $params = array_filter($params);
-
         // Insertar o actualizar los parámetros
         foreach ($params as $paramName => $paramData) {
             // Buscar si el parámetro ya existe
@@ -101,10 +97,10 @@ class Parameter extends Model
         // Eliminar parámetros relacionados con AFP o ISAPRE
         $parametersToDelete = [];
 
-        if ($insuranceType === 'AFP') {
+        if ($insuranceType == Insurance::AFP) {
             // Parámetros para AFP
             $parametersToDelete = ['COTIZACIONAFP', 'APV', 'AFPOTRO'];
-        } elseif ($insuranceType === 'ISAPRE') {
+        } else {
             // Parámetros para ISAPRE
             $parametersToDelete = ['COTIZACIONISAPRE', 'COTIZACIONPACTADA', 'ISAPREOTRO'];
         }
@@ -118,11 +114,20 @@ class Parameter extends Model
         }
 
         // Eliminar el parámetro específico de tipo trabajador
-        $workerParam = ($insuranceType === 'AFP') ? 'AFPTRABAJADOR' : 'ISAPRETRABAJADOR';
+        $workerParam = ($insuranceType == Insurance::AFP) ? 'AFPTRABAJADOR' : 'ISAPRETRABAJADOR';
         Parameter::where('name', $workerParam)
             ->where('worker_id', $workerId)
             ->where('school_id', $schoolId)
             ->delete();
+
+        $worker = Worker::find($workerId);
+
+        if ($insuranceType != Insurance::ISAPRE) {
+            $worker->insurance_AFP = Null;
+        } else {
+            $worker->insurance_ISAPRE = Null;
+        }
+        $worker->save();
     }
 
     public function createParameter(array $data)

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('limit_unit')->nullable();
             $table->double('min_limit')->nullable();
             $table->double('max_limit')->nullable();
-            $table->double('max_value')->nullable();
+            $table->double('max_value')->default(0);
             $table->string('application', 12)->nullable();
             $table->timestamps();
         });

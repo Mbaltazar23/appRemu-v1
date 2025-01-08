@@ -40,15 +40,12 @@ class ReportController extends Controller
     {
         $school_id = auth()->user()->school_id_session;
         $school = School::find($school_id);
-
         // Llamamos al método estático y obtenemos los datos del reporte
         $reportData = Report::generateReportData($typeInsurance, $month, $year, $insurance, $school_id);
-
         // Instanciamos las variables 'data' y 'totals' por separado
         $data = $reportData['data'];
         $totals = $reportData['totals'];
 
-        // Pasamos las variables a la vista usando compact()
         return view('reports.show', compact('data', 'totals', 'typeInsurance', 'insurance', 'school', 'month', 'year'));
     }
 

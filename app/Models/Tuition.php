@@ -115,7 +115,7 @@ class Tuition extends Model//Clase
         // Inicializar valores predeterminados
         $operationType = $tuitionDetails->type;
         $operation = "";
-        $unitLimit = NULL;
+        $unitLimit = "";
         $minLimit = 0;
         $maxLimit = 0;
         $maxValueLimit = 0;
@@ -125,9 +125,9 @@ class Tuition extends Model//Clase
 
         // Obtener las operaciones relacionadas con la tutela y tipo de trabajador
         $operationDetailsFromDb = Operation::select('operation', 'limit_unit', 'min_limit', 'max_limit', 'max_value', 'application', 'worker_type')
-            ->where('operations.tuition_id', $tuitionId)
-            ->where('operations.school_id', $schoolId)
-            ->where('operations.worker_type', $workerTypeId)
+            ->where('tuition_id', $tuitionId)
+            ->where('school_id', $schoolId)
+            ->where('worker_type', $workerTypeId)
             ->first(); // Retorna la primera operación que coincida
 
         // Si existen detalles de la operación, asignarlos a las variables

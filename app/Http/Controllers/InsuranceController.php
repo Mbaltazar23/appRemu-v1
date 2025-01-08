@@ -143,14 +143,11 @@ class InsuranceController extends Controller
 
         $worker = Worker::findOrFail($request->worker_id);
         $school_id = auth()->user()->school_id_session;
-
         // Determinar el tipo de seguro y el título del parámetro
         $paramTitle = $request->input('type') != Insurance::AFP ? "ISAPRETRABAJADOR" : "AFPTRABAJADOR";
         $Insurance = $paramTitle != 'ISAPRETRABAJADOR' ? 'AFP' : 'institución';
-
         // Verificar si el trabajador ya está asociado con un seguro del mismo tipo
         $existingInsurance = Parameter::getParameterValue($paramTitle, $worker->id, $school_id);
-
         // Si el trabajador ya tiene un seguro del mismo tipo y no forzamos la actualización
         if ($existingInsurance != 0 && $request->input('force_update') !== 'true') {
             // Enviar respuesta JSON para la confirmación
@@ -165,6 +162,7 @@ class InsuranceController extends Controller
         } else {
             $worker->insurance_ISAPRE = $insuranceId;
         }
+        // Actualizar el campo asociado al Insurance
         $worker->save();
         // Actualización de parámetros
         $data = Parameter::updateOrInsertInsuranceParams(
@@ -188,9 +186,8 @@ class InsuranceController extends Controller
         $schoolId = auth()->user()->school_id_session; // El ID de la escuela
         $insuranceType = $request->type; // Tipo de seguro (AFP o ISAPRE)
         $operation = $request->operation; // Operación: 'modificar' o 'desvincular'
-
         // Verificar si la operación es "desvincular"
-        if ($operation === 'desvincular') {
+        if ($operation == 'desvincular') {
             // Desvincular parámetros (Eliminar)
             Parameter::deleteParameters($workerId, $schoolId, $insuranceType);
             return redirect()->back()
@@ -200,12 +197,12 @@ class InsuranceController extends Controller
 
         }
         // Verificar si la operación es "modificar"
-        if ($operation === 'modificar') {
+        if ($operation == 'modificar') {
             // Modificar o agregar parámetros
             Parameter::updateOrInsertInsuranceParams($workerId, $insuranceType, $schoolId, $request->input('insurance_id'), $request);
             return redirect()->back()
                 ->withInput() // Esto es opcional, pero mantiene los valores del formulario previo.
-                ->with('success', "Valores Actualizados Exitosamente !!")
+                ->with('success', "Montos Actualizados Exitosamente !!")
                 ->with('worker_id', $workerId)
                 ->with('insurance_id', $request->input('insurance_id'));
         }

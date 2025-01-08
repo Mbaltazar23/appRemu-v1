@@ -182,7 +182,7 @@
                 <div class="col-md-2 mb-3">
                     <label class="form-label">{{ ucfirst($day) }}</label>
                     <input type="number" id="carga_{{ $day }}" name="carga_{{ $day }}"
-                        class="form-control" value="{{ json_decode($worker->load_hourly_work)->$day ?? '' }}"/>
+                        class="form-control" value="{{ json_decode($worker->load_hourly_work)->$day ?? '' }}" />
                 </div>
             @endforeach
         </div>
@@ -235,7 +235,6 @@
 
     @push('custom_scripts')
         <script>
-
             function validadorRut(txtRut) {
                 document.getElementById(txtRut).addEventListener('input', function(evt) {
                     let value = this.value.replace(/\./g, '').replace('-', '');
@@ -251,9 +250,7 @@
                     this.value = value;
                 });
             }
-
             // Llama a la función para validar el RUT
             validadorRut('rut');
-
         </script>
     @endpush

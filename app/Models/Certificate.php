@@ -26,28 +26,27 @@ class Certificate extends Model
             ->orderByDesc('year') // Ordenar por el año de forma descendente
             ->get(); // Agrupar por el campo 'year'
     }
-
     public static function createCertificate($school_id, $worker_id, $year)
     {
         // Obtener la escuela
         $school = School::find($school_id);
-
+    
         // Obtener el sostenedor de la escuela
         $sustainer = $school->sustainer;
         if (!$sustainer) {
             return; // Si no existe el sostenedor, retornamos sin hacer nada
         }
-
+    
         // Obtener el trabajador
         $worker = Worker::find($worker_id);
-
+    
         // Datos del trabajador
         $workerInfo = [
             'worker_name' => $worker->name,
             'worker_rut' => $worker->rut,
             'year' => $year,
         ];
-
+    
         // Datos del sostenedor
         $sustainerInfo = [
             'sustainer_name' => $sustainer->business_name,
@@ -55,11 +54,16 @@ class Certificate extends Model
             'sustainer_address' => $sustainer->address,
             'sustainer_legal_nature' => $sustainer->legal_nature,
         ];
-
+    
         // Obtener los valores de la configuración
-        $monetaryData = config('monetarycom.datos'); // Cargar datos de la configuración
-        $capital_inicial = $monetaryData[$year]['capital_inicial'];
-
+        $monetaryData = config('monetarycom.datos');
+        
+        // Verificar si el año solicitado existe en los datos de configuración
+        if (!isset($monetaryData[$year])) {
+            // Si el año no existe, tomamos el año anterior
+            $year = (int) $year - 1;
+        }
+    
         // Inicializar un arreglo para almacenar los datos de los meses
         $data = [];
         $totals = [
@@ -70,15 +74,15 @@ class Certificate extends Model
             'adjusted_salary_total' => 0,
             'adjusted_tax_total' => 0,
         ];
-
+    
         // Recopilamos la información de cada mes
-        for ($i = 1; $i <= 12; $i++) {
+        for ($i = 0; $i <= 11; $i++) {
             // Obtener la liquidación para el trabajador y el mes correspondiente
             $liquidation = Liquidation::where('worker_id', $worker->id)
-                ->where('month', $i)
+                ->where('month', $i + 1)  // Corregimos el índice para el mes
                 ->where('year', $year)
                 ->first();
-
+    
             // Si no existe la liquidación para este mes, asignamos valores en 0
             if (!$liquidation) {
                 $income = 0;
@@ -89,20 +93,20 @@ class Certificate extends Model
                 $adjusted_tax = 0;
             } else {
                 // Si existe la liquidación, obtenemos los valores correspondientes
-                $income = Liquidation::getDetailByTuitionId($liquidation->id, "RENTAIMPONIBLE", 'value', $i, $year);
-                $legal_deductions = Liquidation::getDetailByTuitionId($liquidation->id, "DESCUENTOSLEGALES", 'value', $i, $year);
-                $taxable_salary = Liquidation::getDetailByTuitionId($liquidation->id, "REMUNERACIONTRIBUTABLE", 'value', $i, $year);
-                $tax_amount = Liquidation::getDetailByTuitionId($liquidation->id, "IMPUESTORENTA", 'value', $i, $year);
+                $income = Liquidation::getDetailByTuitionId($liquidation->id, "RENTAIMPONIBLE", 'value');
+                $legal_deductions = Liquidation::getDetailByTuitionId($liquidation->id, "DESCUENTOSLEGALES", 'value');
+                $taxable_salary = Liquidation::getDetailByTuitionId($liquidation->id, "REMUNERACIONTRIBUTABLE", 'value');
+                $tax_amount = Liquidation::getDetailByTuitionId($liquidation->id, "IMPUESTORENTA", 'value');
+                // Ahora, accedemos al primer valor del capital inicial para el mes correspondiente
+                $capital_value = $monetaryData[$year]['capital_inicial'][$i];  // Acceder al valor flotante directamente
                 // Multiplicación de valores con el capital inicial
-                $adjusted_salary = (double) $taxable_salary * $capital_inicial[$i - 1]; // Multiplicar REMUNERACIONTRIBUTABLE por el capital inicial
-
-                $adjusted_tax = (double) $tax_amount * $capital_inicial[$i - 1]; // Multiplicar IMPUESTORENTA por el capital inicial
-
+                $adjusted_salary = (double) $taxable_salary * $capital_value; // Multiplicar REMUNERACIONTRIBUTABLE por el capital
+                $adjusted_tax = (double) $tax_amount * $capital_value; // Multiplicar IMPUESTORENTA por el capital
                 // Formatear los valores para mostrar en el certificado
                 $adjusted_salary = number_format($adjusted_salary, 0, 0, ",");
                 $adjusted_tax = number_format($adjusted_tax, 0, 0, ",");
             }
-
+    
             // Almacenar los totales
             $totals['income_total'] += str_replace(",", "", $income);
             $totals['deductions_total'] += str_replace(",", "", $legal_deductions);
@@ -110,10 +114,10 @@ class Certificate extends Model
             $totals['tax_amount_total'] += str_replace(",", "", $tax_amount);
             $totals['adjusted_salary_total'] += str_replace(",", "", $adjusted_salary);
             $totals['adjusted_tax_total'] += str_replace(",", "", $adjusted_tax);
-
+    
             // Almacenar los datos mensuales en el arreglo $data
             $data[] = [
-                'month' => MonthHelper::integerToMonth($i), // Convertir mes numérico a nombre
+                'month' => MonthHelper::integerToMonth($i + 1), // Convertir mes numérico a nombre
                 'income' => $income,
                 'legal_deductions' => $legal_deductions,
                 'taxable_salary' => $taxable_salary,
@@ -122,13 +126,13 @@ class Certificate extends Model
                 'adjusted_tax' => $adjusted_tax,
             ];
         }
-
+    
         // Buscar si ya existe un certificado para el trabajador en ese año
         $existingCertificate = self::where('worker_id', $worker_id)
             ->where('year', $year)
             ->where('school_id', $school_id)
             ->first();
-
+    
         if ($existingCertificate) {
             // Si existe el certificado, actualizamos su descripción
             $existingCertificate->description = json_encode([
@@ -151,10 +155,12 @@ class Certificate extends Model
                 ]),
                 'school_id' => $school_id,
             ];
-
+    
             self::create($certificateData); // Crear un nuevo certificado
         }
     }
+    
+    
 
     public static function getCertificates($year, $school_id)
     {

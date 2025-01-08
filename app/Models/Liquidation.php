@@ -205,7 +205,6 @@ class Liquidation extends Model
     }
 
     // Modificar los detalles antes de guardarlos en el modelo
-    // Modificar los detalles antes de guardarlos en el modelo
     public function setDetailsAttribute($value)
     {
         // Si ya existen detalles, los decodificamos y los fusionamos con los nuevos

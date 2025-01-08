@@ -109,7 +109,6 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
     Route::get('bonuses/partials/params', [BonusController::class, 'generalParams'])->name('bonuses.partials.params');
     Route::post('bonuses/update/params', [BonusController::class, 'updateParams'])->name('bonuses.updateParams');
     Route::get('bonuses/partials/worker', [BonusController::class, 'workers'])->name('bonuses.partials.worker');
-    Route::post('bonuses/select-worker', [BonusController::class, 'selectWorker'])->name('bonuses.select.worker');
     Route::post('bonuses/workers/update', [BonusController::class, 'updateBonusWorker'])->name('bonuses.updateBonus');
 
     /** RUTAS PARA LOS INDICADORES ECONOMICOS */

@@ -61,8 +61,7 @@
                                             </a>
                                         @endcan
                                         @can('workers', $bonus)
-                                            <a class="text-decoration-none" href="{{ route('bonuses.workers', $bonus) }}"
-                                                target="_blank" onclick="openPopup(event, 'Agregar Trabajador')">
+                                            <a class="text-decoration-none" href="{{ route('bonuses.workers', $bonus) }}">
                                                 <button class="btn btn-info rounded-3 px-3" title="Añadir Trabajadores">
                                                     <i class='bx bx-user'></i>
                                                 </button>

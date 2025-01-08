@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('tuition_id');
             $table->string('title');
-            $table->float('value', 10,2);
+            $table->float('value', 10,2)->nullable();
             $table->boolean('in_liquidation');
             $table->timestamps();
         });
