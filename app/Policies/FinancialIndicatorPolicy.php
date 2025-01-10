@@ -12,13 +12,19 @@ class FinancialIndicatorPolicy
      */
     public function viewAny(User $user): bool
     {
-        return in_array('MANIECO', $user->role->permissions) || in_array('MANASIGFAM', $user->role->permissions);
+        return in_array('MANIECO', $user->role->permissions) || in_array('MANIMREN', $user->role->permissions) || in_array('MANICOM', $user->role->permissions) || in_array('MANASIGFAM', $user->role->permissions);
     }
 
-    public function view(User $user, FinancialIndicator $financialIndicator): bool
+    public function getVisibleIndices(User $user): array
     {
-        // Verifica si el usuario tiene permiso
-        return in_array('MANIECO', $user->role->permissions) || in_array('MANASIGFAM', $user->role->permissions);
+        // Obtén todos los índices económicos
+        $indices = FinancialIndicator::getEconomicIndices();
+
+        // Filtra los índices que el usuario tiene permiso para ver
+        return array_filter($indices, function ($index) use ($user) {
+            // Verifica si el usuario tiene el permiso correspondiente
+            return in_array($index['permission'], $user->role->permissions);
+        });
     }
 
 }

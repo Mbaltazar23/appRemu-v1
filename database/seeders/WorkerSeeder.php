@@ -40,36 +40,30 @@ class WorkerSeeder extends Seeder
                 // Generar el arreglo de horas de trabajo según el tipo de trabajador
                 $loadHourlyWork = [];
                 $hourlyLoad = rand(20, 45); // Carga horaria aleatoria entre 20 y 40 horas
-                // evaluamos el tipo de trabajador para definir su carga horaria
-                if ($worker->worker_type === Worker::WORKER_TYPE_TEACHER) {
-                    // Si el trabajador es docente, asignamos horas aleatorias para cada día
-                    if ($hourlyLoad === 40 || $hourlyLoad === 35) {
-                        // Repartir 40 o 35 horas entre lunes a viernes
-                        $dailyLoad = intdiv($hourlyLoad, 5); // Dividimos las horas entre 5 días (lunes a viernes)
-                        $remainingHours = $hourlyLoad - ($dailyLoad * 5); // Calcular el remanente
-                        // Distribuir las horas
-                        $loadHourlyWork = [
-                            'lunes' => $dailyLoad,
-                            'martes' => $dailyLoad,
-                            'miercoles' => $dailyLoad,
-                            'jueves' => $dailyLoad,
-                            'viernes' => $dailyLoad,
-                            'sabado' => $remainingHours, // Las horas restantes van al sábado
-                        ];
-                    } else {
-                        // Para otros valores de `hourly_load` menores a 35, asignamos de forma proporcional
-                        $remainingHours = $hourlyLoad; // Empezamos con todo el total de horas
-                        // Intentamos repartir proporcionalmente entre lunes a viernes (siempre dejando el sábado con menos)
-                        for ($i = 0; $i < 5; $i++) {
-                            $day = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'][$i];
-                            $loadHourlyWork[$day] = floor($remainingHours / (6 - $i)); // Distribuir entre los días restantes
-                            $remainingHours -= $loadHourlyWork[$day]; // Reducir el remanente
-                        }
-                        $loadHourlyWork['sabado'] = $remainingHours; // Lo que queda va al sábado
-                    }
+                // Si el trabajador es docente, asignamos horas aleatorias para cada día
+                if ($hourlyLoad === 40 || $hourlyLoad === 35) {
+                    // Repartir 40 o 35 horas entre lunes a viernes
+                    $dailyLoad = intdiv($hourlyLoad, 5); // Dividimos las horas entre 5 días (lunes a viernes)
+                    $remainingHours = $hourlyLoad - ($dailyLoad * 5); // Calcular el remanente
+                    // Distribuir las horas
+                    $loadHourlyWork = [
+                        'lunes' => $dailyLoad,
+                        'martes' => $dailyLoad,
+                        'miercoles' => $dailyLoad,
+                        'jueves' => $dailyLoad,
+                        'viernes' => $dailyLoad,
+                        'sabado' => $remainingHours, // Las horas restantes van al sábado
+                    ];
                 } else {
-                    // Si el trabajador no es docente, asignamos 0 horas para cada día
-                    $loadHourlyWork = Worker::createHourlyLoadArray(new Request()); // Usamos el método para generar el arreglo
+                    // Para otros valores de `hourly_load` menores a 35, asignamos de forma proporcional
+                    $remainingHours = $hourlyLoad; // Empezamos con todo el total de horas
+                    // Intentamos repartir proporcionalmente entre lunes a viernes (siempre dejando el sábado con menos)
+                    for ($i = 0; $i < 5; $i++) {
+                        $day = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'][$i];
+                        $loadHourlyWork[$day] = floor($remainingHours / (6 - $i)); // Distribuir entre los días restantes
+                        $remainingHours -= $loadHourlyWork[$day]; // Reducir el remanente
+                    }
+                    $loadHourlyWork['sabado'] = $remainingHours; // Lo que queda va al sábado
                 }
                 // Actualizamos la carga horaria del trabajador usando el método del modelo
                 $worker->updateHourlyLoad($loadHourlyWork);
@@ -109,15 +103,14 @@ class WorkerSeeder extends Seeder
                     'service_start_year' => now()->year - 1,
                     'unemployment_insurance' => true,
                     'retired' => rand(1, 0),
+                    'base_salary' => $worker->worker_type === Worker::WORKER_TYPE_NON_TEACHER ?? rand(500000, 1000000),          
                     // Asignar base salary solo si es trabajador no docente (worker_type = 2)
-                    'base_salary' => $worker->worker_type === Worker::WORKER_TYPE_NON_TEACHER ? rand(500000, 1000000) : null,
                 ];
                 // Crear parámetros para el trabajador
                 Parameter::insertParameters($worker->id, new Request($requestData), $schoolId);
             }
         }
     }
-    
 
     private function convertNumberToWords($number)
     {

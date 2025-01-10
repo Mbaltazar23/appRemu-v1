@@ -18,14 +18,13 @@ class FinancialIndicator extends Model
     public static function getEconomicIndices()
     {
         return [
-            ['value' => 'uf', 'label' => 'Índices Econ.'],
-            ['value' => 'impuesto_renta', 'label' => 'Impuesto Renta'],
-            ['value' => 'correccion_monetaria', 'label' => 'I. Corrección Monetaria'],
-            ['value' => 'asignacion_familiar', 'label' => 'Asignación Familiar'],
+            ['value' => 'uf', 'label' => 'Índices Econ.', 'permission'=>'MANIECO'],
+            ['value' => 'impuesto_renta', 'label' => 'Impuesto Renta' ,'permission'=>'MANIMREN'],
+            ['value' => 'correccion_monetaria', 'label' => 'I. Corrección Monetaria','permission'=>'MANICOM'],
+            ['value' => 'asignacion_familiar', 'label' => 'Asignación Familiar','permission'=>'MANASIGFAM'],
         ];
     }
-
-   /**
+    /**
      * Obtener los valores de UF y UTM.
      *
      * @return array|null

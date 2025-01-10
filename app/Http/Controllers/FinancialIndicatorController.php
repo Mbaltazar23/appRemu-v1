@@ -6,6 +6,7 @@ use App\Http\Requests\FinancialIndModRequest;
 use App\Models\FinancialIndicator;
 use App\Models\Operation;
 use App\Models\Parameter;
+use App\Policies\FinancialIndicatorPolicy;
 use Illuminate\Http\Request;
 
 class FinancialIndicatorController extends Controller
@@ -19,6 +20,7 @@ class FinancialIndicatorController extends Controller
     {
         $financial = new FinancialIndicator();
         $indices = $financial->getEconomicIndices();
+        $indices = app(FinancialIndicatorPolicy::class)->getVisibleIndices(auth()->user());
 
         return view('financial_indicators.index', compact('indices', 'financial'));
     }
@@ -35,7 +37,6 @@ class FinancialIndicatorController extends Controller
         $impValues = [];
         $rebValues = [];
         $indices = $financialIndicator->getEconomicIndices();
-
         // Aquí asumo que tienes un método que obtiene los datos de corrección monetaria.
         $data = config('monetarycom.datos'); // Carga el arreglo de configuración.
 

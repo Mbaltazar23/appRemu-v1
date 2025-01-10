@@ -236,7 +236,7 @@ class Operation extends Model
     {
         return self::where('tuition_id', $tuitionId)->pluck('max_value')->first();
     }
-
+    // Metodo para actualizar los topes de las operaciones
     public static function updOrInsertTopesOperation($tuitionId, $min, $max)
     {
         $operations = self::whereIn('tuition_id', $tuitionId)->get();
@@ -250,7 +250,6 @@ class Operation extends Model
             ]);
         }
     }
-
     // Relación: Una Operation pertenece a una Tuition
     public function tuition()
     {

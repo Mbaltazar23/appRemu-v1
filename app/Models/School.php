@@ -46,31 +46,6 @@ class School extends Model
     {
         return self::GRANTT_OPTIONS[$this->grantt] ?? 'No asignado';
     }
-
-    /**
-     * Obtiene el nombre del colegio activo por su ID.
-     */
-    public static function obtColegioActivo($idColegio)
-    {
-        return self::where('id', $idColegio)->value('name') ?? '';
-    }
-
-    /**
-     * Obtiene el director del colegio.
-     */
-    public function obtDirector()
-    {
-        return $this->rut_director ?? '';
-    }
-
-    /**
-     * Obtiene el RUT del colegio.
-     */
-    public function obtRut()
-    {
-        return $this->rut ?? '';
-    }
-
     /**
      * Obtiene el sostenedor relacionado al colegio.
      */
