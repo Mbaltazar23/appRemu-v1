@@ -45,7 +45,7 @@ class InsurancePolicy
     public function linkWorker(User $user, Insurance $insurance)
     {
         // Asegúrate de que la lógica de permisos sea adecuada para tu aplicación
-        return $insurance->type !== null;
+        return $insurance->type !== null && in_array('MANAFPTR', $user->role->permissions);
     }
     /**
      * Determine whether the user can create models.

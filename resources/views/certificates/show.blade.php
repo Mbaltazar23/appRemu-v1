@@ -95,8 +95,8 @@
                         <th>Descuentos Legales</th>
                         <th>Renta Tributaria</th>
                         <th>Impuesto a la Renta</th>
-                        <th>Renta Neta</th>
-                        <th>Impuesto Único Retenido</th>
+                        <th>Renta Neta Actualizada</th>
+                        <th>Impuesto Único Retenido Actualizado</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -133,10 +133,4 @@
                 Servicio de Impuestos Internos, publicada en el Diario Oficial de fecha 20 de diciembre de 1993.</p>
         </div>
     @endforeach
-
-    <script>
-        window.print();
-    </script>
 </body>
-
-</html>

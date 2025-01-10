@@ -84,12 +84,12 @@ class FinancialIndicatorController extends Controller
             for ($i = 2; $i <= 8; $i++) {
                 Parameter::updateOrInsertParamValue("FACTORIMPTRAMO$i",0,0,"", $request->input("IMP$i"));
                 Parameter::updateOrInsertParamValue("FACTORREBAJAIMPTRAMO$i",0,0,"", $request->input("REB$i"));
-                Operation::updOrInsertTopesOperation("IMPUESTOTRAMO$i", $request->input("MIN$i"), $request->input("MAX$i"));
+                Operation::updOrInsertTopesOperation(["IMPUESTOTRAMO$i"], $request->input("MIN$i"), $request->input("MAX$i"));
             }
         } else {
             for ($i = 1; $i <= 3; $i++) {
                 Parameter::updateOrInsertParamValue("ASIGCAR.FAMTRAMO$i",0,0,"", $request->input("VAL$i"));
-                Operation::updOrInsertTopesOperation("FILTROASIGFAMT$i", $request->input("MIN$i"), $request->input("MAX$i"));
+                Operation::updOrInsertTopesOperation(["FILTROASIGFAMT$i"], $request->input("MIN$i"), $request->input("MAX$i"));
             }
         }
         return redirect()->route('financial-indicators.show', compact('index'))

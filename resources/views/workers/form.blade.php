@@ -195,11 +195,11 @@
             <label for="unemployment_insurance" class="form-label" style="opacity: 0.7;">Adhiere a seguro de
                 cesantía?</label>
             <select id="unemployment_insurance" class="form-select" name="unemployment_insurance">
-                <option value="1"
-                    {{ (old('unemployment_insurance') ?? optional($worker->parameters->where('name', 'ADHIEREASEGURO')->first())->value) == 1 ? 'selected' : '' }}>
-                    Sí</option>
                 <option value="0"
                     {{ (old('unemployment_insurance') ?? optional($worker->parameters->where('name', 'ADHIEREASEGURO')->first())->value) == 0 ? 'selected' : '' }}>
+                    Sí</option>
+                <option value="1"
+                    {{ (old('unemployment_insurance') ?? optional($worker->parameters->where('name', 'ADHIEREASEGURO')->first())->value) == 1 ? 'selected' : '' }}>
                     No</option>
             </select>
         </div>

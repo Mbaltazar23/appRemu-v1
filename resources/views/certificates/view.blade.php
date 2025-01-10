@@ -95,8 +95,8 @@
                         <th>Descuentos Legales</th>
                         <th>Renta Tributaria</th>
                         <th>Impuesto a la Renta</th>
-                        <th>Renta Neta</th>
-                        <th>Impuesto Único Retenido</th>
+                        <th>Renta Neta Actualizada</th>
+                        <th>Impuesto Único Retenido Actualizado</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -134,5 +134,3 @@
         </div>
     @endforeach
 </body>
-
-</html>

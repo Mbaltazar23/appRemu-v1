@@ -1,158 +1,124 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trabajadores a Asociar al Seguro - {{ $insurance->name }}</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <!-- Estilos de la página -->
-    @vite('resources/sass/app.scss')
-
-    <!-- Custom Styles -->
-    @stack('custom_styles')
-
-    <style>
-        /* Estilos personalizados */
-        .container-xl {
-            max-width: 800px;
-            margin: auto;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .page-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        /* Estilos para el botón de acción */
-        .action-btn {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-        }
-    </style>
-</head>
-
-<body>
-    <br><br>
-    <!-- Contenedor principal -->
+@section('content')
     <div class="container-xl">
-        <!-- Título de la página -->
+        <!-- Page title -->
         <div class="page-header d-print-none">
-            <h2 class="page-title">
+            <h2 class="page-title d-flex justify-content-between">
                 Trabajadores a Asociar al Seguro ({{ $insurance->name }})
             </h2>
         </div>
+    </div>
+    <div class="page-body">
+        <div class="container-xl">
+            <!-- Contenido principal -->
+            <div class="card p-4">
+                <div class="form-group mb-4">
+                    <label for="worker_id_select" class="h5">Selecciona un Trabajador</label>
+                    <select name="worker_id_select" id="worker_id_select" class="form-control" required>
+                        <option value="">Seleccionar trabajador...</option>
+                        @foreach ($workers as $worker)
+                            <option value="{{ $worker->id }}">
+                                {{ $worker->name }} {{ $worker->last_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-        <!-- Formulario para asociar trabajador -->
-        <div class="card p-4">
-            <div class="form-group mb-4">
-                <label for="worker_id_select" class="h5">Selecciona un Trabajador</label>
-                <select name="worker_id_select" id="worker_id_select" class="form-control" required>
-                    <option value="">Seleccionar trabajador...</option>
-                    @foreach ($workers as $worker)
-                        <option value="{{ $worker->id }}" @if (request('worker_id') == $worker->id) selected @endif>
-                            {{ $worker->name }} {{ $worker->last_name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+                <!-- Botón de acción -->
+                <div class="action-btn">
+                    <form id="associateWorkerForm" action="{{ route('insurances.attach_worker', $insurance->id) }}"
+                        method="POST">
+                        @csrf
+                        <input type="hidden" name="type" id="type" value="{{ $type }}">
+                        <input type="hidden" name="insurance_id" id="insurance_id" value="{{ $insurance->id }}">
+                        <input type="hidden" name="worker_id" id="worker_id_input">
+                        <input type="hidden" name="force_update" id="force_update" value="false">
+                        <button id="submitButton" type="submit" class="btn btn-primary rounded-3 px-4">
+                            Asociar Trabajador
+                        </button>
+                    </form>
+                </div>
 
-            <!-- Botón de asociar trabajador -->
-            <div class="action-btn">
-                <form id="associateWorkerForm" action="{{ route('insurances.attach_worker', $insurance->id) }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="type" id="type" value="{{ $type }}">
-                    <input type="hidden" name="insurance_id" id="insurance_id" value="{{ $insurance->id }}">
-                    <input type="hidden" name="worker_id" id="worker_id_input" value="{{ request('worker_id') }}">
-                    <input type="hidden" name="force_update" id="force_update" value="false">
-                    <button id="submitButton" type="submit" class="btn btn-primary rounded-3 px-4">
-                        Asociar Trabajador
-                    </button>
-                </form>
+                <!-- Contenedor para mensajes dinámicos -->
+                <div id="messages" class="mt-4"></div>
             </div>
         </div>
     </div>
+@endsection
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
-
+@push('custom_scripts')
     <script>
-        document.getElementById('worker_id_select').addEventListener('change', function() {
+        document.getElementById('worker_id_select').addEventListener('change', function () {
             const workerId = this.value;
             document.getElementById('worker_id_input').value = workerId;
-            localStorage.setItem('worker_id', workerId);
         });
 
-        // Función que maneja el envío del formulario
+        // Manejar el envío del formulario
         function submitForm(event) {
-            event.preventDefault(); // Prevenir el envío por defecto
+            event.preventDefault();
             const form = document.getElementById('associateWorkerForm');
             const formData = new FormData(form);
-
-            // Deshabilitar el botón mientras se procesa
+            const messagesContainer = document.getElementById('messages');
             const submitButton = document.getElementById('submitButton');
             submitButton.disabled = true;
 
-            // Hacer la solicitud al backend con los datos del formulario
             fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    },
-                })
-                .then(response => response.json())  // Convierte la respuesta a JSON
-                .then(data => {
-                    if (data.confirm) {
-                        // Si se necesita confirmación, mostrar el mensaje
-                        if (window.confirm(data.message)) {
-                            document.getElementById('force_update').value = "true"; // Marcamos la actualización forzada
-                            submitForm(event); // Reenvía el formulario si es necesario
-                        }
-                    } else {
-                        // Si no se necesita confirmación, manejar el mensaje de éxito
-                        alert(data.message);
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('[name="_token"]').getAttribute('content'),
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                messagesContainer.innerHTML = ''; // Limpiar mensajes previos
 
-                        // Redirigir según la lógica que ya tienes
-                        let insuranceId = document.getElementById('insurance_id').value;
-                        let workerId = document.getElementById('worker_id_input').value;
-                        let type = document.getElementById('type').value;
-                        let redirectUrl =
-                            `{{ url('insurances') }}?insurance_id=${insuranceId}&worker_id=${workerId}&type=${type}`;
+                if (data.confirm) {
+                    const confirmMessage = document.createElement('div');
+                    confirmMessage.className = 'alert alert-warning d-flex justify-content-between align-items-center';
+                    confirmMessage.innerHTML = `
+                        <span>${data.message}</span>
+                        <div>
+                            <button id="confirmButton" class="btn btn-primary btn-sm me-2">Confirmar</button>
+                            <button id="cancelButton" class="btn btn-secondary btn-sm">Cancelar</button>
+                        </div>
+                    `;
 
-                        // Verificar si la ventana tiene un "opener"
-                        if (window.opener) {
-                            window.opener.location.href = redirectUrl;
-                            window.close();
-                        } else {
-                            window.location.href = redirectUrl;
-                        }
-                    }
-                })
-                .catch(error => {
-                    alert('Ocurrió un error al procesar la solicitud.');
-                })
-                .finally(() => {
-                    // Volver a habilitar el botón después de la respuesta
-                    submitButton.disabled = false;
-                });
+                    messagesContainer.appendChild(confirmMessage);
+
+                    document.getElementById('confirmButton').addEventListener('click', () => {
+                        document.getElementById('force_update').value = 'true';
+                        submitForm(event);
+                    });
+
+                    document.getElementById('cancelButton').addEventListener('click', () => {
+                        messagesContainer.innerHTML = ''; // Limpiar mensajes y no hacer nada
+                    });
+                } else {
+                    const successMessage = document.createElement('div');
+                    successMessage.className = 'alert alert-success';
+                    successMessage.textContent = data.message;
+                    messagesContainer.appendChild(successMessage);
+
+                    setTimeout(() => {
+                        const redirectUrl = `{{ url('insurances') }}?insurance_id=${formData.get('insurance_id')}&worker_id=${formData.get('worker_id')}&type=${formData.get('type')}`;
+                        window.location.href = redirectUrl;
+                    }, 2000);
+                }
+            })
+            .catch(error => {
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'alert alert-danger';
+                errorMessage.textContent = 'Ocurrió un error al procesar la solicitud.';
+                messagesContainer.appendChild(errorMessage);
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+            });
         }
 
-        // Agregar el listener al formulario
+        // Agregar listener al formulario
         document.getElementById('associateWorkerForm').addEventListener('submit', submitForm);
     </script>
-</body>
-
-</html>
+@endpush

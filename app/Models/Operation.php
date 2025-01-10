@@ -239,19 +239,14 @@ class Operation extends Model
 
     public static function updOrInsertTopesOperation($tuitionId, $min, $max)
     {
-        $operation = self::where('tuition_id', $tuitionId)->first();
+        $operations = self::whereIn('tuition_id', $tuitionId)->get();
 
-        if ($operation) {
-            // Si existe, actualiza
-            $operation->update(['min_limit' => $min, 'max_limit' => $max, 'updated_at'=> now()]);
-        } else {
-            // Si no existe, crea uno nuevo
-            self::create([
-                'tuition_id' => $tuitionId,
+        foreach ($operations as $operation) {
+            // Actualiza los registros encontrados
+            $operation->update([
                 'min_limit' => $min,
                 'max_limit' => $max,
-                'created_at' => now(), // Establece la fecha de creación
-                'updated_at' => now(), // Establece la fecha de actualización
+                'updated_at' => now(),
             ]);
         }
     }
