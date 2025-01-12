@@ -26,6 +26,6 @@ class ProfileController extends Controller
             'email' => $request->email,
         ]);
 
-        return redirect()->back()->with('success', 'Profile updated.');
+        return redirect()->back()->with('success', 'Usuario Actualizado Exitosamente !!');
     }
 }

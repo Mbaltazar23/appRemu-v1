@@ -11,26 +11,36 @@
     </div>
     <div class="page-body">
         <div class="container-xl">
-            <div class="card p-3">
+            <div class="card p-4">
                 <div class="table-responsive">
-                    <p>
-                        <strong>Nombre:</strong> {{ $user->name }} <br />
-                        <strong>Email:</strong> {{ $user->email }} <br />
-                        <strong>Rol:</strong> {{ $user->role->name }} <br />
-
-                        <strong>Colegios Asociados:</strong>
-                        @if ($schools->isEmpty())
-                            <span>No hay colegios asociados.</span>
-                        @else
-                            <ul>
-                                @foreach ($schools as $school)
-                                    <li>{{ $school->name }}</li>
-                                @endforeach
-                            </ul>
-                        @endif
-                    </p>
+                    <table class="table mb-0">
+                        <tr>
+                            <th class="w-25">Nombre:</th>
+                            <td>{{ $user->name }}</td>
+                            <th>Email:</th>
+                            <td>{{ $user->email }}</td>
+                        </tr>
+                        <tr>
+                            <th>Rol:</th>
+                            <td>{{ $user->role->name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Colegios Asociados:</th>
+                            <td>
+                                @if ($schools->isEmpty())
+                                    <span>No hay colegios asociados.</span>
+                                @else
+                                    <ul>
+                                        @foreach ($schools as $school)
+                                            <li>{{ $school->name }}</li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            </td>
+                        </tr>
+                    </table>
                 </div>
-                <span>
+                <div class="mt-4">
                     <a class="mr-4 rounded-2 text-decoration-none" href="{{ route('users.index') }}">
                         <button class="btn btn-sm btn-info rounded-2">Volver al inicio</button>
                     </a>
@@ -39,7 +49,7 @@
                             <button class="btn btn-sm btn-primary rounded-2">Editar</button>
                         </a>
                     @endcan
-                </span>
+                </div>
             </div>
         </div>
     </div>

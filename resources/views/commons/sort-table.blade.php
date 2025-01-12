@@ -2,10 +2,15 @@
     <script src="{{ asset('js/sort-table.js') }}"></script>
 
     <script>
-        function openPopup(event, titulo) {
+         function openPopup(event, titulo) {
             event.preventDefault(); // Evita el comportamiento por defecto
             const url = event.currentTarget.href;
-            window.open(url, titulo, 'width=800,height=600');
+            // Crear un enlace dinámico
+            const link = document.createElement('a');
+            link.href = url;
+            link.target = '_blank'; // Asegura que se abra en una nueva pestaña
+            // Simular un clic en el enlace
+            link.click();
         }
     </script>
 @endpush

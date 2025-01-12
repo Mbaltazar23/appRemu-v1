@@ -3,7 +3,7 @@
 @section('content')
     <div class="page-body">
         <div class="container-xl">
-            <div class="card" id="selectionCard">
+            <div class="card p-4">
                 <div class="card-header d-flex align-items-center text-center">
                     <!-- Título centrado con mes y año en español -->
                     <h3 class="mx-auto">
@@ -34,8 +34,8 @@
                     </div>
                     <!-- Texto explicativo sobre el formulario -->
                     <p>
-                        Los siguientes parámetros solo deben ser modificados en casos de <br>
-                        extrema necesidad. Los valores pueden ser modificados únicamente si se ajustan los indicadores
+                        Los siguientes parámetros solo deben ser modificados en casos de extrema necesidad. <br><br>
+                        Los valores pueden ser modificados únicamente si se ajustan los indicadores
                         financieros, bonos o sueldos de los trabajadores. El último parámetro (días trabajados) debe ser
                         llenado con la cantidad efectiva de días trabajados y solo se ingresa para efectos de despliegue en
                         la liquidación.

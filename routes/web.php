@@ -94,8 +94,11 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
     Route::put('workers/{worker}/settle', [WorkerController::class, 'updateSettlementDate'])->name('workers.updateSettle');
     // Ruta para ver y añadir y quitar los anexos a los contratos
     Route::get('contracts/{worker}/annexes', [WorkerController::class, 'showAnnexes'])->name('contracts.showAnnexes');
+    Route::get('contracts/{worker}/annexes/create', [WorkerController::class, 'createAnnex'])->name('contracts.createAnnex');
+    Route::get('contracts/{worker}/annexes/edit/{annex}', [WorkerController::class, 'editAnnex'])->name('contracts.editAnnex');
     Route::post('contracts/{worker}/annexes', [WorkerController::class, 'storeAnnex'])->name('contracts.storeAnnex');
-    Route::delete('contracts/{worker}/annexes', [WorkerController::class, 'deleteAnnex'])->name('contracts.deleteAnnex');
+    Route::put('contracts/{worker}/annexes/{annex}', [WorkerController::class, 'updateAnnex'])->name('contracts.updateAnnex');
+    Route::delete('contracts/{worker}/annexes/{annex}', [WorkerController::class, 'deleteAnnex'])->name('contracts.deleteAnnex');
 
     /** RUTAS PARA INSURANCE  (ASOCIAR WORKER AL INSURANCE)*/
     Route::get('insurances/{insurance}/link-worker', [InsuranceController::class, 'linkWorker'])->name('insurances.link_worker');
@@ -103,18 +106,17 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
     Route::post('/insurances/setParameters', [InsuranceController::class, 'setParameters'])->name('insurances.setParameters');
 
     /* RUTAS PARA BONUSES */
+    Route::get('bonuses/partials/{action}', [BonusController::class, 'handleAction'])->name('bonuses.partials.action');
     Route::get('bonuses/partials/list', [BonusController::class, 'list'])->name('bonuses.partials.list');
+    Route::post('bonuses/update/params', [BonusController::class, 'updateParams'])->name('bonuses.updateParams');
     Route::get('bonuses/{bonus}/workers', [BonusController::class, 'showWorkers'])->name('bonuses.workers');
     Route::post('bonuses/{bonus}/update-workers', [BonusController::class, 'updateWorkers'])->name('bonuses.update-workers');
-    Route::get('bonuses/partials/params', [BonusController::class, 'generalParams'])->name('bonuses.partials.params');
-    Route::post('bonuses/update/params', [BonusController::class, 'updateParams'])->name('bonuses.updateParams');
-    Route::get('bonuses/partials/worker', [BonusController::class, 'workers'])->name('bonuses.partials.worker');
+    Route::get('bonuses/partials/worker/{worker_id}', [BonusController::class, 'workers'])->name('bonuses.partials.worker');
     Route::post('bonuses/workers/update', [BonusController::class, 'updateBonusWorker'])->name('bonuses.updateBonus');
 
     /** RUTAS PARA LOS INDICADORES ECONOMICOS */
     Route::get('financial-indicators', [FinancialIndicatorController::class, 'index'])->name('financial-indicators.index');
-    Route::get('financial-indicators/show', [FinancialIndicatorController::class, 'show'])->name('financial-indicators.show');
-    Route::post('financial-indicators/show', [FinancialIndicatorController::class, 'show'])->name('financial-indicators.show.post');
+    Route::get('financial-indicators/show/{index}', [FinancialIndicatorController::class, 'show'])->name('financial-indicators.show');
     Route::get('api/financial-indicators/values', [FinancialIndicatorController::class, 'getValues']);
     Route::post('financial-indicators/modify', [FinancialIndicatorController::class, 'modify'])->name('financial-indicators.modify');
 

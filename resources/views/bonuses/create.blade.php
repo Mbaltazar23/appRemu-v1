@@ -5,7 +5,7 @@
         <!-- Page title -->
         <div class="page-header d-print-none">
             <h2 class="page-title">
-                Registrar nuevo bono o descuento
+                Registrar nuevo Bono o Descuento
             </h2>
         </div>
     </div>
@@ -13,7 +13,10 @@
         <div class="container-xl">
             <div class="card p-5">
                 <form method="POST" action="{{ route('bonuses.store') }}">
+
                     @csrf
+                    <input type="hidden" name="school_id" value="{{ auth()->user()->school_id_session }}" />
+
                     @include('bonuses.form')
                     <div class="d-flex justify-content-between mt-3">
                         <a class="text-decoration-none" href="{{ route('bonuses.partials.list') }}">

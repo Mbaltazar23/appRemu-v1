@@ -1,7 +1,7 @@
 <div class="table-responsive">
     <div class="row col-12 mb-3">
         <div class="form-group">
-            <label for="name">Nombre del Perfil</label>
+            <label for="name">Nombre</label>
             <input type="text" name="name" class="form-control" value="{{ old('name', $role->name ?? '') }}" required>
         </div>
         <div class="form-group">

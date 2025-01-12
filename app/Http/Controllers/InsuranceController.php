@@ -42,7 +42,6 @@ class InsuranceController extends Controller
                 $insurance = $insurances->first();
             }
         }
-
         // Filtrar trabajadores según el tipo de seguro, solo si existe un seguro
         $workers = collect(); // Inicializamos como colección vacía por si no hay trabajadores
         if ($insurance) {
@@ -54,7 +53,6 @@ class InsuranceController extends Controller
         }
         // Obtener el worker_id si existe en la solicitud
         $worker_id = $request->input('worker_id');
-
         // Retornar la vista con las variables necesarias
         return view('insurances.index', compact('insurances', 'type', 'workers', 'worker_id', 'insurance'));
     }
@@ -131,7 +129,7 @@ class InsuranceController extends Controller
         $workers = Worker::where('school_id', $school_id)
             ->get();
 
-        return view('insurances.link_worker', compact('insurance', 'workers', 'type'));
+        return view('insurances.partials.link_worker', compact('insurance', 'workers', 'type'));
     }
 
     /** Send Link Worker To Insurance */

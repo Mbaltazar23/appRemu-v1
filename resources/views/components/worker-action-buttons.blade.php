@@ -18,10 +18,10 @@
                 @else
                     <!-- Si no es DELETE, es un enlace normal -->
                     <a class="text-decoration-none" href="{{ $action['route'] }}"
-                        @if ($action['title'] === 'Imprimir Contrato' || $action['title'] === 'Ver Anexos de Contrato') target="_blank" onclick="openPopup(event, '{{ $action['title'] }}')" @endif>
+                        @if ($action['title'] === 'Imprimir Contrato') target="_blank" onclick="openPopup(event, '{{ $action['title'] }}')" @endif>
                         <!-- Botón para ver detalles o anexos -->
                         <button class="btn btn-{{ $action['class'] }} rounded-3 px-3" title="{{ $action['title'] }}"
-                            @if ($action['title'] === 'Ver Anexos de Contrato' && (!$worker->contract || !$worker->contract->details)) disabled @endif>
+                           >
                             <i class="{{ $action['icon'] }}"></i>
                         </button>
                     </a>

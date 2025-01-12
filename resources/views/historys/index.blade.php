@@ -1,109 +1,42 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historial de Acciones</title>
-    <style>
-        /* Estilos generales */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f7fc;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        /* Contenedor principal */
-        .container {
-            width: 80%;
-            max-width: 1000px;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Título */
-        h3 {
-            text-align: center;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        /* Estilos de la tabla */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-
-        th {
-            font-weight: bold;
-        }
-
-        /* Alternancia de filas */
-        tr:nth-child(even) td {
-            background-color: #f9f9f9;
-        }
-
-        tr:hover td {
-            background-color: #f1f1f1;
-            cursor: pointer;
-        }
-
-        /* Estilos responsivos */
-        @media (max-width: 768px) {
-            .container {
-                width: 95%;
-                padding: 15px;
-            }
-
-            h3 {
-                font-size: 20px;
-            }
-
-            table {
-                font-size: 14px;
-            }
-        }
-    </style>
-</head>
-
-<body>
-    <div class="container">
-        <h3>Historial de Acciones</h3>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Usuario</th>
-                    <th>Acción</th>
-                    <th>Fecha y Hora</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($historys as $history)
-                    <tr>
-                        <td><strong>{{ $history->user->name }}</strong></td>
-                        <td>{{ $history->action }}</td>
-                        <td>{{ $history->created_at->format('d-m-Y H:i:s') }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+@section('content')
+    <div class="container-xl">
+        <!-- Page title -->
+        <div class="page-header d-print-none">
+            <h2 class="page-title d-flex justify-content-between">
+                <span>
+                    Historial de Acciones
+                </span>
+            </h2>
+        </div>
     </div>
-</body>
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
 
-</html>
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0)" class="sort-table">Usuario</th>
+                                <th onclick="sortTable(1)" class="sort-table">Acción</th>
+                                <th onclick="sortTable(2)" class="sort-table">Fecha y Hora</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($historys as $history)
+                                <tr>
+                                    <td><strong>{{ $history->user->name }}</strong></td>
+                                    <td>{{ $history->action }}</td>
+                                    <td>{{ $history->created_at->format('d-m-Y H:i:s') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+@include('commons.sort-table')

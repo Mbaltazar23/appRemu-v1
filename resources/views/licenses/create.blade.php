@@ -15,7 +15,7 @@
                 <form method="POST" action="{{ route('licenses.store') }}">
                     @csrf
                     @include('licenses.form')
-                    <div class="d-flex justify-content-between mt-3">
+                    <div class="d-flex justify-content-between mt-4">
                         <a class="text-decoration-none" href="{{ route('licenses.index') }}">
                             <button type="button" class="btn btn-primary rounded-2 px-3 py-1">Regresar</button>
                         </a>

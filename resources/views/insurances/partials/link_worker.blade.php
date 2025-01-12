@@ -6,6 +6,13 @@
         <div class="page-header d-print-none">
             <h2 class="page-title d-flex justify-content-between">
                 Trabajadores a Asociar al Seguro ({{ $insurance->name }})
+                <div>
+                    <a class="d-inline ml-2 text-decoration-none" href="{{ route('insurances.index', ['type' => request()->input('type')]) }}">
+                        <button class="btn btn-secondary rounded-3 px-3 py-1">
+                            Regresar al inicio
+                        </button>
+                    </a>
+                </div>
             </h2>
         </div>
     </div>
@@ -34,12 +41,11 @@
                         <input type="hidden" name="insurance_id" id="insurance_id" value="{{ $insurance->id }}">
                         <input type="hidden" name="worker_id" id="worker_id_input">
                         <input type="hidden" name="force_update" id="force_update" value="false">
-                        <button id="submitButton" type="submit" class="btn btn-primary rounded-3 px-4">
+                        <button id="submitButton" type="submit" class="btn btn-primary rounded-3 px-4 py-1">
                             Asociar Trabajador
                         </button>
                     </form>
                 </div>
-
                 <!-- Contenedor para mensajes dinámicos -->
                 <div id="messages" class="mt-4"></div>
             </div>
@@ -49,7 +55,7 @@
 
 @push('custom_scripts')
     <script>
-        document.getElementById('worker_id_select').addEventListener('change', function () {
+        document.getElementById('worker_id_select').addEventListener('change', function() {
             const workerId = this.value;
             document.getElementById('worker_id_input').value = workerId;
         });
@@ -64,20 +70,21 @@
             submitButton.disabled = true;
 
             fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('[name="_token"]').getAttribute('content'),
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                messagesContainer.innerHTML = ''; // Limpiar mensajes previos
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('[name="_token"]').getAttribute('content'),
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    messagesContainer.innerHTML = ''; // Limpiar mensajes previos
 
-                if (data.confirm) {
-                    const confirmMessage = document.createElement('div');
-                    confirmMessage.className = 'alert alert-warning d-flex justify-content-between align-items-center';
-                    confirmMessage.innerHTML = `
+                    if (data.confirm) {
+                        const confirmMessage = document.createElement('div');
+                        confirmMessage.className =
+                            'alert alert-warning d-flex justify-content-between align-items-center';
+                        confirmMessage.innerHTML = `
                         <span>${data.message}</span>
                         <div>
                             <button id="confirmButton" class="btn btn-primary btn-sm me-2">Confirmar</button>
@@ -85,37 +92,38 @@
                         </div>
                     `;
 
-                    messagesContainer.appendChild(confirmMessage);
+                        messagesContainer.appendChild(confirmMessage);
 
-                    document.getElementById('confirmButton').addEventListener('click', () => {
-                        document.getElementById('force_update').value = 'true';
-                        submitForm(event);
-                    });
+                        document.getElementById('confirmButton').addEventListener('click', () => {
+                            document.getElementById('force_update').value = 'true';
+                            submitForm(event);
+                        });
 
-                    document.getElementById('cancelButton').addEventListener('click', () => {
-                        messagesContainer.innerHTML = ''; // Limpiar mensajes y no hacer nada
-                    });
-                } else {
-                    const successMessage = document.createElement('div');
-                    successMessage.className = 'alert alert-success';
-                    successMessage.textContent = data.message;
-                    messagesContainer.appendChild(successMessage);
+                        document.getElementById('cancelButton').addEventListener('click', () => {
+                            messagesContainer.innerHTML = ''; // Limpiar mensajes y no hacer nada
+                        });
+                    } else {
+                        const successMessage = document.createElement('div');
+                        successMessage.className = 'alert alert-success';
+                        successMessage.textContent = data.message;
+                        messagesContainer.appendChild(successMessage);
 
-                    setTimeout(() => {
-                        const redirectUrl = `{{ url('insurances') }}?insurance_id=${formData.get('insurance_id')}&worker_id=${formData.get('worker_id')}&type=${formData.get('type')}`;
-                        window.location.href = redirectUrl;
-                    }, 2000);
-                }
-            })
-            .catch(error => {
-                const errorMessage = document.createElement('div');
-                errorMessage.className = 'alert alert-danger';
-                errorMessage.textContent = 'Ocurrió un error al procesar la solicitud.';
-                messagesContainer.appendChild(errorMessage);
-            })
-            .finally(() => {
-                submitButton.disabled = false;
-            });
+                        setTimeout(() => {
+                            const redirectUrl =
+                                `{{ url('insurances') }}?insurance_id=${formData.get('insurance_id')}&worker_id=${formData.get('worker_id')}&type=${formData.get('type')}`;
+                            window.location.href = redirectUrl;
+                        }, 2000);
+                    }
+                })
+                .catch(error => {
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'alert alert-danger';
+                    errorMessage.textContent = 'Ocurrió un error al procesar la solicitud.';
+                    messagesContainer.appendChild(errorMessage);
+                })
+                .finally(() => {
+                    submitButton.disabled = false;
+                });
         }
 
         // Agregar listener al formulario

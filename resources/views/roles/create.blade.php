@@ -5,13 +5,13 @@
         <!-- Page title -->
         <div class="page-header d-print-none">
             <h2 class="page-title">
-                Registrar Perfiles
+                Registrar Perfil
             </h2>
         </div>
     </div>
     <div class="page-body">
         <div class="container-xl">
-            <div class="card p-4">
+            <div class="card p-5">
                 <form method="POST" action="{{ route('roles.store') }}">
                     @csrf
                     @include('roles.form')

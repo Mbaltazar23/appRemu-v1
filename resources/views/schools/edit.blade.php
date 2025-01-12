@@ -11,7 +11,7 @@
     </div>
     <div class="page-body">
         <div class="container-xl">
-            <div class="card p-3">
+            <div class="card p-5">
                 <form method="POST" action="{{ route('schools.update', $school) }}">
                     @csrf
                     @method('PUT')
@@ -20,7 +20,7 @@
                         <a class="text-decoration-none" href="{{ route('schools.index') }}">
                             <button type="button" class="btn btn-primary rounded-2 px-3 py-1">Regresar</button>
                         </a>
-                        <button type="submit" class="btn btn-warning rounded-2 px-3 py-1">Crear</button>
+                        <button type="submit" class="btn btn-warning rounded-2 px-3 py-1">Actualizar</button>
                     </div>
                 </form>
             </div>

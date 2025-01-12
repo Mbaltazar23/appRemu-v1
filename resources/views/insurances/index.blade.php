@@ -23,7 +23,7 @@
     <div class="page-body">
         <div class="container-xl">
             <!-- Card de seguros -->
-            <div class="card">
+            <div class="card p-3">
                 <div class="card-body">
                     <!-- Contenedor para el label del select -->
                     <div class="form-group mb-4">
@@ -69,7 +69,7 @@
             </div>
 
             <!-- Card para los trabajadores asociados -->
-            <div class="card mt-4">
+            <div class="card mt-4 p-4">
                 @if ($workers->isNotEmpty())
                     <div class="card-header">
                         <h4 class="mb-2">Selecciona un trabajador</h4>

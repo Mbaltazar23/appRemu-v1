@@ -3,13 +3,13 @@
 @section('content')
     <div class="page-body">
         <div class="container-xl">
-            <div class="card">
+            <div class="card p-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3>
                         @if ($index === 'correccion_monetaria')
                             {{ __('Índice de Corrección Monetaria') }}
                         @elseif ($index === 'uf')
-                            {{ __('Mantenedor de indices económicos y previsionales') }}
+                            {{ __('Mantenedor de índices económicos y previsionales') }}
                         @elseif ($index === 'impuesto_renta')
                             {{ __('Mantenedor de valores y topes de impuesto a la renta') }}
                         @else
@@ -22,8 +22,10 @@
                     @if ($index === 'correccion_monetaria')
                         @include('financial_indicators.partials.monetary_correction', ['data' => $data])
                     @elseif ($index === 'uf')
-                        <p><strong>UF:</strong> <span>${{ $values['uf'] }}</span></p>
-                        <p><strong>UTM:</strong> <span>${{ $values['utm'] }}</span></p>
+                        @include('financial_indicators.partials.indicator_values', [
+                            'currentValues' => $currentValues,
+                            'previousValues' => $previousValues,
+                        ])
                     @elseif($index === 'impuesto_renta' || $index === 'asignacion_familiar')
                         <form name="forma" action="{{ route('financial-indicators.modify') }}" method="POST">
                             <input type="hidden" name="index" value="{{ $index }}" />

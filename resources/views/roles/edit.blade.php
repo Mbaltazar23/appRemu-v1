@@ -5,7 +5,7 @@
         <!-- Page title -->
         <div class="page-header d-print-none">
             <h2 class="page-title">
-                Editar Perfiles
+                Editar Perfil
             </h2>
         </div>
     </div>

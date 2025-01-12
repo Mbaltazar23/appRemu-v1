@@ -11,7 +11,7 @@
     </div>
     <div class="page-body">
         <div class="container-xl">
-            <div class="card p-3">
+            <div class="card p-5">
                 <form method="POST" action="{{ route('users.update', $user) }}">
                     @csrf
                     @method('PUT')

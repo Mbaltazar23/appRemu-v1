@@ -11,41 +11,68 @@
     </div>
     <div class="page-body">
         <div class="container-xl">
-            <div class="card p-3">
+            <div class="card p-4">
                 <div class="table-responsive">
-                    <p>
-                        <strong>Nombre:</strong> {{ $school->name }} <br />
-                        <strong>Dirección:</strong> {{ $school->address }} <br />
-                        
-                        <!-- Sostenedor con RUT y Nombre Comercial -->
-                        <strong>Sostenedor:</strong> 
-                        @if($school->sustainer)
-                            RUT: {{ $school->sustainer->rut }} - Nombre Comercial: {{ $school->sustainer->business_name }}
-                        @else
-                            No asignado
-                        @endif
-                        <br />
-
-                        <strong>RUT:</strong> {{ $school->rut }} <br />
-                        <strong>RBD:</strong> {{ $school->rbd }} <br />
-                        <strong>Comuna:</strong> {{ $school->commune }} <br />
-                        <strong>Región:</strong> {{ $school->region }} <br />
-                        <strong>Director:</strong> {{ $school->director }} <br />
-                        <strong>RUT del Director:</strong> {{ $school->rut_director }} <br />
-                        <strong>Teléfono:</strong> {{ $school->phone }} <br />
-                        <strong>Correo Electrónico:</strong> {{ $school->email }} <br />
-                        <strong>Dependencia:</strong> {{ $school->dependency_text }} <br />
-                        <strong>Subvención:</strong> {{ $school->grantt_text }} <br />
-                    </p>
+                    <table class="table mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="w-25">Nombre:</th>
+                                <td>{{ $school->name }}</td>
+                                <th class="w-25">RUT:</th>
+                                <td>{{ $school->rut }}</td>
+                            </tr>
+                            <tr>
+                                <th class="w-25">Dirección:</th>
+                                <td>{{ $school->address }}</td>
+                                <th class="w-25">Sostenedor:</th>
+                                <td>
+                                    RUT: {{ $school->sustainer->rut }} - Nombre Comercial:
+                                    {{ $school->sustainer->business_name }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="w-25">RBD:</th>
+                                <td>{{ $school->rbd }}</td>
+                                <th class="w-25">Comuna:</th>
+                                <td>{{ $school->commune }}</td>
+                            </tr>
+                            <tr>
+                                <th class="w-25">Región:</th>
+                                <td>{{ $school->region }}</td>
+                                <th class="w-25">Director:</th>
+                                <td>{{ $school->director }}</td>
+                            </tr>
+                            <tr>
+                                <th class="w-25">RUT del Director:</th>
+                                <td>{{ $school->rut_director }}</td>
+                                <th class="w-25">Teléfono:</th>
+                                <td>{{ $school->phone }}</td>
+                            </tr>
+                            <tr>
+                                <th class="w-25">Correo Electrónico:</th>
+                                <td>{{ $school->email }}</td>
+                                <th class="w-25">Dependencia:</th>
+                                <td>{{ $school->dependency_text }}</td>
+                            </tr>
+                            <tr>
+                                <th class="w-25">Subvención:</th>
+                                <td>{{ $school->grantt_text }}</td>
+                                <td></td> <!-- Celda vacía para mantener la estructura -->
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <span>
+
+                <div class="mt-4">
                     <a class="mr-2 rounded-2 text-decoration-none" href="{{ route('schools.index') }}">
-                        <button class="btn btn-sm btn-info rounded-2">Regresar</button>
+                        <button class="btn btn-sm btn-info rounded-2">Volver al inicio</button>
                     </a>
-                    <a class="mr-2 rounded-2 text-decoration-none" href="{{ route('schools.edit', $school) }}">
-                        <button class="btn btn-sm btn-primary rounded-2">Editar</button>
-                    </a>
-                </span>
+                    @can('update', $school)
+                        <a class="mr-2 rounded-2 text-decoration-none" href="{{ route('schools.edit', $school) }}">
+                            <button class="btn btn-sm btn-primary rounded-2">Editar</button>
+                        </a>
+                    @endcan
+                </div>
             </div>
         </div>
     </div>

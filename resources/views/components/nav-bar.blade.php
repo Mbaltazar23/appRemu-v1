@@ -95,7 +95,7 @@
             @can('viewAny', App\Models\History::class)
                 <li>
                     <a class="dropdown-item @if (request()->is('historys')) active @endif"
-                        onclick="window.open('{{ route('historys.index') }}', 'Historial', 'width=800,height=600');">
+                        href="{{ route('historys.index') }}">
                         <span class="nav-link-icon">
                             <i class='bx bx-history' style="font-size: 20px;"></i>
                         </span>

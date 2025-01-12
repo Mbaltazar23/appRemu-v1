@@ -5,7 +5,7 @@
         <div class="page-body">
             <div class="card-body">
                 <div class="container-xl">
-                    <div class="card mb-4">
+                    <div class="card mb-4 p-3">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h3 class="mb-0">Emisión de certificado de remuneraciones</h3>
                         </div>

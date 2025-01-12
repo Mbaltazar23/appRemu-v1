@@ -19,7 +19,7 @@
                         <a class="text-decoration-none" href="{{ route('schools.index') }}">
                             <button type="button" class="btn btn-primary rounded-2 px-3 py-1">Regresar</button>
                         </a>
-                        <button type="submit" class="btn btn-warning rounded-2 px-3 py-1">Crear</button>
+                        <button type="submit" class="btn btn-warning rounded-2 px-3 py-1">Guardar</button>
                     </div>
                 </form>
             </div>

@@ -39,7 +39,7 @@
                     <a href="{{ route('bonuses.index') }}" class="text-decoration-none">
                         <button type="button" class="btn btn-secondary">Regresar</button>
                     </a>
-                    <button type="submit" class="btn btn-primary">Ingresar/Modificar</button>
+                    <button type="submit" class="btn btn-primary">Modificar</button>
                 </div>
 
                 <div class="text-center mt-3">

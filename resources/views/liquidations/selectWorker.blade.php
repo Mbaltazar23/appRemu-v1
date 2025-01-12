@@ -4,7 +4,7 @@
     <div class="page-body">
         <div class="container-xl">
             <!-- Card 1: Selección de trabajador -->
-            <div class="card mb-4" id="workerSelectionCard">
+            <div class="card mb-4 p-3" id="workerSelectionCard">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="mb-0">Emisión y visualización de liquidaciones para
                         {{ App\Models\Worker::getWorkerTypes()[$workerType] }}s</h3>
@@ -35,7 +35,7 @@
                 </div>
             </div>
             <!-- Card 2: Selección de mes y año -->
-            <div class="card" id="monthYearSelectionCard">
+            <div class="card p-3" id="monthYearSelectionCard">
                 <div class="card-header">
                     <h3>O Seleccione un mes y año para ver todas las liquidaciones</h3>
                 </div>

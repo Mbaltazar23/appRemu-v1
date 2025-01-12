@@ -24,8 +24,27 @@ class BonusController extends Controller
     {
         return view('bonuses.index');
     }
-
-    public function list()
+    /**
+     * Selected Action of the index
+     */
+    public function handleAction($action)
+    {
+        // Determinar qué acción tomar según el parámetro $action
+        switch ($action) {
+            case 'list':
+                return $this->list();
+            case 'params':
+                return $this->generalParams();
+            case 'worker':
+                return $this->workers();
+            default:
+                abort(404); // Si la acción no es válida, devuelve un error 404
+        }
+    }
+    /**
+     * List of the Bonuses or Discounts
+     */
+    protected function list()
     {
         $schoolId = auth()->user()->school_id_session;
 
@@ -35,15 +54,19 @@ class BonusController extends Controller
 
         return view('bonuses.partials.list', compact('bonuses'));
     }
-
-    public function generalParams()
+    /**
+     * View General Params of the Bonuses or Discounts
+     */
+    protected function generalParams()
     {
         $this->authorize('parametersGen', Bonus::class); // Verifica si el usuario tiene el permiso adecuado
         $params = Parameter::where('school_id', auth()->user()->school_id_session)->pluck('value', 'name')->toArray();
 
         return view('bonuses.partials.params', compact('params'));
     }
-
+  /**
+     * Update General Params of the Bonuses or Discounts
+     */
     public function updateParams(Request $request)
     {
         $request->validate([
@@ -64,15 +87,16 @@ class BonusController extends Controller
 
         return redirect()->back()->with('success', 'Parametros generales actualizados..');
     }
-
-    public function workers(Request $request)
+    /**
+     * View Workers Relations of the Bonuses or Discounts
+     */
+    protected function workers($worker_id = "")
     {
         // Obtener el id de la escuela del usuario autenticado
         $schoolId = auth()->user()->school_id_session;
         // Obtener todos los trabajadores de la escuela
         $workers = Worker::getWorkersBySchoolAndType($schoolId);
         // Verificar si se pasó un worker_id en la solicitud
-        $worker_id = $request->input('worker_id');
         $selectedWorker = null;
         $bonusData = [];
         // Si se selecciona un trabajador, obtener los bonos asociados
@@ -102,7 +126,9 @@ class BonusController extends Controller
         // Retornar la vista con los trabajadores, el trabajador seleccionado y los bonos
         return view('bonuses.partials.worker', compact('workers', 'selectedWorker', 'bonusData'));
     }
-    
+    /**
+     * Update Bonuses or Discounts of the Workers
+     */
     public function updateBonusWorker(Request $request)
     {
         $worker_id = $request->input('worker_id');

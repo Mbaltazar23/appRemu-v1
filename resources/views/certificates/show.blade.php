@@ -133,4 +133,9 @@
                 Servicio de Impuestos Internos, publicada en el Diario Oficial de fecha 20 de diciembre de 1993.</p>
         </div>
     @endforeach
+    <script>
+        window.print();
+    </script>
 </body>
+
+</html>

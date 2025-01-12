@@ -4,7 +4,7 @@
 
     <div class="page-body">
         <div class="container-xl">
-            <div class="card" id="selectionCard">
+            <div class="card p-3" id="selectionCard">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3>Emisión de planilla de remuneraciones</h3>
                     <!-- Botón de crear (con permisos de 'create') -->

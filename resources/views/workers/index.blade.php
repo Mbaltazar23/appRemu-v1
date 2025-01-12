@@ -18,8 +18,7 @@
                         </a>
                         &nbsp;
                     @endcan
-                    <a class="d-inline ml-2 text-decoration-none" href="{{ route('settlements.settlement') }}" target="_blank"
-                        onclick="openPopup(event, 'Listar Trabajador Finiquitados')">
+                    <a class="d-inline ml-2 text-decoration-none" href="{{ route('settlements.settlement') }}">
                         <button class="btn btn-secondary rounded-3 px-3 py-1">Listar Finiquitados</button>
                     </a>
                 </div>

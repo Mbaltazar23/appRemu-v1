@@ -4,7 +4,7 @@
 @section('content')
     <div class="page-body">
         <div class="container-xl">
-            <div class="card mb-4" id="selectionCard">
+            <div class="card mb-4 p-3" id="selectionCard">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="mb-0">Liquidaciones emitidas a la fecha de {{ $worker->name }} {{ $worker->last_name }}</h3>
                     <div class="d-flex">

@@ -12,13 +12,19 @@
             <tr>
                 <td>{{ $i }}</td>
                 <td>
-                    <input type="text" class="form-control text-center" name="MIN{{ $i }}" value="{{ $minLimits[$i] }}" onblur="this.value=Trim(this.value);if (this.value==''){alert('Debe ingresar un valor');this.focus();return false;}numerovalido(this)">
+                    <input type="text" class="form-control text-center" name="MIN{{ $i }}"
+                        value="{{ $minLimits[$i] }}"
+                        onblur="this.value=Trim(this.value);if (this.value==''){alert('Debe ingresar un valor');this.focus();return false;}numerovalido(this)">
                 </td>
                 <td>
-                    <input type="text" class="form-control text-center" name="MAX{{ $i }}" value="{{ $maxLimits[$i] }}" onblur="this.value=Trim(this.value);if (this.value==''){alert('Debe ingresar un valor');this.focus();return false;}numerovalido(this)">
+                    <input type="text" class="form-control text-center" name="MAX{{ $i }}"
+                        value="{{ $maxLimits[$i] }}"
+                        onblur="this.value=Trim(this.value);if (this.value==''){alert('Debe ingresar un valor');this.focus();return false;}numerovalido(this)">
                 </td>
                 <td>
-                    <input type="text" class="form-control text-center" name="VAL{{ $i }}" value="{{ $impValues[$i] }}" onblur="this.value=Trim(this.value);if (this.value==''){alert('Debe ingresar un valor');this.focus();return false;}numerovalido(this)">
+                    <input type="text" class="form-control text-center" name="VAL{{ $i }}"
+                        value="{{ $impValues[$i] }}"
+                        onblur="this.value=Trim(this.value);if (this.value==''){alert('Debe ingresar un valor');this.focus();return false;}numerovalido(this)">
                 </td>
             </tr>
         @endfor

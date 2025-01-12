@@ -24,13 +24,11 @@ class FinancialIndicatorController extends Controller
 
         return view('financial_indicators.index', compact('indices', 'financial'));
     }
-
-    public function show(Request $request)
+    public function show($index)
     {
         $financialIndicator = new FinancialIndicator();
         $schoolId = auth()->user()->school_id_session;
 
-        $index = $request->input('index');
         $values = [];
         $minLimits = [];
         $maxLimits = [];
@@ -38,15 +36,20 @@ class FinancialIndicatorController extends Controller
         $rebValues = [];
         $indices = $financialIndicator->getEconomicIndices();
         // Aquí asumo que tienes un método que obtiene los datos de corrección monetaria.
-        $data = config('monetarycom.datos'); // Carga el arreglo de configuración.
-
+        $data = config('monetarycom.datos');
+        // Paso 1: Instanciamos el arreglo para los valores actuales 
+        $currentValues = [];
+        // Paso 2: Obtener los valores del mes pasado usando los valores actuales
+        $previousValues = [];
+        // Evaluamos el index recibido desde la pagina inicial
         switch ($index) {
             case 'uf':
-                $values = $financialIndicator->getCurrentValues();
-                $values['uf'] = str_replace(',', '', number_format($values['uf'], 0, '.', '')); // Cambia la coma por un punto
-                $values['utm'] = str_replace(',', '', number_format($values['utm'], 0, '.', '')); // Cambia la coma por un punto
-                Parameter::createOrUpdateParamIndicators("UF", $values['uf']);
-                Parameter::createOrUpdateParamIndicators("UTM", $values['utm']);
+                $currentValues = $financialIndicator->getCurrentValues();
+                $previousValues = $financialIndicator->getPreviousMonthValues($currentValues);
+                $currentValues['uf'] = str_replace(',', '', number_format($currentValues['uf'], 0, '.', '')); // Cambia la coma por un punto
+                $currentValues['utm'] = str_replace(',', '', number_format($currentValues['utm'], 0, '.', '')); // Cambia la coma por un punto
+                Parameter::createOrUpdateParamIndicators("UF", $currentValues['uf']);
+                Parameter::createOrUpdateParamIndicators("UTM", $currentValues['utm']);
                 break;
 
             case 'impuesto_renta':
@@ -74,7 +77,9 @@ class FinancialIndicatorController extends Controller
                 return redirect()->route('financial-indicators.index')->with('error', 'Índice no válido.');
         }
 
-        return view('financial_indicators.show', compact('index', 'values', 'minLimits', 'maxLimits', 'impValues', 'rebValues', 'indices', 'data', 'financialIndicator'));
+        return view('financial_indicators.show', compact(
+            'index', 'currentValues', 'previousValues', 'minLimits', 'maxLimits', 'impValues', 'rebValues', 'indices', 'data', 'financialIndicator'
+        ));
     }
 
     public function modify(FinancialIndModRequest $request)
@@ -83,13 +88,13 @@ class FinancialIndicatorController extends Controller
         $index = $request->input('index');
         if ($index === 'impuesto_renta') {
             for ($i = 2; $i <= 8; $i++) {
-                Parameter::updateOrInsertParamValue("FACTORIMPTRAMO$i",0,0,"", $request->input("IMP$i"));
-                Parameter::updateOrInsertParamValue("FACTORREBAJAIMPTRAMO$i",0,0,"", $request->input("REB$i"));
+                Parameter::updateOrInsertParamValue("FACTORIMPTRAMO$i", 0, 0, "", $request->input("IMP$i"));
+                Parameter::updateOrInsertParamValue("FACTORREBAJAIMPTRAMO$i", 0, 0, "", $request->input("REB$i"));
                 Operation::updOrInsertTopesOperation(["IMPUESTOTRAMO$i"], $request->input("MIN$i"), $request->input("MAX$i"));
             }
         } else {
             for ($i = 1; $i <= 3; $i++) {
-                Parameter::updateOrInsertParamValue("ASIGCAR.FAMTRAMO$i",0,0,"", $request->input("VAL$i"));
+                Parameter::updateOrInsertParamValue("ASIGCAR.FAMTRAMO$i", 0, 0, "", $request->input("VAL$i"));
                 Operation::updOrInsertTopesOperation(["FILTROASIGFAMT$i"], $request->input("MIN$i"), $request->input("MAX$i"));
             }
         }

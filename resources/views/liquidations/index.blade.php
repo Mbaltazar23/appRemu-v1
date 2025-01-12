@@ -3,7 +3,7 @@
 @section('content')
 <div class="page-body">
     <div class="container-xl">
-        <div class="card" id="selectionCard">
+        <div class="card p-3" id="selectionCard">
             <div class="card-header">
                 <h3>Emisión y visualización de liquidaciones</h3>
             </div>

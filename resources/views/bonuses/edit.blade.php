@@ -5,7 +5,7 @@
         <!-- Page title -->
         <div class="page-header d-print-none">
             <h2 class="page-title">
-                Actualizar bono o descuento
+                Actualizar Bono o Descuento
             </h2>
         </div>
     </div>
@@ -15,6 +15,8 @@
                 <form method="POST" action="{{ route('bonuses.update', $bonus->id) }}">
                     @csrf
                     @method('PUT')
+                    <input type="hidden" name="school_id" value="{{ auth()->user()->school_id_session }}" />
+
                     @include('bonuses.form')
                     <div class="d-flex justify-content-between mt-3">
                         <a class="text-decoration-none" href="{{ route('bonuses.partials.list') }}">

@@ -30,7 +30,6 @@ class Insurance extends Model
         //self::FONASA => 'Fonasa',
     ];
 
-
     public function getTypeName()
     {
         return self::TYPES[$this->type] ?? 'Desconocido';
@@ -59,12 +58,6 @@ class Insurance extends Model
     {
         return self::where('id', $id)->value('cotizacion');
     }
-
-    public static function obt_datos_insurance($id)
-    {
-        return self::find($id);
-    }
-
      /**
      * Relación inversa con los trabajadores (AFP).
      */

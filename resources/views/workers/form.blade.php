@@ -1,7 +1,7 @@
     <input type="hidden" name="school_id" value="{{ auth()->user()->school_id_session }}" />
 
     <!-- Datos del Trabajador -->
-    <h3 class="mb-4" style="font-weight: bold; color: #333;">Datos del Trabajador</h3>
+    <h3 class="mb-4" style="font-weight: bold; color: #333;">Datos Personales</h3>
 
     <div class="row mb-4">
         <div class="col-md-4">
