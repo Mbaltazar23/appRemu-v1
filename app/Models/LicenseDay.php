@@ -9,6 +9,7 @@ class LicenseDay extends Model
 {
     use HasFactory;
 
+    // Define fillable fields for mass assignment
     protected $fillable = [
         'license_id',
         'day',
@@ -17,7 +18,11 @@ class LicenseDay extends Model
         'exists',
     ];
     /**
-     * Relación con el modelo License.
+     * Define the relationship with the License model.
+     * 
+     * A LicenseDay belongs to a License, which is referenced by 'license_id'.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function license()
     {

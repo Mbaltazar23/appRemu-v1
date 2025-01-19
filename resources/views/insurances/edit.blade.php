@@ -6,7 +6,7 @@
         <div class="page-header d-print-none">
             <h2 class="page-title">
                 Editar Seguro &nbsp;<small
-                    class="text-muted">({{ $type == '1' ? 'AFP' : ($type == '2' ? 'Isapre' : '') }})</small>
+                    class="text-muted">({{ $insuranceName }})</small>
             </h2>
         </div>
     </div>
@@ -19,7 +19,7 @@
                     @include('insurances.form')
                     <div class="d-flex justify-content-between mt-3">
                         <a class="text-decoration-none"
-                            href="{{ route('insurances.index', ['type' => request()->input('type')]) }}">
+                            href="{{ route('insurances.index', ['insurance_id' => $insurance->id, 'type' => request()->input('type')]) }}">
                             <button type="button" class="btn btn-primary rounded-2 px-3 py-1">Regresar</button>
                         </a>
                         <button type="submit" class="btn btn-warning rounded-2 px-3 py-1">Actualizar</button>

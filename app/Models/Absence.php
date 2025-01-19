@@ -9,23 +9,28 @@ class Absence extends Model
 {
     use HasFactory;
 
-    // Atributos que se pueden asignar masivamente
+    // Attributes that can be mass-assigned
     protected $fillable = [
-        'worker_id', // Relación con el trabajador
-        'day', // Día de la ausencia
-        'month', // Mes de la ausencia
-        'year', // Año de la ausencia
-        'reason', // Motivo de la ausencia
-        'minutes', // Duración en minutos
-        'with_consent', // Si la ausencia tiene consentimiento
+        'worker_id', // Relationship with the worker
+        'day', // Day of the absence
+        'month', // Month of the absence
+        'year', // Year of the absence
+        'reason', // Reason for the absence
+        'minutes', // Duration in minutes
+        'with_consent', // If the absence has consent
     ];
 
     /**
-     * Obtener la fecha completa como un solo atributo.
+     * Get the full date as a single attribute.
+     * 
+     * This method combines the day, month, and year attributes into a single date string (YYYY-MM-DD).
+     * If the day, month, or year is not provided, it returns null.
+     *
+     * @return string|null The full date in YYYY-MM-DD format, or null if any of the date components are missing.
      */
     public function getDateAttribute()
     {
-        // Asegurarse de que los valores estén presentes y sean válidos
+        // Ensure the values are present and valid
         if ($this->day && $this->month && $this->year) {
             return \Carbon\Carbon::create($this->year, $this->month, $this->day)->toDateString();
         }
@@ -33,33 +38,57 @@ class Absence extends Model
     }
 
     /**
-     * Establecer la fecha a partir de un solo campo 'date'.
+     * Set the date from a single 'date' field.
+     * 
+     * This method splits the provided 'date' into day, month, and year, and sets the corresponding model attributes.
+     * It uses the Carbon library to parse the input date.
+     *
+     * @param string $value The date to be set in the format 'YYYY-MM-DD'.
      */
     public function setDateAttribute($value)
     {
-        // Si el valor de 'date' es válido, dividimos la fecha
+        // If the 'date' value is valid, split the date
         if ($value) {
-            $date = \Carbon\Carbon::parse($value); // Convierte la fecha a un objeto Carbon
+            $date = \Carbon\Carbon::parse($value); // Converts the date to a Carbon object
             $this->attributes['day'] = $date->day;
             $this->attributes['month'] = $date->month;
             $this->attributes['year'] = $date->year;
         }
     }
 
-    // Método para sumar los minutos de inasistencia
+    /**
+     * Method to sum the minutes of absence.
+     * 
+     * This method calculates the total minutes of absence within a given date range.
+     * It filters the absences by worker ID, month, year, and date range, and then sums the 'minutes' for those absences that have consent.
+     *
+     * @param int $workerId The ID of the worker whose absences are being calculated.
+     * @param int $month The month for which absences are calculated.
+     * @param int $year The year for which absences are calculated.
+     * @param int $fromDay The starting day of the range.
+     * @param int $toDate The ending day of the range.
+     * 
+     * @return int The total minutes of absence.
+     */
     public static function sumAbsenceMinutes($workerId, $month, $year, $fromDay, $toDate)
     {
-        // Asegúrate de convertir las fechas en objetos Carbon si no lo son
-        return self::where('worker_id',$workerId)
+        // Make sure to convert the dates into Carbon objects if they're not already
+        return self::where('worker_id', $workerId)
             ->where('month', $month)
             ->where('year', $year)
-            ->where('day', '>', $fromDay) // Compara con el día de fromDate
-            ->where('day', '<', $toDate) // Compara con el día de toDate
-            ->where('with_consent', 1)
-            ->sum('minutes'); // Suma los minutos
+            ->where('day', '>', $fromDay) // Compares with the day of fromDate
+            ->where('day', '<', $toDate) // Compares with the day of toDate
+            ->where('with_consent', 1) // Filters only the absences with consent
+            ->sum('minutes'); // Sums the minutes for the absences
     }
 
-    // Relación con Worker (Una ausencia pertenece a un trabajador)
+    /**
+     * Relationship with Worker (An absence belongs to a worker).
+     * 
+     * This method defines the relationship between the Absence and Worker models. It indicates that each absence record belongs to one worker.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The relationship instance.
+     */
     public function worker()
     {
         return $this->belongsTo(Worker::class);

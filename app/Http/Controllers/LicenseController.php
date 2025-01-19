@@ -15,18 +15,16 @@ class LicenseController extends Controller
     {
         $this->authorizeResource(License::class, 'license');
     }
-
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        // Filtrar las licencias de los trabajadores pertenecientes a la escuela del usuario autenticado
+        // Filter the licenses of workers belonging to the authenticated user's school
         $licenses = License::getLicensesBySchool(auth()->user()->school_id_session)->paginate(5);
 
         return view('licenses.index', compact('licenses'));
     }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -37,32 +35,30 @@ class LicenseController extends Controller
 
         return view('licenses.create', compact('license', 'workers'));
     }
-
     /**
      * Store a newly created resource in storage.
      */
     public function store(LicenseFormRequest $request)
     {
-        // Crear la licencia
+        // Create the license
         $license = License::create($request->validated());
-        // Obtener la fecha de la licencia
-        $arr = explode("-", $request->input('issue_date')); // Fecha en formato dd-mm/yyyy
+        // Get license date
+        $arr = explode("-", $request->input('issue_date')); // Date in format dd-mm/yyyy
         $day = (int) $arr[2];
         $month = (int) $arr[1];
         $year = (int) $arr[0];
-        // Obtener el trabajador asociado a la licencia
+        // Get worker associated with the license
         $worker = $license->worker;
-        // Si el trabajador es docente, actualizamos las horas de la licencia
+        // If the worker is a teacher, we update the hours of the license
         if ($worker->worker_type == Worker::WORKER_TYPE_TEACHER) {
             $license->updateLicenseHours($day, $month, $year, $request->input('days'));
         }
-        // Si el trabajador no es docente, solo actualizamos los días
+        // If the worker is not a teacher, we only update the days
         if ($worker->worker_type == Worker::WORKER_TYPE_NON_TEACHER) {
             $license->updateLicenseDays($day, $month, $year, $request->input('days'));
         }
         return redirect()->route('licenses.index')->with('success', 'Licencia creada exitosamente.');
     }
-
     /**
      * Display the specified resource.
      */
@@ -72,7 +68,6 @@ class LicenseController extends Controller
 
         return view('licenses.show', compact('license', 'workers'));
     }
-
     /**
      * Show the form for editing the specified resource.
      */
@@ -82,33 +77,31 @@ class LicenseController extends Controller
 
         return view('licenses.edit', compact('license', 'workers'));
     }
-
     /**
      * Update the specified resource in storage.
      */
     public function update(LicenseFormRequest $request, License $license)
     {
-        // Actualizar la licencia
+        // Update the license
         $license->update($request->validated());
-        // Obtener la fecha de la licencia
-        $arr = explode("-", $request->input('issue_date')); // Fecha en formato dd-mm/yyyy
+        // Get license date
+        $arr = explode("-", $request->input('issue_date')); // Date in format dd-mm/yyyy
         $day = (int) $arr[2];
         $month = (int) $arr[1];
         $year = (int) $arr[0];
-        // Obtener el trabajador asociado a la licencia
+        // Get worker associated with the license
         $worker = $license->worker;
-        // Si el trabajador es docente, actualizamos las horas de la licencia
+        // If the worker is a teacher, we update the hours of the license
         if ($worker->worker_type == Worker::WORKER_TYPE_TEACHER) {
             $license->updateLicenseHours($day, $month, $year, $request->input('days'));
         }
-        // Si el trabajador no es docente, solo actualizamos los días
+        // If the worker is not a teacher, we only update the days
         if ($worker->worker_type == Worker::WORKER_TYPE_NON_TEACHER) {
             $license->updateLicenseDays($day, $month, $year, $request->input('days'));
         }
 
         return redirect()->route('licenses.show', $license)->with('success', 'Licencia actualizada exitosamente.');
     }
-
     /**
      * Remove the specified resource from storage.
      */

@@ -46,7 +46,7 @@
                                     <td>{{ $worker->name }} {{ $worker->last_name }}</td>
                                     <td>{{ $worker->created_at }}</td>
                                     <td>{{ $worker->getWorkerTypes()[$worker->worker_type] }}</td>
-                                    <td>{{ $worker->updated_at->diffForHumans() }}</td>
+                                    <td>{{ $worker->contract->updated_at->diffForHumans() }}</td>
                                     <!-- Llamada al componente para las acciones -->
                                     <x-worker-action-buttons :worker="$worker" />
                                 </tr>

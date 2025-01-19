@@ -15,13 +15,12 @@ class AbsenceController extends Controller
     {
         $this->authorizeResource(Absence::class, 'absence');
     }
-
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        // Filtrar las ausencias de los trabajadores pertenecientes a la escuela del usuario autenticado
+        // Filter the absences of workers belonging to the authenticated user's school
         $absences = Absence::whereHas('worker', function ($query) {
             $query->where('school_id', auth()->user()->school_id_session);
         })
@@ -30,7 +29,6 @@ class AbsenceController extends Controller
 
         return view('absences.index', compact('absences'));
     }
-
     /**
      * Show the form for creating a new resource.
      */

@@ -5,7 +5,7 @@
         <!-- Page title -->
         <div class="page-header d-print-none">
             <h2 class="page-title">
-                {{ __('Seguro') }}
+                {{ __('Seguro') }} &nbsp;<small class="text-muted">({{ $insuranceName }})</small>
             </h2>
         </div>
     </div>
@@ -30,7 +30,7 @@
                 </div>
                 <span class="mt-4">
                     <a class="mr-4 rounded-2 text-decoration-none"
-                        href="{{ route('insurances.index', ['type' => request()->input('type')]) }}">
+                        href="{{ route('insurances.index', ['insurance_id' => $insurance->id, 'type' => request()->input('type')]) }}">
                         <button class="btn btn-sm btn-info rounded-2">Volver al inicio</button>
                     </a>
                     @can('update', $insurance)

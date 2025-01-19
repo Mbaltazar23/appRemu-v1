@@ -16,7 +16,6 @@
             <div class="card">
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
-
                         <thead>
                             <tr>
                                 <th onclick="sortTable(0)" class="sort-table">Usuario</th>
@@ -35,6 +34,11 @@
                         </tbody>
                     </table>
                 </div>
+                @if ($historys->hasPages())
+                    <div class="card-footer pb-0">
+                        {{ $historys->links() }}
+                    </div>
+                @endif
             </div>
         </div>
     </div>

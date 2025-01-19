@@ -7,7 +7,7 @@
             <h2 class="page-title d-flex justify-content-between">
                 <span>
                     Mantenedor de {{ __('Seguros') }}
-                    <small class="text-muted">({{ App\Models\Insurance::getInsuranceTypes()[$type] }})</small>
+                    <small class="text-muted">({{ $insuranceName }})</small>
                 </span>
                 @can('create', App\Models\Insurance::class)
                     <a class="d-inline ml-5 text-decoration-none" href="{{ route('insurances.create', ['type' => $type]) }}">
@@ -27,86 +27,55 @@
                 <div class="card-body">
                     <!-- Contenedor para el label del select -->
                     <div class="form-group mb-4">
-                        <label for="insurance_id" class="form-label">Selecciona un seguro
-                            ({{ App\Models\Insurance::getInsuranceTypes()[$type] }}):</label>
+                        <label for="insurance_id" class="form-label">Selecciona un seguro ({{ $insuranceName }}):</label>
                     </div>
 
-                    <!-- Contenedor de Select y Botones, con más separación entre ellos -->
-                    <div class="d-flex justify-content-start align-items-center" style="gap: 40px;">
-                        <!-- Formulario con Select para seleccionar seguro -->
-                        <form action="{{ route('insurances.index') }}" method="GET" class="d-flex align-items-center">
-                            <div class="form-group mb-0" style="min-width: 350px;">
-                                <!-- Select con espacio adecuado y alineación -->
-                                <input type="hidden" name="type" value="{{ $type }}" />
-                                <select name="insurance_id" id="insurance_id" class="form-control"
-                                    onchange="this.form.submit()">
-                                    @if ($insurances->isEmpty())
-                                        <option value="0">No hay seguros disponibles</option>
-                                    @else
-                                        @foreach ($insurances as $insurance)
-                                            <option value="{{ $insurance->id }}"
-                                                {{ request('insurance_id') == $insurance->id || (!request('insurance_id') && $loop->first) ? 'selected' : '' }}>
-                                                {{ $insurance->name }}
-                                            </option>
-                                        @endforeach
-                                    @endif
-                                </select>
-                            </div>
-                        </form>
-                        <br>
-                        <!-- Contenedor de los botones CRUD -->
-                        @php
-                            // Si no hay seguros, evitar intentar cargar el primer seguro
-                            $selectedInsuranceId = request('insurance_id') ?: $insurances->first()->id ?? null;
-                            $insurance = $selectedInsuranceId ? \App\Models\Insurance::find($selectedInsuranceId) : '';
-                        @endphp
-
-                        @if ($insurance)
-                            <x-insurance-action-buttons :insurance="$insurance" :type="$type" />
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card para los trabajadores asociados -->
-            <div class="card mt-4 p-4">
-                @if ($workers->isNotEmpty())
-                    <div class="card-header">
-                        <h4 class="mb-2">Selecciona un trabajador</h4>
-                    </div>
-                    <div class="card-body">
-                        <form action="{{ route('insurances.index') }}" method="GET">
-                            <div class="row">
-                                <div class="form-group col-md-6">
-                                    <label for="worker_id" class="form-label mt-2">Trabajadores asociados:</label>
-                                    <!-- Select de trabajadores asociados, el formulario se enviará automáticamente al cambiar de opción -->
-                                    <input type="hidden" name="type" value="{{ $type }}" />
-                                    <select name="worker_id" id="worker_id" class="form-control"
-                                        onchange="this.form.submit()">
-                                        @foreach ($workers as $worker)
-                                            <option value="{{ $worker->id }}"
-                                                {{ (isset($worker_id) && $worker_id == $worker->id) || (!isset($worker_id) && $loop->first) ? 'selected' : '' }}>
-                                                {{ $worker->name }} {{ $worker->last_name }}
+                    <!-- Tabla para alinear select y botones a la misma altura -->
+                    <table class="table-borderless" style="width: 100%; padding-top: 10px;">
+                        <tr>
+                            <!-- Celda del select -->
+                            <td style="width: 40%; vertical-align: middle; padding-right: 20px;">
+                                <!-- Espacio a la derecha -->
+                                <div class="form-group mb-0" style="min-width: 350px;">
+                                    <select class="form-control" onchange="window.location.href=this.value;">
+                                        @foreach ($insurances as $insuranceOption)
+                                            <option
+                                                value="{{ route('insurances.index', ['insurance_id' => $insuranceOption->id, 'type' => $type]) }}"
+                                                {{ $insurance && $insurance->id == $insuranceOption->id ? 'selected' : '' }}>
+                                                {{ $insuranceOption->name }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="form-group col-md-6">
-                                    <strong class="form-label mt-2">Tipo de Trabajador :
-                                        {{ \App\Models\Worker::getWorkerTypes()[$worker->worker_type] }}</strong>
-                                </div>
-                            </div>
-                        </form>
-                        @if ($worker && $insurance)
-                            @include('insurances.partials.workerDetails', [
-                                'worker' => $worker,
-                                'insurance' => $insurance,
-                                'type' => $type,
-                            ])
-                        @endif
+                            </td>
+                            <!-- Celda de los botones -->
+                            <td style="vertical-align: middle;">
+                                &nbsp;&nbsp;&nbsp;
+                                @if ($insurance)
+                                    <x-insurance-action-buttons :insurance="$insurance" :type="$type" />
+                                @endif
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <!-- Card para los trabajadores asociados -->
+            <div class="card mt-4 p-4">
+                @if ($workers->isNotEmpty())
+                    <div class="card-header">
+                        <h4 class="mb-2">&nbsp;&nbsp;Selecciona un trabajador perteneciente al Seguro
+                            <strong>{{ $insurance->name }}</strong>
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Incluir el partial que contiene el select worker dentro de la tabla -->
+                        @include('insurances.partials.workerDetails', [
+                            'workers' => $workers,
+                            'insurance' => $insurance,
+                            'type' => $type,
+                        ])
                     </div>
                 @else
-                    <!-- Mensaje si no hay trabajadores -->
                     <div class="card-header">
                         <div class="alert alert-danger mb-2">
                             No hay trabajadores asociados a este seguro.
@@ -114,9 +83,6 @@
                     </div>
                 @endif
             </div>
-
         </div>
     </div>
 @endsection
-
-@include('commons.sort-table')

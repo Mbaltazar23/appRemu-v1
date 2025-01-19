@@ -9,20 +9,22 @@ class Bonus extends Model
 {
     use HasFactory;
 
+    // Variables that can be mass-assigned to the Bonus model
     protected $fillable = [
-        'title',
-        'tuition_id',
-        'school_id',
-        'worker_id',
-        'taxable',
-        'is_bonus',
-        'application',
-        'type',
-        'factor',
-        'imputable',
+        'title',         // The title of the bonus
+        'tuition_id',    // The unique tuition ID associated with the bonus
+        'school_id',     // The ID of the school the bonus belongs to
+        'worker_id',     // The ID of the worker the bonus applies to
+        'taxable',       // Flag indicating whether the bonus is taxable (0 = No, 1 = Yes)
+        'is_bonus',      // Flag indicating if it is a bonus (1 = Yes, 0 = No)
+        'application',   // Type of application for the bonus
+        'type',          // The type of bonus
+        'factor',        // A factor used for calculating the bonus
+        'imputable',     // Flag indicating if the bonus is imputable (0 = No, 1 = Yes)
     ];
     
-    const APPLICATION_OPTIONS = [
+      // Describes the application types for the bonus
+      const APPLICATION_OPTIONS = [
         'H' => 'Es un monto que se reparte dependiendo de la cantidad de horas contratadas',
         'D' => 'Es un monto fijo que depende de cada trabajador',
         'F' => 'Es un monto que se reparte a cada trabajador por igual',
@@ -31,37 +33,46 @@ class Bonus extends Model
         'I' => 'Es un factor de la renta imponible (solo aplicable a descuentos)',
     ];
 
+    /**
+     * Gets a label for the type of bonus based on the type ID.
+     * 
+     * @param int $type The type ID of the bonus
+     * @return string The label for the bonus type, or 'Desconocido' if the type is not found
+     */
     public static function getTypeLabel($type)
     {
         $types = Operation::getWorkerTypes();
-        return $types[$type] ?? 'Desconocido'; // Devuelve 'Desconocido' si no se encuentra el tipo
+        return $types[$type] ?? 'Desconocido'; // Returns 'Unknown' if the type is not found
     }
-
+      /**
+     * Processes the creation of a new bonus, including tuition and operation creation.
+     * 
+     * @param array $data The data used to create the bonus
+     * @return array Result with success or failure and a message
+     */
     public static function processCreateBonuses($data)
     {
-        // Inicialización
+        // Initialize the amount and factor (defaulting factor to 100%)
         $monto = $data['amount'] ?? 0;
         $factor = ($data['factor'] ?? 100) / 100;
-
-        // Validación de la aplicación
+        
+        // Validates the application type for the bonus
         if ($data['is_bonus'] == 0 && $data['application'] == "I") {
             return [
                 'success' => false,
                 'message' => 'Esta forma de aplicación es solo aplicable a descuentos.',
             ];
-
         } else {
-
-            // Generar y guardar clases usando time
+            // Generate and save classes using "time"
             $nombre = Tuition::createUniqueTuition($data['title'], $data['type'], $data['school_id'], 'time');
             Tuition::addTuition($nombre, $data['title'], 'O', 1, 1, $data['school_id']);
             Tuition::addTuition("APLICA" . $nombre, "Aplicación de " . $data['title'], 'P', 0, 0, $data['school_id']);
-
-            // Generar y guardar clase valor usando "valor"
+            
+            // Generate and save class value using "valor"
             $nombrev = Tuition::createUniqueTuition($data['title'], $data['type'], $data['school_id'], 'valor');
             Tuition::addTuition($nombrev, "Valor " . $data['title'], 'P', 0, 0, $data['school_id']);
-
-            // Crear el bono
+            
+            // Create the bonus entry in the database
             self::createBonus([
                 'title' => $nombre,
                 'tuition_id' => $nombrev,
@@ -73,31 +84,40 @@ class Bonus extends Model
                 'factor' => $factor,
                 'imputable' => $data['imputable'],
             ]);
-
+            
+            // Generate the operation related to the bonus
             $operation = Operation::generateOperation($data, $nombre, $nombrev, $factor);
-
-            // Crear la cadena de meses
+            
+            // Create the months string (for each month in a year)
             $meses = '';
             for ($i = 1; $i <= 12; $i++) {
                 $meses .= isset($data['months']) && in_array($i, $data['months']) ? '1' : '0';
             }
-            // Modificar la operación en el lugar correspondiente
-            Operation::processOperation($nombre, $data, $operation, $meses, '+', 1); // Cambia el operador según lo necesites
-            // Crear parámetro si aplica
+            
+            // Process the operation
+            Operation::processOperation($nombre, $data, $operation, $meses, '+', 1); // Change the operator as needed
+            
+            // Create a parameter for the bonus if the application type is not "D"
             if ($data['application'] != "D") {
                 self::createParameter($nombrev, $data['school_id'], $monto, $data['title']);
             }
+            
             return [
                 'success' => true,
                 'message' => 'Bono creado correctamente.',
             ];
         }
-
     }
 
+    /**
+     * Deletes an old bonus operation by removing the associated operations and tuition entries.
+     * 
+     * @param int $id The ID of the bonus to delete
+     * @param int $schoolId The school ID associated with the bonus
+     */
     public static function deleteOldFunction($id, $schoolId)
     {
-        $bonus = Bonus::find($id); // Asegúrate de que 'bonus_id' está en $data
+        $bonus = Bonus::find($id); // Find the bonus by its ID
 
         if ($bonus) {
             $isBonus = $bonus->is_bonus;
@@ -106,7 +126,7 @@ class Bonus extends Model
             $imputable = $bonus->imputable;
             $name = $bonus->title;
 
-            // Determinar tipo de operación
+            // Determine the type of operation based on bonus properties
             if ($isBonus == 0) {
                 $operator = "+";
                 if ($taxable == 0) {
@@ -122,20 +142,18 @@ class Bonus extends Model
                 $operator = "+";
                 $operationType = "DESCUENTOSVOLUNTARIOS";
             }
-
-            // Si no es un bono especial (tipo 3)
+            
+            // Handle operations based on bonus type
             if ($type != 3) {
                 if (($type == 2) && ($operationType == "IMPONIBLEEIMPUTABLE")) {
                     $operationType = "RENTAIMPONIBLESD";
                 }
-
                 $originalOperation = Operation::getOperationFunction($operationType, $type, $schoolId);
                 $originalOperation = str_replace(" $operator $name", '', $originalOperation);
                 $newOperation = $originalOperation . " " . $operator . " " . $name;
                 Operation::updateOperationFunction($operationType, $type, $newOperation, $schoolId);
-
             } else {
-                // Para docentes (tipo 1)
+                // Handle operations for teachers (type 1)
                 $originalOperation = Operation::getOperationFunction($operationType, 1, $schoolId);
                 if (strpos($originalOperation, $name) == 0) {
                     $originalOperation = str_replace($name . " + ", "", $originalOperation);
@@ -144,12 +162,11 @@ class Bonus extends Model
                 }
                 $newOperation = $originalOperation . " " . $operator . " " . $name;
                 Operation::updateOperationFunction($operationType, 1, $newOperation, $schoolId);
-
-                // Para no docentes (tipo 2)
+                
+                // Handle operations for non-teachers (type 2)
                 if ($operationType == "IMPONIBLEEIMPUTABLE") {
                     $operationType = "RENTAIMPONIBLESD";
                 }
-
                 $originalOperation = Operation::getOperationFunction($operationType, 2, $schoolId);
                 $originalOperation = str_replace(" $operator $name", '', $originalOperation);
                 $newOperation = $originalOperation . " " . $operator . " " . $name;
@@ -157,12 +174,20 @@ class Bonus extends Model
             }
         }
     }
+
+    /**
+     * Processes the update of an existing bonus.
+     * 
+     * @param array $data The updated data for the bonus
+     * @param int $id The ID of the bonus to update
+     * @return array Result with success or failure and a message
+     */
     public static function processUpdateBonuses($data, $id)
     {
-        $monto = $data['amount'] ?? 0; // O un valor que tenga sentido en tu contexto
+        $monto = $data['amount'] ?? 0; // Amount associated with the bonus
         $factor = ($data['factor'] ?? 100) / 100;
 
-        // Validación de la aplicación
+        // Validate the application type for the bonus
         if ($data['is_bonus'] == 0 && $data['application'] == "I") {
             return [
                 'success' => false,
@@ -171,28 +196,28 @@ class Bonus extends Model
         } else {
             $name = $data['title'];
             $type = $data['type'];
-
-            // Obtener el objeto Bonus por su ID
-            $bonus = Bonus::find($id); // Asegúrate de que 'bonus_id' está en $data
+            // Retrieve the bonus object by its ID
+            $bonus = Bonus::find($id); // Make sure 'bonus_id' is in $data
             $namev = $bonus['tuition_id'];
 
             if ($bonus) {
-                $nameValue = $bonus->title; // Acceder a tuition_id desde el objeto Bonus
+                $nameValue = $bonus->title; // Access tuition_id from the Bonus object
 
                 Tuition::updateTitleTuition($nameValue, $name, $data['school_id']);
                 Parameter::updateParamValue($bonus['tuition_id'], $data['school_id'], $monto);
                 self::deleteOldFunction($id, $data['school_id']);
 
-                // Adding operation
+                // Generate the operation
                 $operation = Operation::generateOperation($data, $nameValue, $namev, $factor);
 
-                // Crear la cadena de meses
+                // Create the months string
                 $meses = '';
                 for ($i = 1; $i <= 12; $i++) {
                     $meses .= isset($data['months']) && in_array($i, $data['months']) ? '1' : '0';
                 }
 
-                Operation::processOperation($nameValue, $data, $operation, $meses, '+', ""); // Cambia el operador según lo necesites
+                // Process the operation
+                Operation::processOperation($nameValue, $data, $operation, $meses, '+', ""); // Change the operator as needed
 
                 if ($type != 3) {
                     Operation::deleteOperation($nameValue, $type, $data['school_id']);
@@ -215,6 +240,12 @@ class Bonus extends Model
         ];
     }
 
+    /**
+     * Deletes a bonus based on the provided data.
+     * 
+     * @param request $data The data associated with the bonus to delete
+     * @return array Result with success or failure and a message
+     */
     public static function deleteProcessBonus($data)
     {
         if ($data) {
@@ -230,7 +261,6 @@ class Bonus extends Model
                 Operation::deleteOperation($tuitionId, 2, $data['school_id']);
             } else {
                 Operation::deleteOperation($tuitionId, $type, $data['school_id']);
-
             }
 
             Operation::processDeleteOperation($tuitionId, $data, "+", $data->school->operations->first()->value('application'));
@@ -238,16 +268,14 @@ class Bonus extends Model
             Parameter::deleteParamAll($tuitionId, $data['school_id']);
             Parameter::deleteParamAll("APLICA" . $title, $data['school_id']);
 
-            //Recorrer posiciones
+            // Iterate through positions to adjust templates
             $positions = Template::listTuitionPositionsInTemplate($data['school_id'], $type, $title);
 
             if ($positions->isNotEmpty()) {
                 foreach ($positions as $position) {
-                    // Elimina la línea de la plantilla
+                    // Remove the line from the template
                     Template::deleteTemplateLine($data['school_id'], $type, $position->position);
-                    // Establece la posición inicial para mover hacia arriba
                     $p = $position->position + 1;
-                    // Mueve posiciones hacia arriba mientras existan
                     while (Template::positionExists($data['school_id'], $type, $p) && $p >= $position->position) {
                         Template::movePositionUp($data['school_id'], $type, $p);
                         $p++;
@@ -263,6 +291,15 @@ class Bonus extends Model
         ];
     }
 
+
+   /**
+     * Creates a parameter associated with a bonus.
+     * 
+     * @param string $nombrev The unique tuition ID for the bonus
+     * @param int $school_id The school ID associated with the parameter
+     * @param float $monto The value of the parameter
+     * @param string $title The title of the bonus
+     */
     public static function createParameter($nombrev, $school_id, $monto, $title)
     {
         (new Parameter())->createParameter([
@@ -273,15 +310,29 @@ class Bonus extends Model
         ]);
     }
 
+    /**
+     * Creates a new bonus.
+     * 
+     * @param array $data The data to create the bonus
+     * @return Bonus The created bonus object
+     */
     public static function createBonus(array $data)
     {
         return self::create($data);
     }
 
+    /**
+     * Updates an existing bonus.
+     * 
+     * @param array $data The updated data for the bonus
+     * @param string $tuitionId The tuition ID associated with the bonus
+     * @param float $factor The updated factor for the bonus
+     * @return Bonus|null The updated bonus object or null if not found
+     */
     public static function updateBonus(array $data, $tuitionId, $factor)
     {
-        // Obtener el objeto Bonus por su tuition_id
-        $bonus = self::where('tuition_id', $tuitionId)->first(); // Busca el primer bonus que coincida con el tuition_id
+        // Retrieve the bonus by its tuition ID
+        $bonus = self::where('tuition_id', $tuitionId)->first();
         if ($bonus) {
             $bonus->update([
                 'school_id' => $data['school_id'],
@@ -292,11 +343,18 @@ class Bonus extends Model
                 'factor' => $factor,
                 'imputable' => $data['imputable'],
             ]);
-            return $bonus; // Retorna el objeto actualizado si es necesario
+            return $bonus;
         }
-        return null; // Devuelve null si no se encuentra el bonus
+        return null; // Return null if no bonus is found
     }
-
+    /**
+     * Deletes a bonus based on the provided title, school ID, and type.
+     * 
+     * @param string $title The title of the bonus
+     * @param int $school_id The school ID associated with the bonus
+     * @param int $type The type of bonus
+     * @return int The number of rows affected by the delete operation
+     */
     public static function deleteBonus($title, $school_id, $type)
     {
         return self::where('title', $title)
@@ -304,27 +362,58 @@ class Bonus extends Model
             ->where('type', $type)
             ->delete();
     }
-
+    /**
+     * Retrieves all bonuses of a specific type and application for a given school.
+     * 
+     * This method is useful for fetching bonuses that match a specific type and application,
+     * where the type can either be the provided `type` or 3 (a wildcard type, which can be interpreted
+     * as a special case).
+     *
+     * @param int $schoolId The ID of the school to fetch bonuses for
+     * @param int $type The type of the bonus (e.g., 1 for regular bonuses, 2 for special bonuses)
+     * @param string $application The application type (e.g., "H" for hourly-based, "D" for fixed amount)
+     * @return \Illuminate\Database\Eloquent\Collection A collection of Bonus objects matching the criteria
+     */
     public static function getBonusesByTypeAndApplication($schoolId, $type, $application)
     {
+        // Fetch bonuses based on the given school ID, type, and application type
         return self::where('school_id', $schoolId)
             ->where(function ($query) use ($type) {
+                // The type can be the specified type or type 3 (which might represent a special case)
                 $query->where('type', $type)
                     ->orWhere('type', 3);
             })
-            ->where('application', $application)
-            ->get(['title', 'tuition_id']);
+            ->where('application', $application) // Filter by application type (e.g., hourly, fixed)
+            ->get(['title', 'tuition_id']); // Return only the title and tuition_id fields
     }
-
-    // Relación: Un Bonus pertenece a una School
+    /**
+     * Relationship: A Bonus belongs to a School.
+     * 
+     * This method defines the relationship between the Bonus model and the School model.
+     * It indicates that each bonus is associated with one school, and we can access that school
+     * using the `school()` method.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The relationship between Bonus and School
+     */
     public function school()
     {
+        // Define the "belongsTo" relationship between Bonus and School
         return $this->belongsTo(School::class);
     }
 
-    // Relación: Un Bonus pertenece a un Worker
+    /**
+     * Relationship: A Bonus belongs to a Worker.
+     * 
+     * This method defines the relationship between the Bonus model and the Worker model.
+     * It indicates that each bonus is associated with a specific worker, and we can access that worker
+     * using the `worker()` method.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The relationship between Bonus and Worker
+     */
     public function worker()
     {
+        // Define the "belongsTo" relationship between Bonus and Worker
         return $this->belongsTo(Worker::class);
     }
+
 }

@@ -36,7 +36,7 @@ class SchoolController extends Controller
         $school = new School();
         $sustainers = Sustainer::all();
 
-        // Cargar las opciones directamente desde el controlador
+        // Load options directly from the controller
         $dependencyOptions = School::DEPENDENCY_OPTIONS;
         $granttOptions = School::GRANTT_OPTIONS;
 
@@ -68,7 +68,7 @@ class SchoolController extends Controller
     {
         $sustainers = Sustainer::all();
 
-        // Cargar las opciones directamente desde el controlador
+        // Load options directly from the controller
         $dependencyOptions = School::DEPENDENCY_OPTIONS;
         $granttOptions = School::GRANTT_OPTIONS;
 

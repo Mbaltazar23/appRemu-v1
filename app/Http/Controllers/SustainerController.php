@@ -22,7 +22,7 @@ class SustainerController extends Controller
     {
         $sustainers = Sustainer::query()
             ->orderBy('id', 'ASC')
-            ->paginate(5); // Puedes aplicar paginación si es necesario
+            ->paginate(5); 
 
         return view('sustainers.index', compact('sustainers'));
     }

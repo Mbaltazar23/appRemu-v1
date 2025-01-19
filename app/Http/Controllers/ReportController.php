@@ -18,8 +18,14 @@ class ReportController extends Controller
      */
     public function index()
     {
-        $typeInsurances = Insurance::getInsuranceTypes();
-        return view('reports.index', compact('typeInsurances'));
+        $typeInsurances = Report::getInsuranceTypesWithPermission();
+          // Filter the insurance types based on the user's permissions
+          $user = auth()->user();
+          $accessibleInsurances = $typeInsurances->filter(function ($type) use ($user) {
+              // Check if the user has permission for this insurance type
+              return in_array($type['permission'], $user->role->permissions);
+          });
+        return view('reports.index', compact('accessibleInsurances'));
     }
 
     public function typeInsurance($typeInsurance)

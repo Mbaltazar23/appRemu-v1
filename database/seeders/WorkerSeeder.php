@@ -39,7 +39,7 @@ class WorkerSeeder extends Seeder
                 $worker->save();
                 // Generar el arreglo de horas de trabajo según el tipo de trabajador
                 $loadHourlyWork = [];
-                $hourlyLoad = rand(20, 45); // Carga horaria aleatoria entre 20 y 40 horas
+                $hourlyLoad = rand(20, 45); // Carga horaria aleatoria entre 20 y 45 horas
                 // Si el trabajador es docente, asignamos horas aleatorias para cada día
                 if ($hourlyLoad === 40 || $hourlyLoad === 35) {
                     // Repartir 40 o 35 horas entre lunes a viernes
@@ -86,10 +86,14 @@ class WorkerSeeder extends Seeder
                         'remuneration_gloss' => $this->convertNumberToWords($totalRemuneration),
                         'origin_city' => $faker->city,
                         'schedule' => array_rand(Contract::SCHEDULE_OPTIONS),
+                        'teaching_hours' => $worker->worker_type === Worker::WORKER_TYPE_TEACHER ? $hourlyLoad : '',
+                        'curricular_hours' => $worker->worker_type === Worker::WORKER_TYPE_NON_TEACHER ? $hourlyLoad : '',
                     ];
                     // Solo si el worker_type es 1 (Docente), agregamos 'levels' al detalle
                     if ($worker->worker_type === Worker::WORKER_TYPE_TEACHER) {
                         $details['levels'] = array_rand(Contract::LEVELS_OPTIONS);
+                    }else{
+                        $details['levels'] = '';
                     }
                     // Actualizamos los detalles del contrato
                     $contract->update(['details' => json_encode($details)]);
@@ -100,7 +104,7 @@ class WorkerSeeder extends Seeder
                     'num_load_family' => rand(1, 5),
                     'hourly_load' => $hourlyLoad, // Usamos el valor calculado de hourly_load
                     'contract_type' => rand(1, 4),
-                    'service_start_year' => now()->year - 1,
+                    'service_start_year' => now()->year,
                     'unemployment_insurance' => true,
                     'retired' => rand(1, 0),
                     'base_salary' => $worker->worker_type === Worker::WORKER_TYPE_NON_TEACHER ?? rand(500000, 1000000),          

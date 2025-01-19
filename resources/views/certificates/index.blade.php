@@ -35,7 +35,7 @@
                                                    
                                                     @can('view', $certificate)
                                                         <!-- Acción para ver los certificados de un año -->
-                                                        <a href="{{ route('certificates.show', $certificate->year) }}"
+                                                        <a href="{{ route('certificates.print', $certificate->year) }}"
                                                             target="_blank"
                                                             onclick="openPopup(event, 'Certificados de Remuneraciones')"
                                                             class="btn btn-info">

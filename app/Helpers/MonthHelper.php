@@ -5,7 +5,7 @@ namespace App\Helpers;
 class MonthHelper
 {
     /**
-     * Convierte un número entero en el nombre del mes correspondiente.
+     * Converts an integer to the name of the corresponding month.
      *
      * @param int $monthNumber
      * @return string

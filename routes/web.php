@@ -5,6 +5,7 @@ use App\Http\Controllers\BonusController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CostCenterController;
 use App\Http\Controllers\FinancialIndicatorController;
+use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LiquidationController;
@@ -16,7 +17,6 @@ use App\Http\Controllers\SustainerController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkerController;
-use App\Models\History;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -63,42 +63,31 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
     Route::resource('payrolls', PayrollController::class);
     Route::resource('certificates', CertificateController::class);
     Route::resource('costcenters', CostCenterController::class);
-    //Route::resource('financial_indicators', FinancialIndicatorController::class);
+    Route::resource('historys', HistoryController::class);
+
     Route::get('profile', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
     Route::put('profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
-
-    Route::get('/historys', function () {
-        // Obtener todos los registros de History
-        $historys = History::all();
-        // Verificar si el usuario tiene permiso para ver el historial
-        if (Auth::check()) {
-            return view('historys.index', compact('historys'));
-        } else {
-            abort(403, 'No autorizado');
-        }
-    })->name('historys.index');
 });
 
 Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(function () {
-
     /** RUTAS PARA WORKER  */
     //Rutas para la creacion del contrato e impresion e trabajadores finiquitados
     Route::get('workers/{worker}/contracts/create', [WorkerController::class, 'createContract'])->name('contracts.create');
     Route::post('workers/{worker}/contracts', [WorkerController::class, 'storeContract'])->name('contracts.store');
     Route::get('workers/{worker}/contracts/print', [WorkerController::class, 'printContract'])->name('contracts.print');
     // Ruta para listar trabajadores finiquitados
-    Route::get('settlement', [WorkerController::class, 'settlements'])->name('settlements.settlement');
+    Route::get('workers/settlement', [WorkerController::class, 'settlements'])->name('settlements.settlement');
     // Ruta para mostrar el formulario de finiquito
     Route::get('workers/{worker}/settle', [WorkerController::class, 'settle'])->name('workers.settle');
     // Ruta para actualizar la fecha de finiquito
     Route::put('workers/{worker}/settle', [WorkerController::class, 'updateSettlementDate'])->name('workers.updateSettle');
     // Ruta para ver y añadir y quitar los anexos a los contratos
-    Route::get('contracts/{worker}/annexes', [WorkerController::class, 'showAnnexes'])->name('contracts.showAnnexes');
-    Route::get('contracts/{worker}/annexes/create', [WorkerController::class, 'createAnnex'])->name('contracts.createAnnex');
-    Route::get('contracts/{worker}/annexes/edit/{annex}', [WorkerController::class, 'editAnnex'])->name('contracts.editAnnex');
-    Route::post('contracts/{worker}/annexes', [WorkerController::class, 'storeAnnex'])->name('contracts.storeAnnex');
-    Route::put('contracts/{worker}/annexes/{annex}', [WorkerController::class, 'updateAnnex'])->name('contracts.updateAnnex');
-    Route::delete('contracts/{worker}/annexes/{annex}', [WorkerController::class, 'deleteAnnex'])->name('contracts.deleteAnnex');
+    Route::get('workers/contracts/{worker}/annexes', [WorkerController::class, 'showAnnexes'])->name('contracts.showAnnexes');
+    Route::get('workers/contracts/{worker}/annexes/create', [WorkerController::class, 'createAnnex'])->name('contracts.createAnnex');
+    Route::get('workers/contracts/{worker}/annexes/edit/{annex}', [WorkerController::class, 'editAnnex'])->name('contracts.editAnnex');
+    Route::post('workers/contracts/{worker}/annexes', [WorkerController::class, 'storeAnnex'])->name('contracts.storeAnnex');
+    Route::put('workers/contracts/{worker}/annexes/{annex}', [WorkerController::class, 'updateAnnex'])->name('contracts.updateAnnex');
+    Route::delete('workers/contracts/{worker}/annexes/{annex}', [WorkerController::class, 'deleteAnnex'])->name('contracts.deleteAnnex');
 
     /** RUTAS PARA INSURANCE  (ASOCIAR WORKER AL INSURANCE)*/
     Route::get('insurances/{insurance}/link-worker', [InsuranceController::class, 'linkWorker'])->name('insurances.link_worker');
@@ -144,4 +133,5 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
 
     /** RUTA PARA VISUALIZAR DOCUMENTOS (CERTIFICADOS) */
     Route::get('certificates/view/{year}', [CertificateController::class, 'view'])->name('certificates.view');
+    Route::get('certificates/print/{year}', [CertificateController::class, 'print'])->name('certificates.print');
 });

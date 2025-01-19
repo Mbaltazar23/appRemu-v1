@@ -11,7 +11,7 @@ class InsuranceFormRequest extends FormRequest
      */
     public function authorize()
     {
-        return true; // Cambia esto según tu lógica de autorización
+        return true;
     }
 
     /**
@@ -20,10 +20,10 @@ class InsuranceFormRequest extends FormRequest
     public function rules()
     {
         return [
-            'rut' => 'required|string|max:12', // Ajusta según el formato de RUT que uses
+            'rut' => 'required|string|max:12', // Adjust according to the RUT format you use
             'name' => 'required|string|max:255|unique:insurances,name,',
-            'type' => 'required|integer|in:1,2', // 1 para AFP, 2 para Isapre
-            'cotizacion' => 'required|regex:/^\d+([.,]\d+)?$/', // Permitir números con decimales
+            'type' => 'required|integer|in:1,2', // 1 for AFP, 2 for Isapre
+            'cotizacion' => 'required|regex:/^\d+([.,]\d+)?$/', // Allow numbers with decimals
         ];
     }
 

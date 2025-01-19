@@ -11,7 +11,8 @@
             font-family: Arial, sans-serif;
             margin: 20px;
             background-color: #f9f9f9;
-            font-size: 14px; /* Ajusta el tamaño de la fuente global */
+            font-size: 14px;
+            /* Ajusta el tamaño de la fuente global */
         }
 
         h1 {
@@ -25,16 +26,19 @@
             border-collapse: collapse;
             margin-bottom: 20px;
             page-break-before: always;
-            table-layout: fixed; /* Hace que las celdas se ajusten mejor */
+            table-layout: fixed;
+            /* Hace que las celdas se ajusten mejor */
         }
 
         th,
         td {
-            padding: 10px; /* Aumenta el padding para mejorar la legibilidad */
+            padding: 10px;
+            /* Aumenta el padding para mejorar la legibilidad */
             text-align: left;
             border: 1px solid #ddd;
             word-wrap: break-word;
-            font-size: 14px; /* Aumenta el tamaño de fuente de la tabla */
+            font-size: 14px;
+            /* Aumenta el tamaño de fuente de la tabla */
         }
 
         /* Estilos para las celdas de la tabla */
@@ -100,7 +104,8 @@
                 background-color: white;
                 margin: 0;
                 padding: 0;
-                font-size: 12px; /* Ajustar la fuente para impresión */
+                font-size: 12px;
+                /* Ajustar la fuente para impresión */
             }
 
             table {
@@ -111,7 +116,8 @@
             th,
             td {
                 page-break-inside: avoid;
-                font-size: 12px; /* Reducir el tamaño de la fuente solo en impresión */
+                font-size: 12px;
+                /* Reducir el tamaño de la fuente solo en impresión */
             }
 
             .footer {
@@ -217,8 +223,8 @@
                             @else
                                 <td>{{ $row['health_fund'] }}</td>
                                 <td>{{ $row['additional_health'] }}</td>
+                                <td>{{ $row['voluntary_contribution'] }}</td>
                                 <td>{{ $row['total_contribution'] }}</td>
-                                <td>{{ $row['total_payment'] }}</td>
                             @endif
                         </tr>
                     @endforeach
@@ -235,7 +241,7 @@
                         @else
                             <td>{{ number_format($totals['total_health_fund'], 0, 0, ',') }}</td>
                             <td>{{ number_format($totals['total_additional_health'], 0, 0, ',') }}</td>
-                            <td>{{ number_format($totals['total_contribution'], 0, 0, ',') }}</td>
+                            <td>{{ number_format($totals['total_voluntary_contribution'], 0, 0, ',') }}</td>
                             <td>{{ number_format($totals['total_payment'], 0, 0, ',') }}</td>
                         @endif
                     </tr>

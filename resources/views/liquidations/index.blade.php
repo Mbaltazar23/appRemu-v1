@@ -10,7 +10,7 @@
             <div class="card-body">
                 <div class="form-group mb-4">
                     <label for="worker_type" class="form-label">Seleccione el tipo de trabajador</label>
-                    <select id="worker_type" class="form-control">
+                    <select id="worker_type" class="form-control" onchange="window.location.href=this.value;" required>
                         <option value="">Seleccionar tipo de trabajador</option>
                         @foreach ($workerTypes as $key => $type)
                             <option value="{{ route('liquidations.selectWorker', $key) }}">{{ $type }}</option>
@@ -21,10 +21,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.getElementById('worker_type').addEventListener('change', function() {
-        window.location.href = this.value;  // Redirige a la ruta seleccionada
-    });
-</script>
 @endsection

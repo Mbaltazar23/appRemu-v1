@@ -26,7 +26,7 @@ class WorkerController extends Controller
     {
         $schoolId = auth()->user()->school_id_session;
 
-        $workers = Worker::query()
+        $workers = Worker::query()->with('contract')
             ->where('school_id', $schoolId) // Filtrar por school_id
             ->orderBy('id', 'DESC')
             ->paginate(5); // Paginación
@@ -137,6 +137,8 @@ class WorkerController extends Controller
             'remuneration_gloss' => $request->remuneration_gloss,
             'origin_city' => $request->origin_city,
             'schedule' => $request->schedule,
+            'teaching_hours' => $request->teaching_hours,
+            'curricular_hours' => $request->curricular_hours
         ];
         // Actualizar o crear el contrato con los detalles
         $contract->details = json_encode($details);

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\View\Components;
 
 use Illuminate\View\Component;
@@ -7,24 +8,15 @@ class WorkerActionButtons extends Component
 {
     public $worker;
 
-    /**
-     * Crear una nueva instancia del componente.
-     *
-     * @param  \App\Models\Worker  $worker
-     * @return void
-     */
     public function __construct($worker)
     {
         $this->worker = $worker;
     }
 
-    /**
-     * Obtener las acciones disponibles para el trabajador.
-     *
-     * @return array
-     */
     public function actions()
     {
+        $hasContract = $this->worker->contract && $this->worker->contract->details;
+
         return [
             'view' => [
                 'permission' => 'view',
@@ -46,15 +38,14 @@ class WorkerActionButtons extends Component
                 'icon' => 'bx bxs-printer',
                 'title' => 'Imprimir Contrato',
                 'class' => 'info',
-                'condition' => $this->worker->contract && $this->worker->contract->details
+                'disabled' => !$hasContract,
             ],
             'createContract' => [
                 'permission' => 'viewContract',
                 'route' => route('contracts.create', $this->worker),
-                'icon' => 'bx bx-book-content',
-                'title' => 'Crear Contrato',
-                'class' => 'warning',
-                'condition' => !$this->worker->contract || !$this->worker->contract->details
+                'icon' => $hasContract ? 'bx bx-edit-alt' : 'bx bx-book-content', // Cambiar ícono
+                'title' => $hasContract ? 'Actualizar Contrato' : 'Crear Contrato', // Cambiar título
+                'class' => $hasContract ?  'warning': 'purple', // Cambiar color
             ],
             'viewAnnexes' => [
                 'permission' => 'viewContract',
@@ -62,7 +53,7 @@ class WorkerActionButtons extends Component
                 'icon' => 'bx bx-link',
                 'title' => 'Ver Anexos de Contrato',
                 'class' => 'secondary',
-                'condition' => true // Se muestra siempre, se deshabilita si no hay detalles
+                'disabled' => !$hasContract,
             ],
             'settle' => [
                 'permission' => 'settlement',
@@ -82,11 +73,6 @@ class WorkerActionButtons extends Component
         ];
     }
 
-    /**
-     * Renderiza la vista del componente.
-     *
-     * @return \Illuminate\View\View
-     */
     public function render()
     {
         return view('components.worker-action-buttons', [

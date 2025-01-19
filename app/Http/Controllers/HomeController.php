@@ -16,7 +16,6 @@ class HomeController extends Controller
     {
         $this->middleware('auth');
     }
-
     /**
      * Show the application dashboard.
      *
@@ -26,23 +25,27 @@ class HomeController extends Controller
     {
         return view('home');
     }
-
+    /**
+     * Set the school session for the authenticated user.
+     *
+     * This method validates the provided school ID, ensuring it exists in the database.
+     * It then updates the authenticated user's session with the selected school ID.
+     * Finally, it redirects the user to the home page with a success message indicating 
+     * that the school was successfully selected.
+     */
     public function setSchoolSession(Request $request)
     {
-        // Validar que el colegio exista
+        // Validate that the school exists
         $request->validate([
             'school_id' => 'required|exists:schools,id',
         ]);
-
-        //Obtener al usuario por su id logueado
+        // Get the user by their logged in id
         $authUser = User::find(auth()->user()->id);
-
-        // Guardar el ID del colegio en la sesión del usuario
+        // Save the school ID in the user session
         $authUser->update([
             'school_id_session' => $request->school_id,
         ]);
-
-        // Redirigir al home con un mensaje de éxito
+        // Redirect to home with a success message
         return redirect()->route('home')->with('success', __('Colegio seleccionado Exitosamente !!'));
     }
 }

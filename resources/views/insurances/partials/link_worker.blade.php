@@ -7,7 +7,7 @@
             <h2 class="page-title d-flex justify-content-between">
                 Trabajadores a Asociar al Seguro ({{ $insurance->name }})
                 <div>
-                    <a class="d-inline ml-2 text-decoration-none" href="{{ route('insurances.index', ['type' => request()->input('type')]) }}">
+                    <a class="d-inline ml-2 text-decoration-none" href="{{ route('insurances.index', ['insurance_id' => $insurance->id, 'type' => request()->input('type')]) }}">
                         <button class="btn btn-secondary rounded-3 px-3 py-1">
                             Regresar al inicio
                         </button>

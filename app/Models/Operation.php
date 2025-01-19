@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -8,8 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Operation extends Model
 {
     use HasFactory;
-
-    // Atributos que pueden ser asignados masivamente
+    // Attributes that can be mass-assigned
     protected $fillable = [
         'tuition_id',
         'school_id',
@@ -21,20 +19,32 @@ class Operation extends Model
         'max_value',
         'application',
     ];
-
-    const WORKER_TYPE_TEACHER = 1;
+    // Constants for worker types
+    const WORKER_TYPE_TEACHER     = 1;
     const WORKER_TYPE_NON_TEACHER = 2;
-    const WORKER_TYPE_ALL = 3;
-
+    const WORKER_TYPE_ALL         = 3;
+    /**
+     * Get the possible worker types.
+     *
+     * @return array
+     */
     public static function getWorkerTypes()
     {
         return [
-            self::WORKER_TYPE_TEACHER => 'Docente',
+            self::WORKER_TYPE_TEACHER     => 'Docente',
             self::WORKER_TYPE_NON_TEACHER => 'No Docente',
-            self::WORKER_TYPE_ALL => "Todos",
+            self::WORKER_TYPE_ALL         => "Todos",
         ];
     }
-
+    /**
+     * Generate an operation formula based on the provided application type.
+     *
+     * @param array $data
+     * @param string $nombre
+     * @param string $nombrev
+     * @param float $factor
+     * @return string
+     */
     public static function generateOperation($data, $nombre, $nombrev, $factor)
     {
         switch ($data['application']) {
@@ -54,21 +64,36 @@ class Operation extends Model
                 return "{$factor} * RENTAIMPONIBLESD * APLICA{$nombre}";
         }
     }
-
+    /**
+     * Add a new operation to the database.
+     *
+     * @param int $tuitionId
+     * @param int $workerType
+     * @param string $operation
+     * @param string $application
+     * @param int $school_id
+     */
     public static function addOperation($tuitionId, $workerType, $operation, $application, $school_id)
     {
         self::create([
-            'tuition_id' => $tuitionId,
-            'school_id' => $school_id,
+            'tuition_id'  => $tuitionId,
+            'school_id'   => $school_id,
             'worker_type' => $workerType,
-            'operation' => $operation,
-            'min_limit' => 0,
-            'max_limit' => 0,
-            'max_value' => 0,
+            'operation'   => $operation,
+            'min_limit'   => 0,
+            'max_limit'   => 0,
+            'max_value'   => 0,
             'application' => $application,
         ]);
     }
-
+    /**
+     * Retrieve the operation function for a specific tuition, worker type, and school.
+     *
+     * @param int $tuitionId
+     * @param int $workerType
+     * @param int $schoolId
+     * @return string
+     */
     public static function getOperationFunction($tuitionId, $workerType, $schoolId)
     {
         return self::where('tuition_id', $tuitionId)
@@ -76,10 +101,17 @@ class Operation extends Model
             ->where('school_id', $schoolId)
             ->value('operation');
     }
-
+    /**
+     * Update the operation function for a specific tuition, worker type, and school.
+     *
+     * @param int $tuitionId
+     * @param int $workerType
+     * @param string $function
+     * @param int $schoolId
+     * @return int
+     */
     public static function updateOperationFunction($tuitionId, $workerType, $function, $schoolId)
     {
-        // Realizar el update directamente usando where
         return self::where([
             ['tuition_id', '=', $tuitionId],
             ['worker_type', '=', $workerType],
@@ -89,35 +121,37 @@ class Operation extends Model
                 'operation' => $function,
             ]);
     }
-
+    /**
+     * Get the class name for the operation based on various conditions.
+     *
+     * @param array $data
+     * @return string
+     */
     public static function getOperasobreClase($data)
     {
-        // Verificar si es un bono
         if ($data['is_bonus'] == 0) {
-            // Verificar si es imponible
             if ($data['taxable'] == 0) {
-                // Verificar si es imputable
                 if ($data['imputable'] == 0) {
                     $operasobreclase = "IMPONIBLEEIMPUTABLE";
                 } else {
-                    // Verificar el tipo para decidir el nombre de la clase
-                    if ($data['type'] == 1) {
-                        $operasobreclase = "IMPONIBLEYNOIMPUTABLE";
-                    } else {
-                        $operasobreclase = "RENTAIMPONIBLESD";
-                    }
+                    $operasobreclase = $data['type'] == 1 ? "IMPONIBLEYNOIMPUTABLE" : "RENTAIMPONIBLESD";
                 }
             } else {
                 $operasobreclase = "TOTALNOIMPONIBLE";
             }
         } else {
-            // Si no es bono
             $operasobreclase = "DESCUENTOSVOLUNTARIOS";
         }
-        // Retornar el resultado final
         return $operasobreclase;
     }
-
+    /**
+     * Delete an operation for a specific tuition, worker type, and school.
+     *
+     * @param int $tuitionId
+     * @param int $workerType
+     * @param int $schoolId
+     * @return int
+     */
     public static function deleteOperation($tuitionId, $workerType, $schoolId)
     {
         return self::where('tuition_id', $tuitionId)
@@ -125,16 +159,24 @@ class Operation extends Model
             ->where('school_id', $schoolId)
             ->delete();
     }
-
+    /**
+     * Process the operation based on the provided data, applying modifications as needed.
+     *
+     * @param string $nombre
+     * @param array $data
+     * @param string $operation
+     * @param string $meses
+     * @param string $operador
+     * @param bool $option
+     */
     public static function processOperation($nombre, $data, $operation, $meses, $operador, $option)
     {
         $operasobreclase = self::getOperasobreClase($data);
 
-        if (($operasobreclase == "RENTAIMPONIBLESD") || ($operasobreclase == "IMPONIBLEEIMPUTABLE") || ($operasobreclase == "IMPONIBLEYNOIMPUTABLE")) {
+        if (in_array($operasobreclase, ["RENTAIMPONIBLESD", "IMPONIBLEEIMPUTABLE", "IMPONIBLEYNOIMPUTABLE"])) {
             $operation .= " * FACTORASIST";
         }
 
-        // Agregar operación
         if ($option) {
             if ($data['type'] != 3) {
                 self::addOperation($nombre, $data['type'], $operation, $meses, $data['school_id']);
@@ -144,73 +186,53 @@ class Operation extends Model
             }
         }
 
-        // Actualizar operaciones originales
-        if ($data['type'] != 3) {
-            if (($data['type'] == 2) && ($operasobreclase == "IMPONIBLEEIMPUTABLE")) {
-                $operasobreclase = "RENTAIMPONIBLESD";
-            }
+        // Update original operations for teachers and non-teachers
+        $operationOriginal = self::getOperationFunction($operasobreclase, $data['type'], $data['school_id']);
+        $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
+        $newOperation      = $operationOriginal . " " . $operador . " " . $nombre;
 
-            $operationOriginal = self::getOperationFunction($operasobreclase, $data['type'], $data['school_id']);
-            $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
-            $newOperation = $operationOriginal . " " . $operador . " " . $nombre;
-            self::updateOperationFunction($operasobreclase, $data['type'], $newOperation, $data['school_id']);
-        } else {
-            // Para docentes
-            $operationOriginal = self::getOperationFunction($operasobreclase, 1, $data['school_id']);
-            $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
-            $newOperation = $operationOriginal . " " . $operador . " " . $nombre;
-
-            self::updateOperationFunction($operasobreclase, 1, $newOperation, $data['school_id']);
-
-            // Para no docentes
-            if ($operasobreclase == "IMPONIBLEEIMPUTABLE") {
-                $operasobreclase = "RENTAIMPONIBLESD";
-            }
-
-            $operationOriginal = self::getOperationFunction($operasobreclase, 2, $data['school_id']);
-            // Solo eliminamos el operador y nombre si la operación original no está vacía
-            $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
-            // Comprobar si la operación original no está vacía antes de añadir el operador
-            $newOperation = $operationOriginal . " " . $operador . " " . $nombre;
-
-            self::updateOperationFunction($operasobreclase, 2, $newOperation, $data['school_id']);
+        if ($data['type'] == 2 && $operasobreclase == "IMPONIBLEEIMPUTABLE") {
+            $operasobreclase = "RENTAIMPONIBLESD";
         }
 
+        self::updateOperationFunction($operasobreclase, $data['type'], $newOperation, $data['school_id']);
     }
-
+    /**
+     * Process and delete an operation based on the provided data.
+     *
+     * @param string $nombre
+     * @param array $data
+     * @param string $operador
+     * @param string $meses
+     */
     public static function processDeleteOperation($nombre, $data, $operador, $meses)
     {
-        $operasobreclase = self::getOperasobreClase($data);
+        $operasobreclase   = self::getOperasobreClase($data);
+        $operationOriginal = self::getOperationFunction($operasobreclase, $data['type'], $data['school_id']);
+        $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
+        $newOperation      = $operationOriginal . " " . $operador . " " . $nombre;
 
         if ($data['type'] != 3) {
-            $operationOriginal = self::getOperationFunction($operasobreclase, $data['type'], $data['school_id']);
-            $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
-            $newOperation = $operationOriginal . " " . $operador . " " . $nombre;
             if (($data['type'] == 2) && ($operasobreclase == "IMPONIBLEEIMPUTABLE")) {
                 $operasobreclase = "RENTAIMPONIBLESD";
             }
             self::updateOperationFunction($operasobreclase, $data['type'], $newOperation, $data['school_id'], $meses);
         } else {
-            // Para docentes
-            $operationOriginal = self::getOperationFunction($operasobreclase, 1, $data['school_id']);
-            $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
-            $newOperation = $operationOriginal . " " . $operador . " " . $nombre;
-
             self::updateOperationFunction($operasobreclase, 1, $newOperation, $data['school_id']);
-
-            // Para no docentes
             if ($operasobreclase == "IMPONIBLEEIMPUTABLE") {
                 $operasobreclase = "RENTAIMPONIBLESD";
             }
-
-            $operationOriginal = self::getOperationFunction($operasobreclase, 2, $data['school_id']);
-            $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
-            $newOperation = $operationOriginal . " " . $operador . " " . $nombre;
-
             self::updateOperationFunction($operasobreclase, 2, $newOperation, $data['school_id']);
         }
     }
-
+    /**
+     * Get the application type for a given class, worker type, and school.
+     *
+     * @param int $idclase
+     * @param int $tipotrabajador
+     * @param int $idcolegio
+     * @return string
+     */
     public static function getMounthOperations($idclase, $tipotrabajador, $idcolegio)
     {
         return self::where('tuition_id', $idclase)
@@ -219,47 +241,57 @@ class Operation extends Model
             ->value('application');
     }
 
-    // Método para obtener el límite mínimo del impuesto a la renta
+    // Method to get the minimum tax limit for a tuition
     public static function getMinLimit($tuitionId)
     {
         return self::where('tuition_id', $tuitionId)->value('min_limit');
     }
 
-    // Método para obtener el límite máximo del impuesto a la renta
+    // Method to get the maximum tax limit for a tuition
     public static function getMaxLimit($tuitionId)
     {
         return self::where('tuition_id', $tuitionId)->value('max_limit');
     }
 
-    // Método para obtener el valor del impuesto a la renta
+    // Method to get the tax value for a tuition
     public static function getTaxValue($tuitionId)
     {
         return self::where('tuition_id', $tuitionId)->pluck('max_value')->first();
     }
-    // Metodo para actualizar los topes de las operaciones
+
+    // Method to update or insert operation limits for given tuition IDs
     public static function updOrInsertTopesOperation($tuitionId, $min, $max)
     {
         $operations = self::whereIn('tuition_id', $tuitionId)->get();
 
         foreach ($operations as $operation) {
-            // Actualiza los registros encontrados
             $operation->update([
-                'min_limit' => $min,
-                'max_limit' => $max,
+                'min_limit'  => $min,
+                'max_limit'  => $max,
                 'updated_at' => now(),
             ]);
         }
     }
-    // Relación: Una Operation pertenece a una Tuition
+    /**
+     * Define the relationship with the Tuition model.
+     *
+     * A Operations belongs to a Tuition.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function tuition()
     {
         return $this->belongsTo(Tuition::class);
     }
-
-    // Relación: Una Operation pertenece a una School
+    /**
+     * Define the relationship with the School model.
+     *
+     * A Operation belongs to a School.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function school()
     {
         return $this->belongsTo(School::class);
     }
-
 }

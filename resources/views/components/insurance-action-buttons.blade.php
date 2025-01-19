@@ -1,4 +1,4 @@
-<div class="btn-group ml-3" role="group" aria-label="Acciones sobre seguro">
+<div class="btn-group ml-5" role="group" aria-label="Acciones sobre seguro">
     @foreach ($actions as $action)
         @can($action['permission'], $insurance)
             <!-- Si el permiso es válido, generamos el botón -->
@@ -21,7 +21,7 @@
             @endif
             <!-- Espaciado entre los botones -->
             @if (!$loop->last)
-                &nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;
             @endif
         @endcan
     @endforeach

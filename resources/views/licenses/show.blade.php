@@ -28,7 +28,7 @@
                                 <td>{{ $license->days }}</td>
                             </tr>
 
-                            <!-- Muestra otros campos solo si tienen valor -->
+                    
                             @if ($license->institution || $license->receipt_number)
                                 <tr>
                                     <th class="w-25">Institución:</th>
@@ -54,13 +54,10 @@
                                 </tr>
                             @endif
 
-                            <!-- Mostrar detalles de las horas solo si el trabajador es docente -->
                             @if ($license->worker->worker_type === \App\Models\Worker::WORKER_TYPE_TEACHER)
                                 <tr>
                                     <td colspan="4">
-                                        <!-- Subtítulo con el nombre Horas de Licencia y los encabezados Día y Mes y Horas Asignadas -->
                                         <strong class="w-25">Horas de Licencia</strong>
-                                        <!-- Los encabezados Día y Mes, y Horas Asignadas ahora están en la misma fila -->
                                         <table class="table table-sm mb-0 mt-2">
                                             <thead>
                                                 <tr>
@@ -69,7 +66,6 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <!-- Mostrar las horas -->
                                                 @foreach ($license->hours as $hourLicense)
                                                     <tr>
                                                         <td>{{ $hourLicense->day.'/'.$hourLicense->month }}</td>
@@ -85,7 +81,6 @@
                     </table>
                 </div>
 
-                <!-- Botones con margen superior -->
                 <span class="mt-4 d-block">
                     <a class="mr-4 rounded-2 text-decoration-none" href="{{ route('licenses.index') }}">
                         <button class="btn btn-sm btn-info rounded-2">Volver al inicio</button>

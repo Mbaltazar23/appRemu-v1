@@ -47,7 +47,6 @@ class UserController extends Controller
     public function store(UserFormRequest $request)
     {
         $user = User::create($request->validated());
-
         // Asignar colegios si existen
         if ($request->has('school_ids')) {
             $user->schools()->attach($request->input('school_ids'));
@@ -84,7 +83,6 @@ class UserController extends Controller
     {
         // Actualizar los atributos del usuario
         $user->update($user->getUpdateAttributes($request->validated()));
-
         // Obtener los IDs de colegios enviados en la solicitud
         if ($request->has('school_ids')) {
             $schoolIds = $request->input('school_ids', []);
@@ -94,7 +92,6 @@ class UserController extends Controller
 
         return redirect()->route('users.show', $user)->with('success', 'Usuario Actualizado Exitosamente !!');
     }
-
     /**
      * Remove the specified resource from storage.
      */

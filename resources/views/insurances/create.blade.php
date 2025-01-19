@@ -5,8 +5,8 @@
         <!-- Page title -->
         <div class="page-header d-print-none">
             <h2 class="page-title">
-                Registrar Seguro &nbsp;<small
-                    class="text-muted">({{ $type == '1' ? 'AFP' : ($type == '2' ? 'Isapre' : '') }})</small>
+                Registrar Seguro<small
+                    class="text-muted">({{ $insuranceName }})</small>
             </h2>
         </div>
     </div>

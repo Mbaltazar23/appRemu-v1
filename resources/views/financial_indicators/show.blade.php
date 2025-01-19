@@ -44,10 +44,10 @@
                                     'impValues' => $impValues,
                                 ])
                             @endif
-                            <div class="text-center mt-3">
+                            <div class="text-center mt-4">
                                 <h5>(*) Todos los campos son obligatorios</h5>
                             </div>
-                            <div class="d-flex justify-content-between mt-3">
+                            <div class="d-flex justify-content-between mt-2">
                                 <div></div>
                                 <input type="button" class="btn btn-primary" value="Modificar"
                                     onclick='alert("Recuerde de las modificaciones tributarias dispuestas por el Estado"); document.forma.submit()'>

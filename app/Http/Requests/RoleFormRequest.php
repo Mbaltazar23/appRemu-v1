@@ -11,7 +11,6 @@ class RoleFormRequest extends FormRequest
      */
     public function authorize()
     {
-        // Ajusta esta lógica según sea necesario para autorizar la solicitud
         return true;
     }
 
@@ -23,7 +22,7 @@ class RoleFormRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|max:255|unique:roles,name,' . $this->route('role')->id,  // Ignorar el rol actual
+            'name' => 'required|string|max:255|unique:roles,name,' . $this->route('role')->id, 
             'permissions' => 'nullable|array',
             'permissions.*' => 'in:' . implode(',', array_keys(config('permissions'))),
         ];

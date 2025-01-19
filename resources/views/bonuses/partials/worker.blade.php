@@ -25,13 +25,12 @@
                         <label for="worker_id" class="h3">
                             Selecciona al trabajador para asignar bonos o descuentos
                         </label>
-                        <select name="worker_id" id="worker_id" class="form-control" required onchange="this.form.submit()">
+                        <select name="worker_id" id="worker_id" class="form-control" onchange="window.location.href=this.value;" required>
                             <option value="">Seleccionar trabajador...</option>
                             @foreach ($workers as $worker)
                                 <option value="{{ route('bonuses.partials.worker', $worker->id) }}"
                                     {{ isset($selectedWorker) && $selectedWorker->id == $worker->id ? 'selected' : '' }}>
-                                    {{ $worker->name }} {{ $worker->last_name }} -
-                                    ({{ $worker->getDescriptionWorkerTypes() }})
+                                    {{ $worker->name }} {{ $worker->last_name }} - ({{ $worker->getDescriptionWorkerTypes() }})
                                 </option>
                             @endforeach
                         </select>

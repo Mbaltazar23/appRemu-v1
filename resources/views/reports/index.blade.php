@@ -9,11 +9,11 @@
                 </div>
                 <div class="card-body">
                     <div class="form-group mb-4">
-                        <label for="typeInsurance" class="form-label">Seleccione el tipo de Seguro</label>
-                        <select id="typeInsurance" class="form-control">
+                        <label class="form-label">Seleccione el tipo de Seguro</label>
+                        <select class="form-control" onchange="window.location.href=this.value;" required>
                             <option value="">Seleccione un tipo</option>
-                            @foreach ($typeInsurances as $key => $type)
-                                <option value="{{ route('reports.type', $key) }}">{{ $type }}</option>
+                            @foreach ($accessibleInsurances as $key => $type)
+                                <option value="{{ route('reports.type', $key) }}">{{ $type['name'] }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -21,9 +21,4 @@
             </div>
         </div>
     </div>
-    <script>
-        document.getElementById('typeInsurance').addEventListener('change', function() {
-            window.location.href = this.value; // Redirige a la ruta seleccionada
-        });
-    </script>
 @endsection

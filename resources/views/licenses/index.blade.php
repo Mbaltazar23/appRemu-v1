@@ -31,7 +31,7 @@
                                 <th onclick="sortTable(3)" class="sort-table">{{ __('Días') }}</th>
                                 <th onclick="sortTable(4)" class="sort-table">{{ __('Última Actualización') }}</th>
                                 <!-- Nueva columna -->
-                                <th onclick="sortTable(5)" class="sort-table">{{ __('Acciones') }}</th>
+                                <th class="sort-table">{{ __('Acciones') }}</th>
                             </tr>
                         </thead>
                         <tbody>

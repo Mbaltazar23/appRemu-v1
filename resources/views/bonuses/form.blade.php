@@ -3,21 +3,21 @@
         <div class="col-md-6 mb-3">
             <label for="title" class="form-label">Título de ítem</label>
             <input type="text" class="form-control" id="title" name="title"
-                value="{{ old('title') ? $bonus->school->tuitions->where('tuition_id', $bonus->title)->first()->title : ''}}"
+                value="{{ old('title') ?? ($bonus->school && $bonus->school->tuitions->where('tuition_id', $bonus->title)->first() ? $bonus->school->tuitions->where('tuition_id', $bonus->title)->first()->title : '') }}"
                 required>
         </div>
-  
-            <div class="col-md-6 mb-3">
-                <label for="type" class="form-label">Tipo de Trabajador</label>
-                <select id="type" class="form-select" name="type">
-                    @foreach ($workerOptions as $key => $type)
-                        <option value="{{ $key }}"
-                            {{ (old('type') ?? ($bonus->type ?? '1')) == $key ? 'selected' : '' }}>
-                            {{ $type }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+
+        <div class="col-md-6 mb-3">
+            <label for="type" class="form-label">Tipo de Trabajador</label>
+            <select id="type" class="form-select" name="type">
+                @foreach ($workerOptions as $key => $type)
+                    <option value="{{ $key }}"
+                        {{ (old('type') ?? ($bonus->type ?? '1')) == $key ? 'selected' : '' }}>
+                        {{ $type }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
 
         <div class="col-md-6 mb-3">
             <label for="is_bonus" class="form-label">¿Es un bono o un descuento?</label>
@@ -29,20 +29,16 @@
             </select>
         </div>
 
-        @if ((old('is_bonus') ?? ($bonus->is_bonus ?? 0)) == 0)
-            <div class="col-md-6 mb-3">
-                <label for="taxable" class="form-label">¿Es imponible?</label>
-                <select class="form-select" id="taxable" name="taxable">
-                    <option value="1" {{ (old('taxable') ?? ($bonus->taxable ?? 1)) == 1 ? 'selected' : '' }}>No
-                    </option>
-                    <option value="0" {{ (old('taxable') ?? ($bonus->taxable ?? 1)) == 0 ? 'selected' : '' }}>Sí
-                    </option>
-                </select>
-            </div>
-        @else
-            <input type='hidden' id="taxable" name='taxable' value='1'>
-            <!-- Mantener en "No" si no hay bonus -->
-        @endif
+        <div class="col-md-6 mb-3">
+            <label for="taxable" class="form-label">¿Es imponible?</label>
+            <select class="form-select" id="taxable" name="taxable">
+                <option value="1" {{ (old('taxable') ?? ($bonus->taxable ?? 1)) == 1 ? 'selected' : '' }}>No
+                </option>
+                <option value="0" {{ (old('taxable') ?? ($bonus->taxable ?? 1)) == 0 ? 'selected' : '' }}>Sí
+                </option>
+            </select>
+        </div>
+
         @if (
             (old('type') ?? ($bonus->type ?? 1)) == 1 ||
                 ((old('type') ?? ($bonus->type ?? 1)) == 3 &&
@@ -85,7 +81,7 @@
             <input type="text" class="form-control" id="factor" name="factor"
                 value="{{ old('factor', isset($bonus) ? $bonus->factor * 100 : '') }}" />
         </div>
-        
+
         <div class="col-md-12 mb-3">
             <label class="form-label">Meses en los que se aplica</label><br>
             @for ($i = 1; $i <= 12; $i++)
@@ -98,3 +94,18 @@
         </div>
     </div>
 </div>
+
+<!--
+   @if ((old('is_bonus') ?? ($bonus->is_bonus ?? 0)) == 0)
+<div class="col-md-6 mb-3">
+                <label for="taxable" class="form-label">¿Es imponible?</label>
+                <select class="form-select" id="taxable" name="taxable">
+                    <option value="1" {{ (old('taxable') ?? ($bonus->taxable ?? 1)) == 1 ? 'selected' : '' }}>No
+                    </option>
+                    <option value="0" {{ (old('taxable') ?? ($bonus->taxable ?? 1)) == 0 ? 'selected' : '' }}>Sí
+                    </option>
+                </select>
+            </div>
+@else
+<input type='hidden' id="taxable" name='taxable' value='1'>
+@endif-->

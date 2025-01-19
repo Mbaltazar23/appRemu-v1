@@ -30,17 +30,14 @@ class FinancialIndicatorsSeeder extends Seeder
         ];
 
         $this->insertParameters($paramsToInsert, $schoolId);
-
         // Insertar valores para el Impuesto
         for ($i = 2; $i <= 8; $i++) {
             $this->insertImpuestoTramo($i, $schoolId);
         }
-
         // Insertar valores para Asignación Familiar
         for ($i = 1; $i <= 3; $i++) {
             $this->insertAsignacionFamiliar($i, $schoolId);
         }
-
         // Insertar valores específicos de coste
         $this->insertCostos($schoolId);
     }
@@ -58,14 +55,12 @@ class FinancialIndicatorsSeeder extends Seeder
     private function insertImpuestoTramo(int $i, int $schoolId)
     {
         $impuestos = $this->getImpuestoValues($i);
-
         // Crear el parámetro de FACTORIMPTRAMO
         Parameter::factory()->create([
             'name' => "FACTORIMPTRAMO$i",
             'description' => "Factor Impuesto tramo $i",
             'value' => $impuestos['impuesto'],
         ]);
-
         // Crear el parámetro de FACTORREBAJAIMPTRAMO
         Parameter::factory()->create([
             'name' => "FACTORREBAJAIMPTRAMO$i",
@@ -73,11 +68,9 @@ class FinancialIndicatorsSeeder extends Seeder
             'value' => $impuestos['rebaja'],
             'unit' => 'UTM',
         ]);
-
         // Crear las Tuiciones para los tramos
         $this->createTuition("FACTORIMPTRAMO$i", "Factor Impuesto tramo $i", $schoolId);
         $this->createTuition("FACTORREBAJAIMPTRAMO$i", "Factor Rebaja Impuesto tramo $i", $schoolId);
-
         // Crear las operaciones para cada tramo
         $this->createOperation($i, $schoolId, $impuestos['min'], $impuestos['max']);
     }
@@ -132,13 +125,11 @@ class FinancialIndicatorsSeeder extends Seeder
     private function insertAsignacionFamiliar(int $i, int $schoolId)
     {
         $asignacion = $this->getAsignacionValues($i);
-
         // Crear el parámetro de Asignación Familiar
         Parameter::factory()->create([
             'name' => "ASIGCAR.FAMTRAMO$i",
             'value' => $asignacion['valor'],
         ]);
-
         // Crear la tuición
         Tuition::factory()->create([
             'tuition_id' => "ASIGCAR.FAMTRAMO$i",
@@ -146,7 +137,6 @@ class FinancialIndicatorsSeeder extends Seeder
             'type' => 'P',
             'school_id' => $schoolId,
         ]);
-
         // Crear las operaciones para Asignación Familiar
         $this->createAsignacionOperation($i, $schoolId, $asignacion['min'], $asignacion['max']);
     }

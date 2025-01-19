@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Certificate;
@@ -8,11 +7,10 @@ use Illuminate\Http\Request;
 
 class CertificateController extends Controller
 {
-    /*public function __construct()
+    public function __construct()
     {
-    $this->authorizeResource(Certificate::class, 'certificates');
-    }*/
-
+        $this->authorizeResource(Certificate::class, 'certificate');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -24,7 +22,6 @@ class CertificateController extends Controller
 
         return view('certificates.index', compact('certificates'));
     }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -42,26 +39,24 @@ class CertificateController extends Controller
 
         return redirect()->route('certificates.index')->with('success', 'Los certificados se han creado con exito');
     }
-
     /**
-     * Display the specified resource.
+     * Print the specified resource.
      */
-    public function show($year)
+    public function print($year)
     {
-        $school_id = auth()->user()->school_id_session;
+        $school_id          = auth()->user()->school_id_session;
         $impresCertificates = Certificate::getCertificates($year, $school_id);
-        //dd($impresCertificates);
         return view('certificates.show', ['workersData' => $impresCertificates]);
     }
-
+    /**
+     * View the specified resource.
+     */
     public function view($year)
     {
-        $school_id = auth()->user()->school_id_session;
+        $school_id          = auth()->user()->school_id_session;
         $impresCertificates = Certificate::getCertificates($year, $school_id);
-        //dd($impresCertificates);
         return view('certificates.view', ['workersData' => $impresCertificates]);
     }
-
     /**
      * Remove the specified resource from storage.
      */
@@ -69,7 +64,7 @@ class CertificateController extends Controller
     {
         $school_id = auth()->user()->school_id_session;
 
-        // Eliminar los certificados del año especificado
+        // Delete certificates for the specified year
         Certificate::where('school_id', $school_id)
             ->where('year', $id)
             ->delete();

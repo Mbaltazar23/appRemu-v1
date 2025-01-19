@@ -5,31 +5,31 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Tuition extends Model//Clase
-
+class Tuition extends Model // Class
 {
     use HasFactory;
-
-    // Atributos que pueden ser asignados masivamente
+    // Attributes that can be mass assigned
     protected $fillable = [
         'title',
-        'tuition_id', // Incluye el nuevo campo
+        'tuition_id', // Includes the new field
         'type',
         'description',
         'in_liquidation',
         'editable',
         'school_id',
     ];
-
-    // Modificar el método exists para usar el nuevo campo
+    /**
+     * Check if a tuition exists for a specific school.
+     */
     public static function exists($tuitionId, $school_id)
     {
         return self::where('tuition_id', $tuitionId)
             ->where('school_id', $school_id)
             ->exists();
     }
-
-    // Crear un nuevo método para añadir Tuition usando el nuevo campo
+    /**
+     * Create a new Tuition record.
+     */
     public static function addTuition($name, $title, $type, $liquidation, $editable, $schoolId)
     {
         return self::create([
@@ -41,10 +41,12 @@ class Tuition extends Model//Clase
             'school_id' => $schoolId,
         ]);
     }
-
+    /**
+     * Generate a unique tuition name based on the provided type.
+     */
     public static function createUniqueTuition($title, $type, $school_id, $uniqueType = 'time')
     {
-        // Generar el nombre único basado en el tipo
+        // Generate a unique name based on the type
         $i = 0;
         do {
             if ($uniqueType === 'valor') {
@@ -55,24 +57,30 @@ class Tuition extends Model//Clase
             $i++;
         } while (Tuition::exists($nombre, $school_id));
 
-        return $nombre; // Devuelve el nombre generado
+        return $nombre; // Returns the generated name
     }
-
+    /**
+     * Update the title of a Tuition record.
+     */
     public static function updateTitleTuition($classId, $title, $schoolId)
     {
         self::where('tuition_id', $classId)
             ->where('school_id', $schoolId)
             ->update(['title' => $title]);
     }
-
+    /**
+     * Delete a Tuition record based on tuition_id and school_id.
+     */
     public static function deleteTuition($tuition_id, $school_id)
     {
-        // Busca la matrícula que coincida con tuition_id y school_id
+        // Find the tuition that matches tuition_id and school_id
         self::where('tuition_id', $tuition_id)
             ->where('school_id', $school_id)
             ->delete();
     }
-
+    /**
+     * Retrieve the title of a Tuition based on tuition_id and school_id.
+     */
     public static function getTuitionTitle($tuitionId, $schoolId)
     {
         if ($tuitionId == "") {
@@ -85,34 +93,29 @@ class Tuition extends Model//Clase
 
         return $result ? $result->title : "";
     }
-
+    /**
+     * Retrieve all liquidation titles by school ID.
+     */
     public static function getLiquidationTitlesBySchool($schoolId)
     {
-        // Obtener los títulos distintos y tuition_id de las clases en liquidación de un colegio
-        return self::where('in_liquidation', 1) // Filtrar las clases en liquidación
-            ->where('school_id', $schoolId) // Filtrar por el ID del colegio
-            ->orderBy('title') // Ordenar alfabéticamente por 'title'
-            ->distinct() // Obtener solo títulos distintos
-            ->get(['title', 'tuition_id']); // Obtener los campos 'title' y 'tuition_id'
+        // Get distinct titles and tuition_id of classes in liquidation for a school
+        return self::where('in_liquidation', 1) // Filter by classes in liquidation
+            ->where('school_id', $schoolId) // Filter by school ID
+            ->orderBy('title') // Order alphabetically by 'title'
+            ->distinct() // Get only distinct titles
+            ->get(['title', 'tuition_id']); // Get 'title' and 'tuition_id' fields
     }
-
-    public static function getTuitionDetails($tuitionId)
-    {
-        return self::select('type', 'in_liquidation')
-            ->where('tuition_id', $tuitionId)
-            ->first(); // Retorna el primer registro que coincida
-    }
-
-    // Nuevo método combinado
+    /**
+     * Get the tuition and related operation details for a specific tuition ID and worker type.
+     */
     public static function getTuitionAndOperationDetails($tuitionId, $workerTypeId, $schoolId)
     {
-        // Obtener los detalles de la tutela
+        // Retrieve tuition details
         $tuitionDetails = self::select('type', 'in_liquidation')
             ->where('tuition_id', $tuitionId)
             ->where('school_id', $schoolId)
-            ->first(); // Retorna el primer registro que coincida
-
-        // Inicializar valores predeterminados
+            ->first(); // Returns the first matching record
+        // Initialize default values
         $operationType = $tuitionDetails->type;
         $operation = "";
         $unitLimit = "";
@@ -121,18 +124,15 @@ class Tuition extends Model//Clase
         $maxValueLimit = 0;
         $months = "";
         $workerType = "";
-        $inLiquidation = $tuitionDetails->in_liquidation ?? 0; // Asignar in_liquidation de la tutela
-
-        // Obtener las operaciones relacionadas con la tutela y tipo de trabajador
+        $inLiquidation = $tuitionDetails->in_liquidation ?? 0; // Assign in_liquidation from tuition
+        // Retrieve related operation details based on tuition ID and worker type
         $operationDetailsFromDb = Operation::select('operation', 'limit_unit', 'min_limit', 'max_limit', 'max_value', 'application', 'worker_type')
             ->where('tuition_id', $tuitionId)
             ->where('school_id', $schoolId)
             ->where('worker_type', $workerTypeId)
-            ->first(); // Retorna la primera operación que coincida
-
-        // Si existen detalles de la operación, asignarlos a las variables
+            ->first(); // Returns the first matching operation
+        // If operation details are found, assign them to the variables
         if ($operationDetailsFromDb) {
-
             $operation = $operationDetailsFromDb->operation;
             $unitLimit = $operationDetailsFromDb->limit_unit;
             $minLimit = $operationDetailsFromDb->min_limit;
@@ -141,8 +141,7 @@ class Tuition extends Model//Clase
             $months = $operationDetailsFromDb->application;
             $workerType = $operationDetailsFromDb->worker_type;
         }
-
-        // Retornar los valores directamente
+        // Return the values as an object
         return (object) [
             'type' => $operationType,
             'operation' => $operation,
@@ -155,77 +154,33 @@ class Tuition extends Model//Clase
             'in_liquidation' => $inLiquidation,
         ];
     }
-
-    // Método para obtener las operaciones por clase (tuition), tipo de trabajador y colegio
-    public static function getOperationsByTuitionAndWorkerType($tuitionId, $workerTypeId, $schoolId)
-    {
-        // First, attempt to get the operation data
-        $result = self::select(
-            'tuitions.title',
-            'tuitions.tuition_id',
-            'tuitions.type',
-            'operations.operation',
-            'operations.limit_unit',
-            'operations.min_limit',
-            'operations.max_limit',
-            'operations.max_value',
-            'operations.application',
-            'tuitions.in_liquidation',
-            'operations.worker_type'
-        )
-            ->leftJoin('operations', 'operations.tuition_id', '=', 'tuitions.tuition_id')
-            ->where('tuitions.school_id', $schoolId)
-            ->where('operations.worker_type', $workerTypeId)
-            ->where('tuitions.title', $tuitionId)
-            ->first();
-
-        return $result;
-    }
-
-    public static function getOperationsWithTuitionAndTemplates($tuitionId, $workerType, $schoolId)
-    {
-        $result = self::select(
-            'tuitions.type',
-            'operations.operation',
-            'operations.limit_unit',
-            'operations.min_limit',
-            'operations.max_limit',
-            'operations.max_value',
-            'operations.application',
-            'tuitions.in_liquidation',
-            'operations.worker_type'
-        )
-            ->leftJoin('operations', 'operations.tuition_id', '=', 'tuitions.tuition_id') // Alias para 'operations'
-            ->leftJoin('parameters', 'parameters.name', '=', 'tuitions.tuition_id')
-            ->whereRaw('(tuitions.tuition_id = operations.tuition_id or parameters.name = tuitions.tuition_id)')
-            ->where('tuitions.school_id', $schoolId)
-            ->where('tuitions.tuition_id', $tuitionId)
-            ->where('operations.school_id', $schoolId) // Usamos el alias 'op' para referirnos a 'operations'
-            ->where('operations.worker_type', $workerType) // Usamos el alias 'op' para referirnos a 'operations'
-            ->first();
-
-        return $result;
-    }
-
-    // Relación: Una Tuition pertenece a una School
+    /**
+     * Relationship: A Tuition belongs to a School.
+     */
     public function school()
     {
         return $this->belongsTo(School::class);
     }
 
-    // Relación con el modelo Parameter (tuition_id en Parameter)
+    /**
+     * Relationship with the Parameter model (tuition_id in Parameter).
+     */
     public function parameters()
     {
         return $this->hasMany(Parameter::class);
     }
 
-    // Relación con el modelo Operation (tuition_id en Operation)
+    /**
+     * Relationship with the Operation model (tuition_id in Operation).
+     */
     public function operations()
     {
         return $this->hasMany(Operation::class);
     }
 
-    //Relacion con Template
+    /**
+     * Relationship with Template.
+     */
     public function templates()
     {
         return $this->hasMany(Template::class);

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use App\Helpers\LiquidationHelper;
@@ -10,92 +9,102 @@ use Illuminate\Database\Eloquent\Model;
 class Liquidation extends Model
 {
     use HasFactory;
-
-    // Campos que pueden ser asignados masivamente
+    // Fields that can be mass-assigned
     protected $fillable = [
         'worker_id',
         'month',
         'year',
         'values',
-        'details', // Añadimos 'details' para que se pueda asignar masivamente
-        'glosa', // Añadimos glosa al $fillable si vas a asignarlo masivamente
+        'details', // Added 'details' to be mass-assignable
+        'glosa',   // Added 'glosa' for mass-assignment if you're going to assign it directly
     ];
-
+    /**
+     * Store a new liquidation or update an existing one.
+     *
+     * This method creates a new liquidation for a worker for the given month and year.
+     * If a liquidation already exists for the specified period, it will be deleted first
+     * and a new one will be created.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $workerId
+     * @return \App\Models\Liquidation
+     */
     public static function storeLiquidation($request, $workerId)
     {
-        // Inicia la liquidación para el trabajador, mes y año proporcionados
         $month = $request["month"];
-        $year = $request['year'];
-
-        // Primero eliminamos la liquidación anterior (si existe)
+        $year  = $request['year'];
+        // First, delete any existing liquidation for the same worker, month, and year
         self::deleteLiquidation($month, $year, $workerId);
-
-        // Creamos la nueva liquidación
+        // Create a new liquidation record
         $liquidation = self::create([
             'worker_id' => $workerId,
-            'month' => $month,
-            'year' => $year,
+            'month'     => $month,
+            'year'      => $year,
         ]);
-
-        // Inicializamos un array para almacenar los detalles de la liquidación
+        // Initialize an array to store liquidation details
         $details = [];
-        $clases = Tuition::where('school_id', $request->school_id)->get();
-
+        $clases  = Tuition::where('school_id', $request->school_id)->get();
+        // Loop through each class and add details if they exist in the request
         foreach ($clases as $clase) {
             $idval = 'VALID' . $clase->tuition_id;
             $idtit = 'TITID' . $clase->tuition_id;
-            // Si el valor 'VALID' existe en la solicitud, lo usamos
             if ($request->has($idval)) {
-                // Agregar los detalles al array
+                // Add the detail to the array
                 $details[] = [
-                    'tuition_id' => $clase->tuition_id, // Asignar el ID de la liquidación
-                    'title' => $request->input($idtit), // Decodificar el título
-                    'value' => $request->input($idval), // Obtener el valor ingresado
+                    'tuition_id' => $clase->tuition_id,      // Assign the tuition ID
+                    'title'      => $request->input($idtit), // Decode the title
+                    'value'      => $request->input($idval), // Get the entered value
                 ];
             }
         }
-
-        // Si hay detalles para guardar, los asignamos al objeto liquidación
-        if (!empty($details)) {
-            // Asignar los detalles en el campo 'details'
+        // If there are details, assign them to the liquidation
+        if (! empty($details)) {
             $liquidation->setDetailsAttribute($details);
-            // Guardar la liquidación con los detalles
+            // Save the liquidation with the details
             $liquidation->save();
         }
-
-        // Generar la glosa de la liquidación
+        // Generate the textual summary (glosa) for the liquidation
         $glosa = self::generateGlosa($request, $workerId, $liquidation->id, $request->school_id);
         $liquidation->glosa = $glosa;
         $liquidation->save();
-
+        // Return Liquidation
         return $liquidation;
     }
 
-    // Método para generar la glosa
+    /**
+     * Generate the glosa (textual summary) for the liquidation.
+     *
+     * This method generates the payroll summary in HTML format. It loops through
+     * the template and formats details accordingly.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $workerId
+     * @param int $liquidationId
+     * @param int $school_id
+     * @return string
+     */
     private static function generateGlosa($request, $workerId, $liquidationId, $school_id)
     {
-        // Obtener los datos de la plantilla y el trabajador
-        $worker = Worker::find($workerId);
+        // Get the worker and template data
+        $worker    = Worker::find($workerId);
         $plantilla = Template::getTemplate($request->school_id, $worker->worker_type);
-
-        // Llamamos a getHeaderGlosa para obtener los datos de la cabecera
+        // Get header data for the glosa
         $headerData = self::getHeaderGlosa($liquidationId, $workerId, $school_id);
-
-        // Obtener detalles de la glosa
+        // Generate the details part of the glosa
         $details = '';
         foreach ($plantilla as $row) {
-            $codigo = trim($row->code);
-            $clase = $row->tuition_id;
-            $ignoreZero = $row->ignore_zero;
+            $codigo      = trim($row->code);
+            $clase       = $row->tuition_id;
+            $ignoreZero  = $row->ignore_zero;
             $parentheses = $row->parentheses;
-            $clastit = self::getDetailByTuitionId($liquidationId, $clase, 'title');
-            $clasval = self::getDetailByTuitionId($liquidationId, $clase, 'value');
-            $clasval3 = $clasval;
-
+            $clastit     = self::getDetailByTuitionId($liquidationId, $clase, 'title');
+            $clasval     = self::getDetailByTuitionId($liquidationId, $clase, 'value');
+            $clasval3    = $clasval;
+            // We evaluate if the spreadsheet is divisible by 0, it has a value and if the value of the class is 0
             if (($ignoreZero == 1) && ($clasval == 0)) {
-                continue; // Saltar filas que tienen valor cero y se deben ignorar
+                continue; // Skip rows where the value is zero and should be ignored
             }
-
+            // We evaluate the code of the template
             switch ($codigo) {
                 case "N":
                     $details .= "<tr><td>" . ($clastit ? $clastit : "") . "</td></tr>";
@@ -129,111 +138,120 @@ class Liquidation extends Model
             $details .= "</tr>";
         }
         $details .= "</tbody></table>";
-
-        // Llamar a la vista y pasar los datos
+        // Generate the final glosa (summary) by rendering a view
         $glosa = view('liquidations.liquidationData', [
             'headerData' => $headerData,
-            'details' => $details,
+            'details'    => $details,
         ])->render();
-
-        // Escapar comillas simples para el almacenamiento en campo binary
+        // Escape single quotes for storage
         $glosa = str_replace("'", "\'", $glosa);
-
+        // Return glosa
         return $glosa;
     }
-// Generar los datos de la cabecera
+    /**
+     * Generate the header data for the glosa (summary).
+     *
+     * This method retrieves worker and school data, along with the number of days worked.
+     * It organizes the data to be used in the glosa header.
+     *
+     * @param int $liquidationId
+     * @param int $workerId
+     * @param int $school_id
+     * @return array
+     */
     public static function getHeaderGlosa($liquidationId, $workerId, $school_id)
     {
         $daysworkers = self::getDetailByTuitionId($liquidationId, "DIASTRABAJADOS", 'value');
-        $dataGlosa = LiquidationHelper::getHeaderLiquidation($workerId, $school_id, now()->month);
-
-        $worker = $dataGlosa['worker'];
-        $school = $dataGlosa['school'];
+        $dataGlosa   = LiquidationHelper::getHeaderLiquidation($workerId, $school_id, now()->month);
+        // We show the worker's data, school, month in which they work and their workload, and the current year
+        $worker   = $dataGlosa['worker'];
+        $school   = $dataGlosa['school'];
         $monthTxt = $dataGlosa['monthTxt'];
         $workload = $dataGlosa['workload'];
-        $year = now()->year;
-
-        // Organizar los datos para pasarlos a la vista
+        $year     = now()->year;
+        // Organize header data to pass to the view
         $headerData = [
-            'school_name' => $school->name,
-            'school_rut' => $school->rut,
-            'school_rbd' => $school->rbd,
-            'month_txt' => $monthTxt,
-            'year' => $year,
-            'worker_name' => $worker->name,
+            'school_name'      => $school->name,
+            'school_rut'       => $school->rut,
+            'school_rbd'       => $school->rbd,
+            'month_txt'        => $monthTxt,
+            'year'             => $year,
+            'worker_name'      => $worker->name,
             'worker_last_name' => $worker->last_name,
-            'worker_rut' => $worker->rut,
-            'workload' => $workload,
-            'worker_function' => $worker->getFunctionWorkerTypes()[$worker->function_worker],
-            'days_worked' => $daysworkers,
+            'worker_rut'       => $worker->rut,
+            'workload'         => $workload,
+            'worker_function'  => $worker->getFunctionWorkerTypes()[$worker->function_worker],
+            'days_worked'      => $daysworkers,
         ];
-
+        // Return HeaderData
         return $headerData;
     }
-
-    public static function getDetailByTuitionId($liquidationId, $tuitionId, $field)
-    {
-        // Obtener la liquidación por su ID
-        $liquidation = self::find($liquidationId);
-        // Verificamos si la liquidación existe
-        if (!$liquidation) {
-            return 0; // Si no existe la liquidación, retornamos null
-        }
-        // Accedemos a los detalles de la liquidación
-        $details = $liquidation->details;
-        // Buscamos el tuition en los detalles de la liquidación
-        foreach ($details as $detail) {
-            if (isset($detail['tuition_id']) && $detail['tuition_id'] == $tuitionId) {
-                // Devolvemos el valor del campo que se ha solicitado (title o value)
-                return $detail[$field];
-            }
-        }
-        // Si no encontramos el tuition_id, retornamos null
-        return 0;
-    }
-    
+    /**
+     * Retrieve all unique years from the database.
+     * 
+     * This method uses the 'distinct' function to ensure that only unique 'year' values are returned.
+     * It then uses the 'pluck' function to fetch the 'year' column from the result, 
+     * returning an array of distinct years without duplicates.
+     *
+     * @return \Illuminate\Support\Collection An array of distinct years.
+     */
     public static function getDistinctYears()
     {
-        // Using 'distinct' and 'pluck' to get unique years
         return self::distinct('year')->pluck('year');
     }
-
-    // Acceder a los detalles como un array
-    public function getDetailsAttribute($value)
+    /**
+     * Retrieve a specific detail for a tuition by its ID.
+     *
+     * This method gets either the 'title' or 'value' for a specific tuition ID from the liquidation details.
+     *
+     * @param int $liquidationId
+     * @param int $tuitionId
+     * @param string $field
+     * @return mixed
+     */
+    public static function getDetailByTuitionId($liquidationId, $tuitionId, $field)
     {
-        return json_decode($value, true); // Decodifica el JSON almacenado en 'details' a un array
-    }
-
-    // Modificar los detalles antes de guardarlos en el modelo
-    public function setDetailsAttribute($value)
-    {
-        // Si ya existen detalles, los decodificamos y los fusionamos con los nuevos
-        if (isset($this->attributes['details'])) {
-            $existingDetails = json_decode($this->attributes['details'], true);
-        } else {
-            $existingDetails = [];
+        $liquidation = self::find($liquidationId);
+        if (!$liquidation) {
+            return 0; // If the liquidation doesn't exist, return 0
         }
-        // Fusionamos los detalles existentes con los nuevos
-        $mergedDetails = array_merge($existingDetails, $value);
-        // Guardamos los detalles combinados en formato JSON
-        $this->attributes['details'] = json_encode($mergedDetails);
+        // We evaluate the details of the liquidation
+        $details = $liquidation->details;
+        foreach ($details as $detail) {
+            if (isset($detail['tuition_id']) && $detail['tuition_id'] == $tuitionId) {
+                return $detail[$field]; // Return the requested field (title or value)
+            }
+        }
+        // Return 0 if the tuition ID is not found
+        return 0;
     }
-
+    /**
+     * Delete an existing liquidation for a worker, month, and year.
+     *
+     * This method deletes the liquidation if it exists for the given period and worker.
+     *
+     * @param int $month
+     * @param int $year
+     * @param int $workerId
+     * @return int
+     */
     private static function deleteLiquidation($month, $year, $workerId)
     {
         $liquidation = self::where('month', $month)
             ->where('year', $year)
             ->where('worker_id', $workerId)
-            ->first(); // Buscar el primer registro que coincida
-        // Si no existe un registro, retornamos 1
-        if (!$liquidation) {
-            return 1;
+            ->first(); // Find the first matching record
+
+        if (! $liquidation) {
+            return 1; // If no liquidation exists, return 1
         }
-        // Si existe un registro, procedemos a eliminarlo
-        $liquidation->delete();
+
+        $liquidation->delete(); // Otherwise, delete the liquidation
     }
     /**
-     * Verifica si existe una liquidación para un trabajador, mes y año específicos.
+     * Check if a liquidation exists for a worker, month, and year.
+     *
+     * This method checks if there is already a liquidation for the given month, year, and worker.
      *
      * @param int $month
      * @param int $year
@@ -242,30 +260,42 @@ class Liquidation extends Model
      */
     public static function exists($month, $year, $workerId)
     {
-        // Usamos Eloquent para realizar la consulta
         $liquidacion = self::where('month', $month)
             ->where('year', $year)
             ->where('worker_id', $workerId)
-            ->first(); // Devuelve el primer resultado o null si no existe
-        // Si la liquidación existe, retornamos true, si no, false
-        return $liquidacion ? true : false;
+            ->first(); // Returns the first result or null if not found
+        // Return true if a liquidation exists, otherwise false
+        return $liquidacion ? true : false; 
     }
-
+    /**
+     * Get liquidations by worker type.
+     *
+     * This method retrieves liquidations based on the worker type for the given month, year, and school.
+     *
+     * @param int $month
+     * @param int $year
+     * @param int $type
+     * @param int $schoolId
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
     public static function getLiquidationsByType($month, $year, $type, $schoolId)
     {
-        $result = self::where('month', $month)
+        return self::where('month', $month)
             ->where('year', $year)
             ->whereHas('worker', function ($query) use ($type, $schoolId) {
                 $query->where('worker_type', $type)
                     ->where('school_id', $schoolId)
-                    ->whereNull('settlement_date'); // Equivalent of fec_finiquito
+                    ->whereNull('settlement_date'); // Equivalent to fec_finiquito
             })
-            ->get(); // Assuming id_liquidacion is the 'id' field in liquidations table
-
-        return $result;
+            ->get(); // Retrieve the liquidations for the specified worker type
     }
-
-    // Relación con el modelo Worker
+    /**
+     * Define the relationship with the Worker model.
+     *
+     * A Liquidations belongs to a Worker.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function worker()
     {
         return $this->belongsTo(Worker::class);

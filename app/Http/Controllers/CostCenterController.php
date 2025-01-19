@@ -26,7 +26,6 @@ class CostCenterController extends Controller
         $item = $request->input('item');
         $periodo = $request->input('periodo');
         $year = $request->input('year');
-
         // Obtener el colegio (school) correspondiente
         $school = School::find($schoolId);
         // Obtener los totales de liquidación

@@ -21,7 +21,6 @@ class RoleController extends Controller
     public function index()
     {
         $roles = Role::query()
-            ->where('id', '!=', auth()->user()->role_id) // Excluir el rol del usuario autenticado
             ->orderBy('created_at', 'DESC')
             ->paginate(5);
 

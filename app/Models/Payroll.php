@@ -9,44 +9,51 @@ class Payroll extends Model
 {
     use HasFactory;
 
+    // Attributes that can be mass-assigned
     protected $fillable = [
-        'school_id',
-        'month',
-        'year',
-        'details',
+        'school_id',  // ID of the school
+        'month',      // Month of the payroll
+        'year',       // Year of the payroll
+        'details',    // Details of the payroll (usually a JSON)
     ];
 
+    /**
+     * Generates the payroll for a specific month and year in a school.
+     * 
+     * @param int $schoolId - ID of the school.
+     * @param int $month - Month of the payroll.
+     * @param int $year - Year of the payroll.
+     * @return \App\Models\Payroll - Generated or updated payroll object.
+     */
     public static function generatePayroll($schoolId, $month, $year)
     {
-        // Obtener todos los trabajadores de la escuela
+        // Get all workers of the school
         $workers = Worker::where('school_id', $schoolId)->get();
-        // Pre-cargar los IDs de los "tuition" para evitar repetir las consultas
+        // Titles of different types of allowances or deductions (e.g., law 19410, difficult performance, etc.)
         $tuitionTitles = [
             'RBMN','Desempeño dificil', 'Ley 19410', 'Ley 19464', 'Ley 19933', 'UMP',
             'Asignacion Voluntaria', 'Colegio de profesores', 'Prestamo Social Caja los Andes',
             'Prestamo Social Caja los heroes', 'Fundacion Lopez Perez',
         ];
-
+        // Get the tuition IDs for the specific school
         $tuitionIds = array_map(function ($title) use ($schoolId) {
             return Tuition::where('title', $title)->where('school_id', $schoolId)->value('tuition_id');
         }, $tuitionTitles);
-
-        // Función para obtener el valor de un detalle
+        // Function to get the value of a detail
         $getDetailValue = function ($liquidation, $tuitionId, $key) {
             $value = $liquidation->getDetailByTuitionId($liquidation->id, $tuitionId, $key);
             return floatval(str_replace(',', '', $value));
         };
-
-        // Procesar cada trabajador
+        // Process each worker
         $payrollDetails = [];
         foreach ($workers as $worker) {
-            // Obtener liquidaciones para el mes y año (si existe)
+            // Get liquidations for the specific month and year (if any)
             $liquidations = Liquidation::where('worker_id', $worker->id)
                 ->where('month', $month)
                 ->where('year', $year)
                 ->first();
 
-            // Iniciar los datos del trabajador
+            // Initialize worker's data
             $totalsWorker = [
                 'name' => $worker->name,
                 'rut' => $worker->rut,
@@ -80,10 +87,10 @@ class Payroll extends Model
             ];
 
             if ($liquidations) {
-                // Asignar los valores de la liquidación al trabajador
+                // Assign liquidation values to the worker
                 $totalsWorker['daysWorker'] = $getDetailValue($liquidations, 'DIASTRABAJADOS', 'value');
                 $totalsWorker['monthlySalary'] = $getDetailValue($liquidations, $tuitionIds[0], 'value') + $getDetailValue($liquidations, 'SUELDOBASE', 'value');
-                // Asignar los valores de cada "tuition" usando los ids precargados
+                // Assign values for each "tuition" using the preloaded IDs
                 $totalsWorker['hardPerformance'] = $getDetailValue($liquidations, $tuitionIds[1], 'value');
                 $totalsWorker['law19410'] = $getDetailValue($liquidations, $tuitionIds[2], 'value');
                 $totalsWorker['law19464'] = $getDetailValue($liquidations, $tuitionIds[3], 'value');
@@ -107,12 +114,10 @@ class Payroll extends Model
                     $getDetailValue($liquidations, 'IMPUESTORENTA', 'value') +
                     $getDetailValue($liquidations, 'DESCUENTOSLEGALES', 'value');
                 $totalsWorker['totalPayable'] = $getDetailValue($liquidations, 'TOTALAPAGAR', 'value');
-
-                // Obtener los títulos de AFP y Salud
+                // Get the titles for AFP and Health
                 $afpTitle = $liquidations->getDetailByTuitionId($liquidations->id, 'AFP', 'title');
                 $healthTitle = $liquidations->getDetailByTuitionId($liquidations->id, 'SALUD', 'title');
-
-                // Procesar el título de AFP
+                // Process AFP title
                 $poscierre = strpos($afpTitle, ")");
                 $afpName = trim(substr($afpTitle, $poscierre + 1));
                 $porc = trim(substr($afpTitle, 1, $poscierre - 1));
@@ -121,32 +126,32 @@ class Payroll extends Model
                 $totalsWorker['afpName'] = $afpName;
                 $totalsWorker['afpPercentage'] = $afpPercentageString;
 
-                // Procesar el titulo de SALUD
+                // Process Health title
                 $poscierre = strpos($healthTitle, ")");
                 $titleHeath = trim(substr($healthTitle, $poscierre + 1));
 
-                // Procesar el título de Salud
+                // Process the Health title
                 $totalsWorker['healthName'] = $titleHeath;
             }
-            // Guardamos los detalles de este trabajador
+            // Save worker details
             $payrollDetails[] = $totalsWorker;
         }
 
-        // Crear o actualizar la planilla
+        // Create or update the payroll
         $payroll = self::updateOrCreate(
             [
                 'school_id' => $schoolId,
                 'month' => $month,
                 'year' => $year,
             ], [
-                'details' => json_encode($payrollDetails), // Guardar detalles de cada trabajadorF
+                'details' => json_encode($payrollDetails), // Save details of each worker
             ]
         );
 
         return $payroll;
     }
 
-    // Definir la relación con el modelo 'School' (relación de uno a muchos)
+    // Define the relationship with the 'School' model (one to many relationship)
     public function school()
     {
         return $this->belongsTo(School::class);

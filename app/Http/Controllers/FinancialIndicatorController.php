@@ -7,7 +7,7 @@ use App\Models\FinancialIndicator;
 use App\Models\Operation;
 use App\Models\Parameter;
 use App\Policies\FinancialIndicatorPolicy;
-use Illuminate\Http\Request;
+
 
 class FinancialIndicatorController extends Controller
 {
@@ -48,16 +48,16 @@ class FinancialIndicatorController extends Controller
                 $previousValues = $financialIndicator->getPreviousMonthValues($currentValues);
                 $currentValues['uf'] = str_replace(',', '', number_format($currentValues['uf'], 0, '.', '')); // Cambia la coma por un punto
                 $currentValues['utm'] = str_replace(',', '', number_format($currentValues['utm'], 0, '.', '')); // Cambia la coma por un punto
-                Parameter::createOrUpdateParamIndicators("UF", $currentValues['uf']);
-                Parameter::createOrUpdateParamIndicators("UTM", $currentValues['utm']);
+                Parameter::updateOrInsertParamValue("UF", 0, 0, "",  $currentValues['uf']);
+                Parameter::updateOrInsertParamValue("UTM", 0, 0, "",  $currentValues['utm']);
                 break;
 
             case 'impuesto_renta':
                 for ($i = 2; $i <= 8; $i++) {
                     $minLimits[$i] = Operation::getMinLimit("IMPUESTOTRAMO$i");
                     $maxLimits[$i] = Operation::getMaxLimit("IMPUESTOTRAMO$i");
-                    $impValues[$i] = Parameter::getValueByName("FACTORIMPTRAMO$i", 0, 0);
-                    $rebValues[$i] = Parameter::getValueByName("FACTORREBAJAIMPTRAMO$i", 0, 0);
+                    $impValues[$i] = Parameter::getParameterValue("FACTORIMPTRAMO$i", 0, 0);
+                    $rebValues[$i] = Parameter::getParameterValue("FACTORREBAJAIMPTRAMO$i", 0, 0);
                 }
                 break;
 
@@ -65,7 +65,7 @@ class FinancialIndicatorController extends Controller
                 for ($i = 1; $i <= 3; $i++) {
                     $minLimits[$i] = Operation::getMinLimit("FILTROASIGFAMT$i");
                     $maxLimits[$i] = Operation::getMaxLimit("FILTROASIGFAMT$i");
-                    $impValues[$i] = Parameter::getValueByName("ASIGCAR.FAMTRAMO$i", 0, 0);
+                    $impValues[$i] = Parameter::getParameterValue("ASIGCAR.FAMTRAMO$i", 0, 0);
                 }
                 break;
 

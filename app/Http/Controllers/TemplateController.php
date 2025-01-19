@@ -19,7 +19,8 @@ class TemplateController extends Controller
     public function index(Request $request)
     {
         $typeItem = $request->get('typeItem', 1); // '1' por defecto para docentes
-        $schoolId = auth()->user()->school_id_session; // Obtener el ID del colegio del usuario autenticado
+         // Obtener el ID del colegio del usuario autenticado
+        $schoolId = auth()->user()->school_id_session;
         // Obtener plantillas
         $templates = Template::getTemplate($schoolId, $typeItem);
         // Obtener tuitions
@@ -63,8 +64,8 @@ class TemplateController extends Controller
     {
         // Llamar al método del modelo, pasando el Request completo
         Template::addLine($request->validated());
-
-        $typeItem = $request->input('type'); // Tipo de plantilla
+        // Tipo de plantilla
+        $typeItem = $request->input('type');
         // Redirigir o devolver respuesta con éxito
         return redirect()->route('templates.index', ['typeItem' => $typeItem])->with('success', 'Línea agregada correctamente.');
     }
@@ -95,7 +96,8 @@ class TemplateController extends Controller
      */
     public function update(TemplateFormRequest $request, Template $template)
     {
-        $typeItem = $request->get('typeItem'); // Tipo de plantilla
+        // Tipo de plantilla
+        $typeItem = $request->get('typeItem'); 
         //Codigo del proceso va aqui
         $template->updateLine($request->validated());
 

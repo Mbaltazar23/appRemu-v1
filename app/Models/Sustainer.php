@@ -21,12 +21,13 @@ class Sustainer extends Model
         'phone',
         'email',
     ];
-
    /**
-     * Obtiene las escuelas asociadas al sostenedor.
+     * Get the schools associated with the sustainer.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany - The schools relationship.
      */
     public function schools()
     {
-        return $this->hasMany(School::class, 'sustainer_id');
+        return $this->hasMany(School::class);
     }
 }
