@@ -8,7 +8,7 @@ use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 class ConvertDateService
 {
-    public function handle(?string $date): ?string
+    public static function handle(?string $date): ?string
     {
         if (is_null($date)) {
             return null;

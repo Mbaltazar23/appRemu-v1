@@ -42,7 +42,7 @@ class CertificateController extends Controller
     /**
      * Print the specified resource.
      */
-    public function print($year)
+    public function printer($year)
     {
         $school_id          = auth()->user()->school_id_session;
         $impresCertificates = Certificate::getCertificates($year, $school_id);

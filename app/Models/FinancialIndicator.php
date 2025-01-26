@@ -7,9 +7,10 @@ use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FinancialIndicator extends Model
-{
+class FinancialIndicator extends Model {
+
     use HasFactory;
+
     /**
      * Retrieve the list of economic indices.
      * 
@@ -18,15 +19,15 @@ class FinancialIndicator extends Model
      * 
      * @return array The available economic indices with their respective permissions
      */
-    public static function getEconomicIndices()
-    {
+    public static function getEconomicIndices() {
         return [
-            ['value' => 'uf', 'label' => 'Índices Econ.', 'permission' => 'MANIECO'],               // Economic indices
-            ['value' => 'impuesto_renta', 'label' => 'Impuesto Renta', 'permission' => 'MANIMREN'],    // Income tax
+            ['value' => 'uf', 'label' => 'Índices Econ.', 'permission' => 'MANIECO'], // Economic indices
+            ['value' => 'impuesto_renta', 'label' => 'Impuesto Renta', 'permission' => 'MANIMREN'], // Income tax
             ['value' => 'correccion_monetaria', 'label' => 'I. Corrección Monetaria', 'permission' => 'MANICOM'], // Monetary correction
             ['value' => 'asignacion_familiar', 'label' => 'Asignación Familiar', 'permission' => 'MANASIGFAM'], // Family allowance
         ];
     }
+
     /**
      * Retrieve the current values of UF, UTM, Dollar, and Euro from the API.
      * 
@@ -35,8 +36,7 @@ class FinancialIndicator extends Model
      * 
      * @return array|null The current values of the indicators, or null if the request fails
      */
-    public static function getCurrentValues()
-    {
+    public static function getCurrentValues() {
         try {
             $client = new Client();  // Guzzle HTTP client to make requests to external API
             // The indicators we need to fetch
@@ -51,11 +51,12 @@ class FinancialIndicator extends Model
                 $currentValues[$indicator] = isset($data['serie'][0]['valor']) ? $data['serie'][0]['valor'] : null;
             }
             // Return the current values as an associative array
-            return $currentValues;  
+            return $currentValues;
         } catch (\Exception $e) {
             return null; // Return null if the API request fails
         }
     }
+
     /**
      * Retrieve the values of UF, UTM, Dollar, and Euro for the previous month.
      * 
@@ -65,8 +66,7 @@ class FinancialIndicator extends Model
      * @param array $currentValues The current values of the indicators, which are passed for context
      * @return array|null The values of the indicators for the previous month, or null if the request fails
      */
-    public static function getPreviousMonthValues(array $currentValues)
-    {
+    public static function getPreviousMonthValues(array $currentValues) {
         try {
             $client = new Client();  // Guzzle HTTP client to make requests to external API
             $previousValues = [];  // Array to store the previous month's values
@@ -81,7 +81,7 @@ class FinancialIndicator extends Model
                 $previousValues[$indicator] = isset($data['serie'][0]['valor']) ? $data['serie'][0]['valor'] : null;
             }
             // Return the previous month's values
-            return $previousValues;  
+            return $previousValues;
         } catch (\Exception $e) {
             return null; // Return null if the API request fails
         }

@@ -9,15 +9,13 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Absence>
  */
-class AbsenceFactory extends Factory
-{
+class AbsenceFactory extends Factory {
+
     protected $model = Absence::class;
 
-    public function definition()
-    {
+    public function definition() {
         // Seleccionamos un trabajador aleatorio
         $worker = Worker::inRandomOrder()->first(); // Seleccionamos un trabajador aleatorio
-
         // Fecha aleatoria para la ausencia
         $date = $this->faker->dateTimeThisYear(); // Obtiene una fecha aleatoria dentro de este año
         $day = $date->format('d');
@@ -29,13 +27,14 @@ class AbsenceFactory extends Factory
         $reason = $this->faker->randomElement($reasons);
 
         return [
-            'worker_id'    => $worker->id,
-            'day'          => $day,
-            'month'        => $month,
-            'year'         => $year,
-            'reason'       => $reason,
-            'minutes'      => $this->faker->numberBetween(30, 480), // Duración aleatoria de la ausencia en minutos (de 30 min a 8 horas)
+            'worker_id' => $worker->id,
+            'day' => $day,
+            'month' => $month,
+            'year' => $year,
+            'reason' => $reason,
+            'minutes' => $this->faker->numberBetween(30, 480), // Duración aleatoria de la ausencia en minutos (de 30 min a 8 horas)
             'with_consent' => $this->faker->boolean(), // Si la ausencia tiene consentimiento
         ];
     }
+
 }

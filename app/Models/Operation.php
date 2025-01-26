@@ -171,31 +171,64 @@ class Operation extends Model
      */
     public static function processOperation($nombre, $data, $operation, $meses, $operador, $option)
     {
+        // Get the operation class based on the provided data
         $operasobreclase = self::getOperasobreClase($data);
 
+        // If the operation type involves taxable or non-taxable income, apply the attendance factor
         if (in_array($operasobreclase, ["RENTAIMPONIBLESD", "IMPONIBLEEIMPUTABLE", "IMPONIBLEYNOIMPUTABLE"])) {
             $operation .= " * FACTORASIST";
         }
 
+        // If the 'option' flag is true, proceed to add the operation
         if ($option) {
             if ($data['type'] != 3) {
+                // Add the operation for the specific type (either teachers or non-teachers)
                 self::addOperation($nombre, $data['type'], $operation, $meses, $data['school_id']);
             } else {
+                // Add the operation for type 1 (teachers)
                 self::addOperation($nombre, 1, $operation, $meses, $data['school_id']);
+                // Add the operation for type 2 (non-teachers)
                 self::addOperation($nombre, 2, $operation, $meses, $data['school_id']);
             }
         }
 
-        // Update original operations for teachers and non-teachers
-        $operationOriginal = self::getOperationFunction($operasobreclase, $data['type'], $data['school_id']);
-        $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
-        $newOperation      = $operationOriginal . " " . $operador . " " . $nombre;
-
-        if ($data['type'] == 2 && $operasobreclase == "IMPONIBLEEIMPUTABLE") {
-            $operasobreclase = "RENTAIMPONIBLESD";
+        // Update the original operations for teachers or non-teachers
+        if ($data['type'] != 3) {
+            // If the type is 2 (non-teacher) and the class is "IMPONIBLEEIMPUTABLE", change to "RENTAIMPONIBLESD"
+            if (($data['type'] == 2) && ($operasobreclase == "IMPONIBLEEIMPUTABLE")) {
+                $operasobreclase = "RENTAIMPONIBLESD";
+            }
+            // Get the original operation for the current type (teacher or non-teacher)
+            $operationOriginal = self::getOperationFunction($operasobreclase, $data['type'], $data['school_id']);
+            // Remove the operator and name from the original operation
+            $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
+            // Create the new operation by appending the operator and name
+            $newOperation = $operationOriginal . " " . $operador . " " . $nombre;
+            // Update the operation function for the current type (teacher or non-teacher)
+            self::updateOperationFunction($operasobreclase, $data['type'], $newOperation, $data['school_id']);
+        } else {
+            // For teachers (type 1)
+            $operationOriginal = self::getOperationFunction($operasobreclase, 1, $data['school_id']);
+            // Remove the operator and name from the original operation for type 1 (teachers)
+            $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
+            // Create the new operation for type 1 (teachers)
+            $newOperation = $operationOriginal . " " . $operador . " " . $nombre;
+            // Update the operation function for type 1 (teachers)
+            self::updateOperationFunction($operasobreclase, 1, $newOperation, $data['school_id']);
+            // For non-teachers (type 2)
+            if ($operasobreclase == "IMPONIBLEEIMPUTABLE") {
+                // If the class is "IMPONIBLEEIMPUTABLE", change to "RENTAIMPONIBLESD"
+                $operasobreclase = "RENTAIMPONIBLESD";
+            }
+            // Get the original operation for type 2 (non-teachers)
+            $operationOriginal = self::getOperationFunction($operasobreclase, 2, $data['school_id']);
+            // Remove the operator and name from the original operation for type 2 (non-teachers)
+            $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
+            // Create the new operation for type 2 (non-teachers)
+            $newOperation = $operationOriginal . " " . $operador . " " . $nombre;
+            // Update the operation function for type 2 (non-teachers)
+            self::updateOperationFunction($operasobreclase, 2, $newOperation, $data['school_id']);
         }
-
-        self::updateOperationFunction($operasobreclase, $data['type'], $newOperation, $data['school_id']);
     }
     /**
      * Process and delete an operation based on the provided data.
@@ -205,25 +238,53 @@ class Operation extends Model
      * @param string $operador
      * @param string $meses
      */
-    public static function processDeleteOperation($nombre, $data, $operador, $meses)
+    public static function processDeleteOperation($nombre, $data, $operador)
     {
-        $operasobreclase   = self::getOperasobreClase($data);
-        $operationOriginal = self::getOperationFunction($operasobreclase, $data['type'], $data['school_id']);
-        $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
-        $newOperation      = $operationOriginal . " " . $operador . " " . $nombre;
+        $operasobreclase = self::getOperasobreClase($data);
 
         if ($data['type'] != 3) {
-            if (($data['type'] == 2) && ($operasobreclase == "IMPONIBLEEIMPUTABLE")) {
+            // For non-teacher types (not 3), handle the operation
+            $operationOriginal = self::getOperationFunction($operasobreclase, $data['type'], $data['school_id']);
+
+            // Remove the operator and name from the original operation
+            if (strpos($operationOriginal, $nombre) == 0) {
+                $newOperation = str_replace($nombre . " + ", "", $operationOriginal);
+            } else {
+                $newOperation = str_replace(" " . $operador . " " . $nombre, "", $operationOriginal);
+            }
+
+            // If it's type 2 (non-teachers) and the operation is "IMPONIBLEEIMPUTABLE", change to "RENTAIMPONIBLESD"
+            if ($data['type'] == 2 && $operasobreclase == "IMPONIBLEEIMPUTABLE") {
                 $operasobreclase = "RENTAIMPONIBLESD";
             }
-            self::updateOperationFunction($operasobreclase, $data['type'], $newOperation, $data['school_id'], $meses);
+
+            // Update the operation for the current type (teacher or non-teacher)
+            self::updateOperationFunction($operasobreclase, $data['type'], $newOperation, $data['school_id']);
         } else {
+            // For type 3 (both teachers and non-teachers)
+
+            // Update operation for teachers (type 1)
+            $operationOriginal = self::getOperationFunction($operasobreclase, 1, $data['school_id']);
+            if (strpos($operationOriginal, $nombre) == 0) {
+                $newOperation = str_replace($nombre . " + ", "", $operationOriginal);
+            } else {
+                $newOperation = str_replace(" " . $operador . " " . $nombre, "", $operationOriginal);
+            }
             self::updateOperationFunction($operasobreclase, 1, $newOperation, $data['school_id']);
+
+            // For non-teachers (type 2), handle operation
             if ($operasobreclase == "IMPONIBLEEIMPUTABLE") {
                 $operasobreclase = "RENTAIMPONIBLESD";
             }
+            $operationOriginal = self::getOperationFunction($operasobreclase, 2, $data['school_id']);
+            if (strpos($operationOriginal, $nombre) == 0) {
+                $newOperation = str_replace($nombre . " + ", "", $operationOriginal);
+            } else {
+                $newOperation = str_replace(" " . $operador . " " . $nombre, "", $operationOriginal);
+            }
             self::updateOperationFunction($operasobreclase, 2, $newOperation, $data['school_id']);
         }
+
     }
     /**
      * Get the application type for a given class, worker type, and school.

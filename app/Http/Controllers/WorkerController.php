@@ -10,125 +10,131 @@ use App\Models\Worker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class WorkerController extends Controller
-{
+class WorkerController extends Controller {
+
     /**
      * Create the controller instance.
      */
-    public function __construct()
-    {
-        $this->authorizeResource(Worker::class, 'worker');
+    public function __construct() {
+        $this->authorizeResource(Worker::class, 'worker'); // Authorize resource actions for Worker model
     }
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
+    public function index() {
+        // Get the school ID of the authenticated user
         $schoolId = auth()->user()->school_id_session;
-
+        // Retrieve workers for the current school with their contracts, ordered by ID and paginated
         $workers = Worker::query()->with('contract')
-            ->where('school_id', $schoolId) // Filtrar por school_id
-            ->orderBy('id', 'DESC')
-            ->paginate(5); // Paginación
-
+                ->where('school_id', $schoolId) // Filter by school_id
+                ->orderBy('id', 'DESC')
+                ->paginate(5); // Pagination with 5 workers per page
+        // Return the view with the workers list
         return view('workers.index', compact('workers'));
     }
+
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
+    public function create() {
+        // Instantiate a new Worker object
         $worker = new Worker();
+        // Get possible values for worker types, function types, contract types, and marital status
         $workerTypes = Worker::getWorkerTypes();
         $functionWorkerTypes = Worker::getFunctionWorkerTypes();
         $contractTypes = Contract::getContractTypes();
         $maritalStatus = Worker::getMaritalStatusTypes();
-        $workers = Worker::where('school_id', auth()->user()->school_id_session)->get(); // Obtiene trabajadores de la misma escuela
+        // Get all workers from the same school as the authenticated user
+        $workers = Worker::where('school_id', auth()->user()->school_id_session)->get();
+
         return view('workers.create', compact('worker', 'workerTypes', 'functionWorkerTypes', 'contractTypes', 'maritalStatus', 'workers'));
     }
+
     /**
      * Store a newly created resource in storage.
      */
-    public function store(WorkerFormRequest $request)
-    {
-        // Crear o actualizar el trabajador
+    public function store(WorkerFormRequest $request) {
+        // Create or update the worker with validated data
         $worker = Worker::createOrUpdateWorker($request->validated());
-        // Actualizar el contrato
+        // Create or update the worker's contract
         Contract::createOrUpdateContract($worker->id, $request);
-        // Crear el arreglo de carga horaria
-        $hourlyLoadArray = Worker::createHourlyLoadArray($request);
-        $worker->updateHourlyLoad($hourlyLoadArray);
-        // Insertar parámetros
+        // Create the hourly load array and update the worker
+        $worker->createHourlyLoadArray($request);
+        // Insert parameters associated with the worker
         Parameter::insertParameters($worker->id, $request, $request->input('school_id'));
-
+        // Redirect to workers list after storing
         return redirect()->route('workers.index');
     }
+
     /**
      * Display the specified resource.
      */
-    public function show(Worker $worker)
-    {
-        $workers = Worker::where('school_id', auth()->user()->school_id_session)->get(); // Obtiene trabajadores de la misma escuela
-
+    public function show(Worker $worker) {
+        // Get all workers from the same school
+        $workers = Worker::where('school_id', auth()->user()->school_id_session)->get();
+        // Return the worker's detail view
         return view('workers.show', compact('worker', 'workers'));
     }
+
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Worker $worker)
-    {
+    public function edit(Worker $worker) {
+        // Get various types of worker information for editing
         $workerTypes = Worker::getWorkerTypes();
         $functionWorkerTypes = Worker::getFunctionWorkerTypes();
         $contractTypes = Contract::getContractTypes();
         $maritalStatus = Worker::getMaritalStatusTypes();
-
-        $workers = Worker::where('school_id', auth()->user()->school_id_session)->get(); // Obtiene trabajadores de la misma escuela
-
-        // Obtener el contrato y parámetros asociados
+        // Get all workers from the same school
+        $workers = Worker::where('school_id', auth()->user()->school_id_session)->get();
+        // Retrieve the contract and associated parameters for the worker
         $contract = Contract::getContract($worker->id);
         $parameters = Parameter::where('worker_id', $worker->id)->get()->keyBy('name');
 
         return view('workers.edit', compact('worker', 'workerTypes', 'functionWorkerTypes', 'contractTypes', 'maritalStatus', 'contract', 'parameters', 'workers'));
     }
+
     /**
      * Update the specified resource in storage.
      */
-    public function update(WorkerFormRequest $request, Worker $worker)
-    {
+    public function update(WorkerFormRequest $request, Worker $worker) {
         DB::transaction(function () use ($request, $worker) {
-            // Actualizar el trabajador
+            // Update the worker
             $worker = Worker::createOrUpdateWorker($request->validated(), $worker);
-            // Actualizar el contrato
+            // Update the worker's contract
             Contract::createOrUpdateContract($worker->id, $request);
-            // Crear el arreglo de carga horaria
-            $hourlyLoadArray = Worker::createHourlyLoadArray($request);
-            $worker->updateHourlyLoad($hourlyLoadArray);
-            // Actualizar los parámetros
+            // Create the hourly load array and update the worker
+            $worker->createHourlyLoadArray($request);
+            // Update the worker's parameters
             Parameter::insertParameters($worker->id, $request, $request->input('school_id'));
         });
-
+        // Redirect to the worker's detail page after updating
         return redirect()->route('workers.show', $worker)->with('success', 'Trabajador Actualizado correctamente.');
     }
+
     /**
-     * View of Create the contract of the worker
+     * View to create a contract for the worker.
      */
-    public function createContract(Worker $worker)
-    {
+    public function createContract(Worker $worker) {
+        $formData = $worker->prepareContractFormData();
+
         return view('contracts.create', [
             'worker' => $worker,
+            'formData' => $formData,
             'durationOptions' => Contract::DURATION_OPTIONS,
             'scheduleOptions' => Contract::SCHEDULE_OPTIONS,
             'levelsOptions' => Contract::LEVELS_OPTIONS,
         ]);
     }
+
     /**
-     * Store Create the contract of the worker
+     * Store a newly created contract for the worker.
      */
-    public function storeContract(StoreContractRequest $request, Worker $worker)
-    {
-        // Busca el contrato existente
+    public function storeContract(StoreContractRequest $request, Worker $worker) {
+        // Retrieve the existing contract for the worker
         $contract = Contract::getContract($worker->id);
-        // Agrupar datos en un array
+        // Group contract details into an array
         $details = [
             'city' => $request->city,
             'levels' => $request->levels,
@@ -138,163 +144,196 @@ class WorkerController extends Controller
             'origin_city' => $request->origin_city,
             'schedule' => $request->schedule,
             'teaching_hours' => $request->teaching_hours,
-            'curricular_hours' => $request->curricular_hours
+            'curricular_hours' => $request->curricular_hours,
         ];
-        // Actualizar o crear el contrato con los detalles
+        // Update or create the contract with the details
         $contract->details = json_encode($details);
         $contract->save();
 
-        return redirect()->route('workers.index');
+        return redirect()->route('workers.index'); // Redirect to the workers list after storing contract
     }
+
     /**
-     * Print of the contract of the worker
+     * Print the contract for the worker.
      */
-    public function printContract(Worker $worker)
-    {
-        // Obtener los detalles del contrato
+    public function printContract(Worker $worker) {
+        // Retrieve the contract details for the worker
         $contract = $worker->contract;
-        // Pasar los datos a la vista
+        // Get the annexes and add them to the contract details
+        $annexes = $contract ? $contract->annexes : [];
+        // Return the view with contract details, including annexes
         return view('contracts.print', [
             'worker' => $worker,
-            'contractDetails' => json_decode($contract->details, true), // Convertir a array
+            'contractDetails' => json_decode($contract->details, true), // Decode the JSON details to an array
+            'annexes' => $annexes, // Include annexes in the contract details
         ]);
     }
+
     /**
-     * View Settlements of the worker
+     * View the settlements of the workers.
      */
-    public function settlements()
-    {
+    public function settlements() {
         $schoolId = auth()->user()->school_id_session;
-        // Obtener trabajadores con finiquito
+
+        // Obtener solo los trabajadores cuyo campo 'settlement_date' no es nulo
         $workers = Worker::where('school_id', $schoolId)
-            ->whereNotNull('settlement_date')
-            ->orderBy('id', 'DESC')
-            ->paginate(5); // Paginación de 5 trabajadores por página
-        //dd($workers);
+                ->whereNotNull('settlement_date') // Filtrar por 'settlement_date' no nulo
+                ->orderBy('id', 'DESC')
+                ->paginate(5);
+
         return view('workers.settlements.index', compact('workers'));
     }
+
     /**
-     * Set Settle of the worker
+     * View the settlement form for a specific worker.
      */
-    public function settle(Worker $worker)
-    {
-        return view('workers.settlements.settle', compact('worker'));
+    public function settle(Worker $worker) {
+        return view('workers.settlements.settle', compact('worker')); // Return view to settle the worker
     }
+
     /**
-     * Update Settle  of the worker
+     * Update the settlement date for the worker.
      */
-    public function updateSettlementDate(Request $request, Worker $worker)
-    {
+    public function updateSettlementDate(Request $request, Worker $worker) {
+        // Validate the settlement date
         $request->validate([
-            'settlement_date' => 'required|date',
+            'settlement_date' => 'required|date'
         ]);
+        // Set the settlement date
         $worker->settlement_date = $request->input('settlement_date');
+        // Save the worker's settlement date
         $worker->save();
-        
+        // Redirect with success message
         return redirect()->route('workers.index')->with('success', 'Fecha de finiquito actualizada correctamente.');
     }
+    
     /**
-     * Show Annexes of the contract of the worker
+     * Remove the settlement date from a worker.
      */
-    public function showAnnexes(Worker $worker)
+    public function removeSettlementDate(Worker $worker)
     {
-        // Obtener el contrato del trabajador y los anexos (si existen)
+        // Set the settlement_date to null
+        $worker->settlement_date = null;
+        $worker->save(); // Save the changes
+
+        return redirect()->route('workers.settlements')->with('success', 'Fecha de finiquito eliminada correctamente.');
+    }
+
+    /**
+     * Show annexes associated with the worker's contract.
+     */
+    public function showAnnexes(Worker $worker) {
+        // Get the contract of the worker and any associated annexes
         $contract = Contract::getContract($worker->id);
+        // If there are annexes, retrieve them, else use an empty array
         $annexes = $contract ? $contract->annexes : [];
-        // Retornar la vista de la ventana emergente con los anexos
+        // Return the view with the worker and annexes
         return view('contracts.annexes.index', compact('worker', 'annexes'));
     }
+
     /**
-     * Create Annexes in the contract of the worker
+     * Show the form to create an annex in the worker's contract.
      */
-    public function createAnnex(Worker $worker)
-    {
+    public function createAnnex(Worker $worker) {
+        // Return the view to create a new annex
         return view('contracts.annexes.create', compact('worker'));
     }
 
     /**
-     * Store Annex in the contract of the worker
+     * Store a newly created annex in the worker's contract.
      */
-    public function storeAnnex(Request $request, Worker $worker)
-    {
+    public function storeAnnex(Request $request, Worker $worker) {
+        // Validate annex name and description
         $request->validate([
             'annex_name' => 'required|string|max:255',
             'annex_description' => 'required|string',
         ]);
-        // Obtener el contrato del trabajador
+        // Retrieve the contract for the worker
         $contract = Contract::getContract($worker->id);
-        // Obtener los anexos actuales (si existen)
+        // Get current annexes (if any)
         $annexes = $contract ? $contract->annexes : [];
-        // Crear un nuevo anexo con un ID único
+        // Create a new annex with a unique ID and created_at timestamp
         $newAnnex = [
-            'id' => uniqid(), // Genera un ID único
+            'id' => uniqid(), // Generate a unique ID for the annex
             'annex_name' => $request->input('annex_name'),
             'annex_description' => $request->input('annex_description'),
+            'created_at' => now()->toDateTimeString(), // Add created_at timestamp
         ];
-        // Agregar el nuevo anexo al array de anexos
+
+        // Add the new annex to the existing annexes
         $annexes[] = $newAnnex;
-        // Guardar los anexos actualizados en el contrato
+
+        // Update the contract with the new annexes array
         $contract->update([
             'annexes' => $annexes,
         ]);
-        // Redirigir de nuevo a la ventana emergente con los anexos actualizados
+
+        // Redirect back to the annexes page with a success message
         return redirect()->route('contracts.showAnnexes', $worker)->with('success', 'Anexo Registrado Exitosamente !!');
     }
+
     /**
-     * Edit Annex in the contract of the worker
+     * Edit an annex in the worker's contract.
      */
-    public function editAnnex(Worker $worker, $annex)
-    {
+    public function editAnnex(Worker $worker, $annex) {
+        // Get the contract and the specific annex to be edited
         $contract = $worker->contract;
         $annexData = collect($contract->annexes)->firstWhere('id', $annex);
-
+        // Return the edit view for the annex
         return view('contracts.annexes.edit', compact('worker', 'annexData'));
     }
+
     /**
-     * Update Annex in the contract of the worker
+     * Update an annex in the worker's contract.
      */
-    public function updateAnnex(Request $request, Worker $worker, $annex)
-    {
+    public function updateAnnex(Request $request, Worker $worker, $annex) {
+        // Validate annex name and description
         $request->validate([
             'annex_name' => 'required|string|max:255',
-            'annex_description' => 'required|string',
+            'annex_description' => 'required|string'
         ]);
+
         $contract = $worker->contract;
         $annexes = $contract->annexes ?? [];
-
+        // Update the annex data
         foreach ($annexes as &$existingAnnex) {
             if ($existingAnnex['id'] == $annex) {
                 $existingAnnex['annex_name'] = $request->input('annex_name');
                 $existingAnnex['annex_description'] = $request->input('annex_description');
+                $existingAnnex['created_at'] = now()->toDateTimeString(); // Update the created_at timestamp
                 break;
             }
         }
+        // Save the updated annexes array to the contract
         $contract->update(['annexes' => $annexes]);
 
         return redirect()->route('contracts.showAnnexes', $worker)->with('success', 'Anexo actualizado con éxito');
     }
+
     /**
-     * Delete Annex in the contract of the worker
+     * Delete an annex from the worker's contract.
      */
-    public function deleteAnnex(Worker $worker, $annex)
-    {
+    public function deleteAnnex(Worker $worker, $annex) {
+        // Retrieve the contract and filter out the annex to be deleted
         $contract = $worker->contract;
         $annexes = collect($contract->annexes)->filter(function ($annexData) use ($annex) {
-            return $annexData['id'] !== $annex;
-        })->values();
-
+                    return $annexData['id'] !== $annex;
+                })->values();
+        // Update the contract with the remaining annexes
         $contract->update(['annexes' => $annexes]);
-        // Redirigir de nuevo a la página de anexos con el trabajador
+        // Redirect back to the annexes page with a success message
         return redirect()->route('contracts.showAnnexes', $worker)->with('success', 'Anexo Eliminado Exitosamente !!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Worker $worker)
-    {
+    public function destroy(Worker $worker) {
+        Parameter::where('worker_id', $worker->id)->delete();
+        // Delete the worker
         $worker->delete();
-
-        return redirect()->route('workers.index');
+        // Redirect to workers list after deletion
+        return redirect()->route('workers.index')->with('success', 'Trabajador Eliminado Exitosamente !!');
     }
+
 }

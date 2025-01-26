@@ -10,31 +10,30 @@ use App\Models\Tuition;
 use App\Models\Worker;
 use Illuminate\Http\Request;
 
-class BonusController extends Controller
-{
+class BonusController extends Controller {
+
     /**
      * Create the controller instance.
-    */
-    public function __construct()
-    {
+     */
+    public function __construct() {
         $this->authorizeResource(Bonus::class, 'bonus');
     }
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
+    public function index() {
         return view('bonuses.index');
     }
+
     /**
      * Selected Action of the index
      */
-    public function handleAction($action)
-    {
+    public function handleAction($action) {
         // Determine which action to take based on the $action parameter
         switch ($action) {
             case 'list':
-                return $this->list();
+                return $this->listBonuses();
             case 'params':
                 return $this->generalParams();
             case 'worker':
@@ -43,16 +42,16 @@ class BonusController extends Controller
                 abort(404); // If the action is invalid, return a 404 error
         }
     }
+
     /**
      * List of the Bonuses or Discounts
      */
-    protected function list()
-    {
+    protected function listBonuses() {
         $schoolId = auth()->user()->school_id_session;
 
         $bonuses = Bonus::query()
-            ->where('school_id', $schoolId) // Filter by school_id
-            ->orderBy('created_at', 'DESC')->get();
+                        ->where('school_id', $schoolId) // Filter by school_id
+                        ->orderBy('created_at', 'DESC')->get();
 
         return view('bonuses.partials.list', compact('bonuses'));
     }
@@ -60,8 +59,7 @@ class BonusController extends Controller
     /**
      * View General Params of the Bonuses or Discounts
      */
-    protected function generalParams()
-    {
+    protected function generalParams() {
         $this->authorize('parametersGen', Bonus::class); // Check if the user has the proper permission
         $params = Parameter::where('school_id', auth()->user()->school_id_session)->pluck('value', 'name')->toArray();
 
@@ -71,21 +69,19 @@ class BonusController extends Controller
     /**
      * Update General Params of the Bonuses or Discounts
      */
-    public function updateParams(Request $request)
-    {
+    public function updateParams(Request $request) {
         $request->validate([
             'CIERREMES' => 'required',
-            'FACTORRBMNBASICA' => 'required',
+            '3346b24227961c97d192499c235e46bb' => 'required',
             'VALORIMD' => 'required',
         ]);
 
         $schoolId = auth()->user()->school_id_session;
-        $paramsToUpdate = ['CIERREMES', 'FACTORRBMNBASICA', 'VALORIMD'];
+        $paramsToUpdate = ['CIERREMES', '3346b24227961c97d192499c235e46bb', 'VALORIMD'];
 
         foreach ($paramsToUpdate as $name) {
             Parameter::updateOrCreate(
-                ['name' => $name, 'school_id' => $schoolId],
-                ['value' => $request->$name, 'updated_at' => now()]
+                    ['name' => $name, 'school_id' => $schoolId], ['value' => $request->$name, 'updated_at' => now()]
             );
         }
 
@@ -95,8 +91,7 @@ class BonusController extends Controller
     /**
      * View Workers Relations of the Bonuses or Discounts
      */
-    protected function workers($worker_id = "")
-    {
+    protected function workers($worker_id = "") {
         // Get the school ID of the authenticated user
         $schoolId = auth()->user()->school_id_session;
         // Get all workers from the school
@@ -135,8 +130,7 @@ class BonusController extends Controller
     /**
      * Update Bonuses or Discounts of the Workers
      */
-    public function updateBonusWorker(Request $request)
-    {
+    public function updateBonusWorker(Request $request) {
         $worker_id = $request->input('worker_id');
         $schoolId = auth()->user()->school_id_session;
         // Get the selected worker's data
@@ -168,14 +162,14 @@ class BonusController extends Controller
         }
         // Redirect with success message
         return redirect()->route('bonuses.partials.worker', ['worker_id' => $worker_id])
-        ->with('success', 'Bonos designados correctamente !!');
+                        ->with('success', 'Bonos designados correctamente !!');
     }
 
     /*
-    Bonus : add-workers
+      Bonus : add-workers
      */
-    public function showWorkers(Bonus $bonus)
-    {
+
+    public function showWorkers(Bonus $bonus) {
         // Get all workers from the school
         $workers = Worker::getWorkersBySchoolAndType($bonus->school_id, $bonus->type);
         // Get the workers who already have the bonus applied
@@ -192,8 +186,7 @@ class BonusController extends Controller
         return view('bonuses.partials.workers', compact('bonus', 'workers', 'nonAppliedWorkers', 'appliedWorkers'));
     }
 
-    public function updateWorkers(Request $request, Bonus $bonus)
-    {
+    public function updateWorkers(Request $request, Bonus $bonus) {
         $idWorkers = $request->input('workers');
         $title = $bonus->title;
         $school = $bonus->school_id;
@@ -227,8 +220,7 @@ class BonusController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
+    public function create() {
         $bonus = new Bonus();
 
         $applicationOptions = Bonus::APPLICATION_OPTIONS;
@@ -243,8 +235,7 @@ class BonusController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(BonusFormRequest $request)
-    {
+    public function store(BonusFormRequest $request) {
         $result = Bonus::processCreateBonuses($request->validated());
 
         if (!$result['success']) {
@@ -257,8 +248,7 @@ class BonusController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Bonus $bonus)
-    {
+    public function show(Bonus $bonus) {
         $applicationOptions = Bonus::APPLICATION_OPTIONS;
         $workerOptions = Operation::getWorkerTypes();
         $type = $bonus->type;
@@ -286,8 +276,7 @@ class BonusController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Bonus $bonus)
-    {
+    public function edit(Bonus $bonus) {
         $applicationOptions = Bonus::APPLICATION_OPTIONS;
         $workerOptions = Operation::getWorkerTypes();
 
@@ -317,8 +306,7 @@ class BonusController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(BonusFormRequest $request, Bonus $bonus)
-    {
+    public function update(BonusFormRequest $request, Bonus $bonus) {
         $data = $request->validated();
 
         $result = Bonus::processUpdateBonuses($data, $bonus->id);
@@ -333,8 +321,7 @@ class BonusController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Bonus $bonus)
-    {
+    public function destroy(Bonus $bonus) {
         $result = Bonus::deleteProcessBonus($bonus);
         //dd($bonus);
         if (!$result['success']) {
@@ -343,4 +330,5 @@ class BonusController extends Controller
 
         return redirect()->route('bonuses.partials.list')->with('success', $result['message']); // Success message
     }
+
 }

@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
-class Contract extends Model
-{
+class Contract extends Model {
+
     use HasFactory;
 
     // Set the table columns you can mass-assign
@@ -28,27 +28,25 @@ class Contract extends Model
         3 => 'Reemplazo',
         4 => 'Residual',
     ];
-
     // Options for contract duration (for display in forms)
     const DURATION_OPTIONS = [
         'Indefinido' => 'Indefinido',
         'Plazo fijo' => 'Plazo fijo',
         'Reemplazo' => 'Reemplazo',
     ];
-
     // Schedule options (e.g., morning, afternoon, night shifts)
     const SCHEDULE_OPTIONS = [
         'Mañana' => 'Mañana',
         'Tarde' => 'Tarde',
         'Nocturna' => 'Nocturna',
     ];
-
     // Educational levels for the worker
     const LEVELS_OPTIONS = [
         'Básica' => 'Básica',
         'Media' => 'Media',
         'Superior' => 'Superior',
     ];
+
     /**
      * Accessor to retrieve annexes as an array.
      * 
@@ -58,10 +56,10 @@ class Contract extends Model
      * @param string $value The JSON string stored in the 'annexes' column
      * @return array The decoded annexes as an array
      */
-    public function getAnnexesAttribute($value)
-    {
+    public function getAnnexesAttribute($value) {
         return json_decode($value, true) ?? []; // Decode JSON or return empty array if null
     }
+
     /**
      * Mutator to save annexes as a JSON string.
      * 
@@ -70,10 +68,10 @@ class Contract extends Model
      * @param mixed $value The annexes data to be saved
      * @return void
      */
-    public function setAnnexesAttribute($value)
-    {
+    public function setAnnexesAttribute($value) {
         $this->attributes['annexes'] = json_encode($value); // Encode the annexes as JSON before saving
     }
+
     /**
      * Returns the available contract types.
      * 
@@ -81,10 +79,10 @@ class Contract extends Model
      * 
      * @return array The available contract types
      */
-    public static function getContractTypes()
-    {
+    public static function getContractTypes() {
         return self::CONTRACT_TYPES;
     }
+
     /**
      * Returns the description of the contract type.
      * 
@@ -92,10 +90,10 @@ class Contract extends Model
      * 
      * @return string The contract type description
      */
-    public function getContractTypesDescription()
-    {
+    public function getContractTypesDescription() {
         return self::CONTRACT_TYPES[$this->contract_type] ?? 'Desconocido'; // Return description or 'Desconocido' if not found
     }
+
     /**
      * Checks if a contract exists for a worker.
      * 
@@ -104,10 +102,10 @@ class Contract extends Model
      * @param int $idWorker The ID of the worker
      * @return bool True if a contract exists for the worker, false otherwise
      */
-    public static function contractExists($idWorker)
-    {
+    public static function contractExists($idWorker) {
         return self::where('worker_id', $idWorker)->exists(); // Check if a contract exists for the worker
     }
+
     /**
      * Retrieves the contract of a worker.
      * 
@@ -116,10 +114,10 @@ class Contract extends Model
      * @param int $idWorker The ID of the worker
      * @return \App\Models\Contract|null The worker's contract or null if not found
      */
-    public static function getContract($idWorker)
-    {
+    public static function getContract($idWorker) {
         return self::where('worker_id', $idWorker)->first(); // Return the first contract for the worker
     }
+
     /**
      * Creates or updates a contract for a worker.
      * 
@@ -130,14 +128,14 @@ class Contract extends Model
      * @param \Illuminate\Http\Request $request The HTTP request containing contract data
      * @return \App\Models\Contract The created or updated contract
      */
-    public static function createOrUpdateContract($workerId, Request $request)
-    {
+    public static function createOrUpdateContract($workerId, Request $request) {
         // Extract the contract-related data from the request
         $data = $request->only(['contract_type', 'hire_date', 'termination_date', 'replacement_reason']);
-        
+
         // Create or update the contract based on the worker ID
         return self::updateOrCreate(['worker_id' => $workerId], $data);
     }
+
     /**
      * Relationship: A Contract belongs to a Worker.
      * 
@@ -146,8 +144,8 @@ class Contract extends Model
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The relationship with the Worker model
      */
-    public function worker()
-    {
+    public function worker() {
         return $this->belongsTo(Worker::class, 'worker_id'); // Define the inverse relationship with Worker
     }
+
 }

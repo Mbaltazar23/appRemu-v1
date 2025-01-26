@@ -2,16 +2,15 @@
 
 namespace App\Helpers;
 
-class MonthHelper
-{
+class MonthHelper {
+
     /**
      * Converts an integer to the name of the corresponding month.
      *
      * @param int $monthNumber
      * @return string
      */
-    public static function integerToMonth($monthNumber)
-    {
+    public static function integerToMonth($monthNumber) {
         switch ($monthNumber) {
             case 1:
                 return "Enero";
@@ -39,4 +38,5 @@ class MonthHelper
                 return "Diciembre";
         }
     }
+
 }

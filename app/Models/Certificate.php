@@ -6,8 +6,8 @@ use App\Helpers\MonthHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Certificate extends Model
-{
+class Certificate extends Model {
+
     use HasFactory;
 
     // Set the table columns you can mass-assign
@@ -17,6 +17,7 @@ class Certificate extends Model
         'year',
         'description',
     ];
+
     /**
      * Retrieves certificates for a specific school and distinct years.
      * 
@@ -25,15 +26,15 @@ class Certificate extends Model
      * @param int $school_id The ID of the school to filter by
      * @return \Illuminate\Database\Eloquent\Collection A collection of distinct years in which certificates were issued
      */
-    public static function getCertificateForSchool($school_id)
-    {
+    public static function getCertificateForSchool($school_id) {
         // Fetch distinct years from the 'Certificate' model where the school ID matches
         return self::where('school_id', $school_id)
-            ->select('year') // Only select the 'year' column
-            ->distinct() // Avoid duplicate entries
-            ->orderByDesc('year') // Order by year in descending order
-            ->get(); // Retrieve the result
+                        ->select('year') // Only select the 'year' column
+                        ->distinct() // Avoid duplicate entries
+                        ->orderByDesc('year') // Order by year in descending order
+                        ->get(); // Retrieve the result
     }
+
     /**
      * Creates or updates a certificate for a specific worker, school, and year.
      * 
@@ -46,8 +47,7 @@ class Certificate extends Model
      * @param int $year The year for which the certificate is generated
      * @return void
      */
-    public static function createCertificate($school_id, $worker_id, $year)
-    {
+    public static function createCertificate($school_id, $worker_id, $year) {
         // Fetch school and sustainer details using the school ID
         $school = School::find($school_id);
         $sustainer = $school->sustainer;
@@ -87,9 +87,9 @@ class Certificate extends Model
         // Loop through each month (0 to 11) to gather monthly data for the worker
         for ($i = 0; $i <= 11; $i++) {
             $liquidation = Liquidation::where('worker_id', $worker->id)
-                ->where('month', $i + 1) // Month (1-12)
-                ->where('year', $year)
-                ->first();
+                    ->where('month', $i + 1) // Month (1-12)
+                    ->where('year', $year)
+                    ->first();
             // If no liquidation exists for the month, set all values to 0
             if (!$liquidation) {
                 $income = 0;
@@ -104,14 +104,18 @@ class Certificate extends Model
                 $legal_deductions = Liquidation::getDetailByTuitionId($liquidation->id, "DESCUENTOSLEGALES", 'value');
                 $taxable_salary = Liquidation::getDetailByTuitionId($liquidation->id, "REMUNERACIONTRIBUTABLE", 'value');
                 $tax_amount = Liquidation::getDetailByTuitionId($liquidation->id, "IMPUESTORENTA", 'value');
-                // Get capital value from the monetary data configuration
-                $month_values = $monetaryData[$year][$i];
-                $capital_value = null;
-                foreach ($month_values as $value) {
-                    if ($value !== null) {
-                        $capital_value = $value;
-                        break;
-                    }
+                // Get the capital correction values for the current month
+                $capital_values = $monetaryData[$year][$i]; // Get the array of values for the month
+                // Filter out null values and reindex the array
+                $filtered_values = array_values(array_filter($capital_values, function($value) {
+                            return $value !== null; // Filter out null values
+                        }));
+
+                // If there are valid values, get the first one
+                if (count($filtered_values) > 0) {
+                    $capital_value = $filtered_values[0]; // Get the first valid capital value
+                } else {
+                    $capital_value = 0; // Default value in case of no valid values
                 }
                 // Calculate adjusted salary and adjusted tax by multiplying with capital value
                 $adjusted_salary = (double) $taxable_salary * $capital_value;
@@ -140,9 +144,9 @@ class Certificate extends Model
         }
         // Check if a certificate already exists for the worker for the given year
         $existingCertificate = self::where('worker_id', $worker_id)
-            ->where('year', $year)
-            ->where('school_id', $school_id)
-            ->first();
+                ->where('year', $year)
+                ->where('school_id', $school_id)
+                ->first();
         // We evaluate whether there are previous registered certificates
         if ($existingCertificate) {
             // Update the description if certificate already exists
@@ -170,6 +174,7 @@ class Certificate extends Model
             self::create($certificateData); // Create the certificate
         }
     }
+
     /**
      * Retrieves certificates for a specific year and school, and formats them for display.
      * 
@@ -180,37 +185,37 @@ class Certificate extends Model
      * @param int $school_id The school ID to filter the certificates by
      * @return \Illuminate\Support\Collection A collection of formatted certificate data
      */
-    public static function getCertificates($year, $school_id)
-    {
+    public static function getCertificates($year, $school_id) {
         // Fetch workers, their certificates for the specified year, and the sustainer data
         $workersData = Worker::where('school_id', $school_id)
-            ->with(['certificates' => function ($query) use ($year) {
-                $query->where('year', $year); // Filter certificates by year
-            }, 'school.sustainer'])->get();
+                        ->with(['certificates' => function ($query) use ($year) {
+                                $query->where('year', $year); // Filter certificates by year
+                            }, 'school.sustainer'])->get();
 
         // Format the data for the view and filter out any null entries (workers without certificates)
         return $workersData->map(function ($worker) use ($year) {
-            $certificate = $worker->certificates->first(); // Only get the first certificate for the year
+                    $certificate = $worker->certificates->first(); // Only get the first certificate for the year
 
-            if (!$certificate) {
-                return null; // Return null if no certificate exists for the worker
-            }
+                    if (!$certificate) {
+                        return null; // Return null if no certificate exists for the worker
+                    }
 
-            $certificateData = json_decode($certificate->description, true);
+                    $certificateData = json_decode($certificate->description, true);
 
-            return [
-                'sustainer_name' => $certificateData['sustainer_info']['sustainer_name'],
-                'sustainer_rut' => $certificateData['sustainer_info']['sustainer_rut'],
-                'sustainer_address' => $certificateData['sustainer_info']['sustainer_address'],
-                'sustainer_legal_nature' => $certificateData['sustainer_info']['sustainer_legal_nature'],
-                'worker_name' => $worker->name,
-                'worker_rut' => $worker->rut,
-                'year' => $year,
-                'months_data' => $certificateData['monthly_data'],
-                'total_values' => $certificateData['totals'],
-            ];
-        })->filter(); // Filter out null values (workers without certificates)
+                    return [
+                        'sustainer_name' => $certificateData['sustainer_info']['sustainer_name'],
+                        'sustainer_rut' => $certificateData['sustainer_info']['sustainer_rut'],
+                        'sustainer_address' => $certificateData['sustainer_info']['sustainer_address'],
+                        'sustainer_legal_nature' => $certificateData['sustainer_info']['sustainer_legal_nature'],
+                        'worker_name' => $worker->name,
+                        'worker_rut' => $worker->rut,
+                        'year' => $year,
+                        'months_data' => $certificateData['monthly_data'],
+                        'total_values' => $certificateData['totals'],
+                    ];
+                })->filter(); // Filter out null values (workers without certificates)
     }
+
     /**
      * Relationship: A Certificate belongs to a Worker.
      * 
@@ -219,10 +224,10 @@ class Certificate extends Model
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The relationship between Certificate and Worker
      */
-    public function worker()
-    {
+    public function worker() {
         return $this->belongsTo(Worker::class);
     }
+
     /**
      * Relationship: A Certificate belongs to a School.
      * 
@@ -231,8 +236,8 @@ class Certificate extends Model
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The relationship between Certificate and School
      */
-    public function school()
-    {
+    public function school() {
         return $this->belongsTo(School::class);
     }
+
 }

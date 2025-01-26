@@ -20,7 +20,7 @@
 
         <div class="col-md-6 mb-2">
             <div class="form-group">
-                <label for="cotizacion" class="form-label">Cotización</label>
+                <label for="cotizacion" class="form-label">Cotización (%)</label>
                 <input type="text" class="form-control" name="cotizacion" id="cotizacion"
                     value="{{ old('cotizacion', $insurance->cotizacion ?? '') }}" required
                     placeholder="Ejemplo: 1234.56 o 1.234,56">

@@ -1,5 +1,4 @@
 <?php
-
 namespace Database\Factories;
 
 use App\Models\Role;
@@ -18,11 +17,11 @@ class SchoolUserFactory extends Factory
     public function definition()
     {
         return [
-            // Seleccionamos un usuario con el rol 'Contador' de manera aleatoria
-            'user_id' =>User::where('role_id', Role::where('name', 'Contador')->value('id'))->inRandomOrder()->first()->id, // Filtra solo los 'Contadores'
-
-            // Seleccionamos una escuela de manera aleatoria
-            'school_id' => School::inRandomOrder()->first()->id, 
+            // We select a user with the role 'Accountant' at random
+            'user_id'   => User::where('role_id', Role::where('name', 'Contador')->value('id'))->inRandomOrder()->first()->id,
+            // Filter only the 'Contadores'
+            // We select a school at random
+            'school_id' => School::inRandomOrder()->first()->id,
         ];
     }
 }

@@ -11,7 +11,7 @@ class SustainerFormRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;  // Aquí puedes ajustar la lógica de autorización si es necesario
+        return true;  // Here you can adjust the authorization logic if necessary
     }
 
     /**

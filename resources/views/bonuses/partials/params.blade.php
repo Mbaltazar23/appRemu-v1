@@ -22,8 +22,8 @@
                 <div class="mb-3 row">
                     <label for="FACTORRBMNBASICA" class="col-sm-4 col-form-label">Factor RBMN Básica (en pesos)</label>
                     <div class="col-sm-8">
-                        <input type="text" class="form-control" id="FACTORRBMNBASICA" name="FACTORRBMNBASICA" 
-                               value="{{ old('FACTORRBMNBASICA', $params['FACTORRBMNBASICA'] ?? '') }}" required>
+                        <input type="text" class="form-control" id="3346b24227961c97d192499c235e46bb" name="3346b24227961c97d192499c235e46bb" 
+                               value="{{ old('FACTORRBMNBASICA', $params['3346b24227961c97d192499c235e46bb'] ?? '') }}" required>
                     </div>
                 </div>
 

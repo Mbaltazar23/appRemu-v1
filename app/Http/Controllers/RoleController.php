@@ -5,24 +5,22 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RoleFormRequest;
 use App\Models\Role;
 
-class RoleController extends Controller
-{
+class RoleController extends Controller {
+
     /**
      * Create the controller instance.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->authorizeResource(Role::class, 'role');
     }
 
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
+    public function index() {
         $roles = Role::query()
-            ->orderBy('created_at', 'DESC')
-            ->paginate(5);
+                ->orderBy('created_at', 'DESC')
+                ->paginate(5);
 
         return view('roles.index', compact('roles'));
     }
@@ -30,8 +28,7 @@ class RoleController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
+    public function create() {
         $role = new Role();
 
         $permissions = Role::getAvailablePermissions();
@@ -42,8 +39,7 @@ class RoleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(RoleFormRequest $request)
-    {
+    public function store(RoleFormRequest $request) {
         $role = Role::create($request->validated());
 
         if ($request->has('permissions')) {
@@ -56,16 +52,14 @@ class RoleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Role $role)
-    {
+    public function show(Role $role) {
         return view('roles.show', compact('role'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Role $role)
-    {
+    public function edit(Role $role) {
         $permissions = Role::getAvailablePermissions();
 
         return view('roles.edit', compact('role', 'permissions'));
@@ -74,8 +68,7 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(RoleFormRequest $request, Role $role)
-    {
+    public function update(RoleFormRequest $request, Role $role) {
         $role->update($request->validated());
 
         if ($request->has('permissions')) {
@@ -88,10 +81,10 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Role $role)
-    {
+    public function destroy(Role $role) {
         $role->delete();
 
         return redirect()->route('roles.index')->with('success', "Rol Eliminado Exitosamente !!");
     }
+
 }

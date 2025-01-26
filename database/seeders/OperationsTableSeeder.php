@@ -32,6 +32,8 @@ class OperationsTableSeeder extends Seeder
         }
 
         $tuitionAsignacionVoluntariaId = Tuition::where('title', 'Asignacion Voluntaria')->value('tuition_id');
+        $tuitionRBMN = Tuition::where('title', 'RBMN')->value('tuition_id');
+
         /* Obtener los tuition_id previamente
 
         $tuitionLey19464Id = Tuition::where('title', 'Ley 19464')->value('tuition_id');
@@ -49,7 +51,7 @@ class OperationsTableSeeder extends Seeder
         // Definir las operaciones con los títulos que deben buscarse en la tabla Tuition
         $operations = [
             ['IMPONIBLEEIMPUTABLE', 1,
-                "$tuitionAsignacionVoluntariaId", NULL, 0, 0, 0, '111111111111'],
+                "$tuitionAsignacionVoluntariaId + $tuitionRBMN", NULL, 0, 0, 0, '111111111111'],
             ['TOTALAPAGAR', 1, 'TOTALHABERES - TOTALDESCUENTOS', NULL, 0, 0, 0, '111111111111'],
             ['TOTALAPAGAR', 2, 'TOTALHABERES - TOTALDESCUENTOS', NULL, 0, 0, 0, '111111111111'],
             ['AFP', 1, 'COTIZACIONAFP / 100 * RENTAIMPONIBLE', NULL, 0, 0, 0, '111111111111'],
@@ -150,7 +152,20 @@ class OperationsTableSeeder extends Seeder
                 'months' => $this->generateDynamicMonths([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]), // Ejemplo de meses específicos
                 'school_id' => $school_id,
                 'amount' => 0,
-            ]];
+            ],
+            [
+                'title' => 'RBMN',
+                'type' => 1,
+                'taxable' => 0,
+                'imputable' => 0,
+                'is_bonus' => 0,
+                'factor' => 100,
+                'application' => 'C',
+                'months' => $this->generateDynamicMonths([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]), // Ejemplo de meses específicos
+                'school_id' => $school_id,
+                'amount' => 7824,
+            ]
+        ];
     }
 
     private function generateDynamicMonths($selectedMonths = null)

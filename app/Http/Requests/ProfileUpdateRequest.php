@@ -6,11 +6,9 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
+class ProfileUpdateRequest extends FormRequest {
 
-class ProfileUpdateRequest extends FormRequest
-{
-    public function rules()
-    {
+    public function rules() {
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'string', 'max:255', Rule::unique('users')->ignore(Auth::user())],
@@ -18,15 +16,14 @@ class ProfileUpdateRequest extends FormRequest
         ];
     }
 
-    public function authorize()
-    {
+    public function authorize() {
         return true;
     }
 
-    protected function prepareForValidation()
-    {
+    protected function prepareForValidation() {
         if ($this->password == null) {
             $this->request->remove('password');
         }
     }
+
 }

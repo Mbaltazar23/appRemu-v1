@@ -6,13 +6,12 @@ use App\Models\License;
 use App\Models\Worker;
 use Illuminate\Database\Seeder;
 
-class LicenseSeeder extends Seeder
-{
+class LicenseSeeder extends Seeder {
+
     /**
      * Run the database seeds.
      */
-    public function run(): void
-    {
+    public function run(): void {
         // Crear 30 licencias usando el factory
         $licenses = License::factory()->count(10)->create();
         // Llamar a updateLicenseHours() o updateLicenseDays() según el tipo de trabajador
@@ -35,4 +34,5 @@ class LicenseSeeder extends Seeder
             }
         }
     }
+
 }

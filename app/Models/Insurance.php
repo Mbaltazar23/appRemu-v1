@@ -5,13 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Insurance extends Model
-{
+class Insurance extends Model {
+
     use HasFactory;
+
     // Constants for the types of insurance
     const AFP = 1;
     const ISAPRE = 2;
     const FONASA = 3;
+
     // Define fillable attributes to allow mass assignment
     protected $fillable = [
         'name',
@@ -19,6 +21,7 @@ class Insurance extends Model
         'cotizacion',
         'rut',
     ];
+
     /**
      * Types of insurance.
      * 
@@ -30,19 +33,20 @@ class Insurance extends Model
     const TYPES = [
         self::AFP => 'AFP', // AFP type insurance
         self::ISAPRE => 'Salud', // ISAPRE health insurance
-        // self::FONASA => 'Fonasa', // Uncomment if FONASA is needed
+            // self::FONASA => 'Fonasa', // Uncomment if FONASA is needed
     ];
-     /**
+
+    /**
      * Get the available insurance types as a collection.
      * 
      * This static method is used to retrieve all available insurance types.
      *
      * @return \Illuminate\Support\Collection
      */
-    public static function getInsuranceTypes()
-    {
+    public static function getInsuranceTypes() {
         return collect(self::TYPES); // Return types as a collection for flexible handling
     }
+
     /**
      * Get the name of the insurance type.
      * 
@@ -51,10 +55,10 @@ class Insurance extends Model
      *
      * @return string
      */
-    public function getTypeName()
-    {
+    public function getTypeName() {
         return self::TYPES[$this->type] ?? 'Desconocido'; // Returns a default value if not found
     }
+
     /**
      * Get the name of the insurance by its ID.
      * 
@@ -63,10 +67,10 @@ class Insurance extends Model
      * @param int $id
      * @return string|null
      */
-    public static function getNameInsurance($id)
-    {
+    public static function getNameInsurance($id) {
         return self::where('id', $id)->value('name'); // Get the 'name' field based on the ID
     }
+
     /**
      * Get the cotization of the insurance by its ID.
      * 
@@ -75,10 +79,10 @@ class Insurance extends Model
      * @param int $id
      * @return float|null
      */
-    public static function getCotizationInsurance($id)
-    {
+    public static function getCotizationInsurance($id) {
         return self::where('id', $id)->value('cotizacion'); // Get the 'cotizacion' field based on the ID
     }
+
     /**
      * Inverse relationship with workers who have AFP insurance.
      * 
@@ -87,10 +91,10 @@ class Insurance extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function workersAFP()
-    {
+    public function workersAFP() {
         return $this->hasMany(Worker::class, 'insurance_AFP'); // Defines relationship using the 'insurance_AFP' foreign key
     }
+
     /**
      * Inverse relationship with workers who have ISAPRE insurance.
      * 
@@ -99,8 +103,8 @@ class Insurance extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function workersISAPRE()
-    {
+    public function workersISAPRE() {
         return $this->hasMany(Worker::class, 'insurance_ISAPRE'); // Defines relationship using the 'insurance_ISAPRE' foreign key
     }
+
 }

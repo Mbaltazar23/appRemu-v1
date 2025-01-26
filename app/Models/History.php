@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class History extends Model
-{
+class History extends Model {
+
     use HasFactory;
 
     // Define the fillable attributes to allow mass assignment
     protected $fillable = ['user_id', 'action'];
+
     /**
      * Relationship with the User model.
      * 
@@ -21,9 +22,9 @@ class History extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function user()
-    {
+    public function user() {
         // This indicates that each history record belongs to a user
         return $this->belongsTo(User::class, 'user_id');
     }
+
 }

@@ -13,13 +13,13 @@ class WorkerFactory extends Factory
 
     public function definition()
     {
-        // Cargar las comunas y regiones desde la configuración
+        // Load the communes and regions from the configuration
         $communes = config('communes_region.COMMUNE_OPTIONS');
         $regions = config('communes_region.REGIONES_OPTIONS');
 
-        // Definimos los datos base del trabajador
+        // We define the basic data of the worker
         $workerData = [
-            'school_id' => null, // Se asignará más tarde
+            'school_id' => null, // To be assigned later
             'rut' => $this->faker->unique()->numerify('##.###.###-#'),
             'name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,

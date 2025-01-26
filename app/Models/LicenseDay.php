@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class LicenseDay extends Model
-{
+class LicenseDay extends Model {
+
     use HasFactory;
 
     // Define fillable fields for mass assignment
@@ -17,6 +17,7 @@ class LicenseDay extends Model
         'year',
         'exists',
     ];
+
     /**
      * Define the relationship with the License model.
      * 
@@ -24,8 +25,8 @@ class LicenseDay extends Model
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function license()
-    {
+    public function license() {
         return $this->belongsTo(License::class);
     }
+
 }

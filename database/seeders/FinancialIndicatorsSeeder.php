@@ -1,5 +1,4 @@
 <?php
-
 namespace Database\Seeders;
 
 use App\Models\Operation;
@@ -18,15 +17,13 @@ class FinancialIndicatorsSeeder extends Seeder
             return; // Si no se encuentra un contador, salimos del método.
         }
 
-        $schoolId = $contadorUser->school_id;
+        $schoolId    = $contadorUser->school_id;
         $randomMonth = rand(1, 12);
-        $cierremes = ($randomMonth == 2) ? 28 : rand(30, 31); // Asignar el valor de CIERREMES
-
+        $cierremes   = ($randomMonth == 2) ? 28 : rand(30, 31); // Asignar el valor de CIERREMES
         // Parámetros comunes para insertar
         $paramsToInsert = [
             'CIERREMES' => $cierremes,
-            'FACTORRBMNBASICA' => rand(1000, 6000),
-            'VALORIMD' => rand(1, 1000),
+            'VALORIMD'  => rand(1, 1000),
         ];
 
         $this->insertParameters($paramsToInsert, $schoolId);
@@ -57,16 +54,16 @@ class FinancialIndicatorsSeeder extends Seeder
         $impuestos = $this->getImpuestoValues($i);
         // Crear el parámetro de FACTORIMPTRAMO
         Parameter::factory()->create([
-            'name' => "FACTORIMPTRAMO$i",
+            'name'        => "FACTORIMPTRAMO$i",
             'description' => "Factor Impuesto tramo $i",
-            'value' => $impuestos['impuesto'],
+            'value'       => $impuestos['impuesto'],
         ]);
         // Crear el parámetro de FACTORREBAJAIMPTRAMO
         Parameter::factory()->create([
-            'name' => "FACTORREBAJAIMPTRAMO$i",
+            'name'        => "FACTORREBAJAIMPTRAMO$i",
             'description' => "Factor Rebaja Impuesto tramo $i",
-            'value' => $impuestos['rebaja'],
-            'unit' => 'UTM',
+            'value'       => $impuestos['rebaja'],
+            'unit'        => 'UTM',
         ]);
         // Crear las Tuiciones para los tramos
         $this->createTuition("FACTORIMPTRAMO$i", "Factor Impuesto tramo $i", $schoolId);
@@ -78,7 +75,7 @@ class FinancialIndicatorsSeeder extends Seeder
     private function getImpuestoValues(int $i): array
     {
         switch ($i) {
-            case 2:return ['impuesto' =>0.04, 'rebaja' => 0.539, 'min' => 13.5, 'max' => 30];
+            case 2:return ['impuesto' => 0.04, 'rebaja' => 0.539, 'min' => 13.5, 'max' => 30];
             case 3:return ['impuesto' => 0.08, 'rebaja' => 1.737, 'min' => 30, 'max' => 50];
             case 4:return ['impuesto' => 0.14, 'rebaja' => 4.481, 'min' => 50, 'max' => 70];
             case 5:return ['impuesto' => 0.23, 'rebaja' => 11.117, 'min' => 70, 'max' => 90];
@@ -93,9 +90,9 @@ class FinancialIndicatorsSeeder extends Seeder
     {
         Tuition::factory()->create([
             'tuition_id' => $tuitionId,
-            'title' => $title,
-            'type' => 'P',
-            'school_id' => $schoolId,
+            'title'      => $title,
+            'type'       => 'P',
+            'school_id'  => $schoolId,
         ]);
     }
 
@@ -103,22 +100,22 @@ class FinancialIndicatorsSeeder extends Seeder
     {
         foreach ([1, 2] as $workerType) {
             Operation::factory()->create([
-                'tuition_id' => "IMPUESTOTRAMO$i",
-                'operation' => 'REMUNERACIONTRIBUTABLE',
+                'tuition_id'  => "IMPUESTOTRAMO$i",
+                'operation'   => 'REMUNERACIONTRIBUTABLE',
                 'worker_type' => $workerType,
-                'limit_unit' => 'UTM',
-                'min_limit' => $minLimit,
-                'max_limit' => $maxLimit,
+                'limit_unit'  => 'UTM',
+                'min_limit'   => $minLimit,
+                'max_limit'   => $maxLimit,
                 'application' => 111111111111,
-                'school_id' => $schoolId,
+                'school_id'   => $schoolId,
             ]);
         }
 
         Tuition::factory()->create([
             'tuition_id' => "IMPUESTOTRAMO$i",
-            'title' => "IMPUESTOTRAMO$i",
-            'type' => 'O',
-            'school_id' => $schoolId,
+            'title'      => "IMPUESTOTRAMO$i",
+            'type'       => 'O',
+            'school_id'  => $schoolId,
         ]);
     }
 
@@ -127,15 +124,15 @@ class FinancialIndicatorsSeeder extends Seeder
         $asignacion = $this->getAsignacionValues($i);
         // Crear el parámetro de Asignación Familiar
         Parameter::factory()->create([
-            'name' => "ASIGCAR.FAMTRAMO$i",
+            'name'  => "ASIGCAR.FAMTRAMO$i",
             'value' => $asignacion['valor'],
         ]);
         // Crear la tuición
         Tuition::factory()->create([
             'tuition_id' => "ASIGCAR.FAMTRAMO$i",
-            'title' => "Asignacion familiar tramo $i",
-            'type' => 'P',
-            'school_id' => $schoolId,
+            'title'      => "Asignacion familiar tramo $i",
+            'type'       => 'P',
+            'school_id'  => $schoolId,
         ]);
         // Crear las operaciones para Asignación Familiar
         $this->createAsignacionOperation($i, $schoolId, $asignacion['min'], $asignacion['max']);
@@ -155,21 +152,21 @@ class FinancialIndicatorsSeeder extends Seeder
     {
         foreach ([1, 2] as $workerType) {
             Operation::factory()->create([
-                'tuition_id' => "FILTROASIGFAMT$i",
-                'operation' => 'RENTAIMPONIBLE',
+                'tuition_id'  => "FILTROASIGFAMT$i",
+                'operation'   => 'RENTAIMPONIBLE',
                 'worker_type' => $workerType,
-                'min_limit' => $minLimit,
-                'max_limit' => $maxLimit,
+                'min_limit'   => $minLimit,
+                'max_limit'   => $maxLimit,
                 'application' => 111111111111,
-                'school_id' => $schoolId,
+                'school_id'   => $schoolId,
             ]);
         }
 
         Tuition::factory()->create([
             'tuition_id' => "FILTROASIGFAMT$i",
-            'title' => "FILTROASIGFAMT$i",
-            'type' => 'O',
-            'school_id' => $schoolId,
+            'title'      => "FILTROASIGFAMT$i",
+            'type'       => 'O',
+            'school_id'  => $schoolId,
         ]);
     }
 
@@ -184,9 +181,9 @@ class FinancialIndicatorsSeeder extends Seeder
 
         foreach ($costos as $costo) {
             Parameter::factory()->create([
-                'name' => $costo,
+                'name'      => $costo,
                 'school_id' => $schoolId,
-                'value' => 0,
+                'value'     => 0,
             ]);
         }
     }

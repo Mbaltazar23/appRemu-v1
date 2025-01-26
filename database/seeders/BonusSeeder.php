@@ -161,23 +161,11 @@ class BonusSeeder extends Seeder
                 'taxable' => 0,
                 'imputable' => 1,
                 'is_bonus' => 0,
-                'factor' => 1,
+                'factor' => 100,
                 'application' => 'H',
                 'months' => $this->generateDynamicMonths([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]), // Ejemplo de meses específicos
                 'school_id' => $school_id,
                 'amount' => 246661,
-            ],
-            [
-                'title' => 'RBMN',
-                'type' => 1,
-                'taxable' => 0,
-                'imputable' => 0,
-                'is_bonus' => 0,
-                'factor' => 100,
-                'application' => 'C',
-                'months' => $this->generateDynamicMonths([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]), // Ejemplo de meses específicos
-                'school_id' => $school_id,
-                'amount' => 7824,
             ],
             [
                 'title' => 'UMP',
@@ -215,11 +203,13 @@ class BonusSeeder extends Seeder
         $AplicacionLey19933Id = Tuition::where('title', 'Aplicación de Ley 19933')->value('tuition_id');
         $AplicacionLey19410Id = Tuition::where('title', 'Aplicación de Ley 19410')->value('tuition_id');
         $tuitionUmp = Tuition::where('title', 'Valor UMP')->value('tuition_id');
+        $factorRBMN  = Tuition::where('title', 'Valor RBMN')->where('school_id', $schoolId)->first()->tuition_id;
+
         
         $operations = [
             ['EXCEDENTEBONOSAELEY19410Y19933', 1, "$tuitionLey19410Id + $tuitionLey19933Id / 0.8 * 12 * 0.2 * CARGAHORARIA / SUMACARGAS", 0, 0, 0, '000000000000'],
             ['PLANILLACOMPLEMENTARIA', 1,
-                "VALORIMD M+ FACTORRBMNBASICA M- $tuitionUmp M- $tuitionLey19933Id * $AplicacionLey19933Id / SUMACARGAS M- $tuitionLey19410Id * $AplicacionLey19410Id / SUMACARGAS M- MR * CARGAHORARIA * FACTORASIST",
+                "VALORIMD M+ $factorRBMN M- $tuitionUmp M- $tuitionLey19933Id * $AplicacionLey19933Id / SUMACARGAS M- $tuitionLey19410Id * $AplicacionLey19410Id / SUMACARGAS M- MR * CARGAHORARIA * FACTORASIST",
              0, 0, 0, '111111111111'],
         ];
 

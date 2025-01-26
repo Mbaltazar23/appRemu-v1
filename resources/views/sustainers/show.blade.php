@@ -11,7 +11,7 @@
     </div>
     <div class="page-body">
         <div class="container-xl">
-            <div class="card p-4">
+            <div class="card p-5">
                 <div class="table-responsive">
                     <table class="table mb-0">
                         <tbody>
@@ -44,6 +44,29 @@
                                 <td>{{ $sustainer->phone }}</td>
                                 <td></td> <!-- Celda vacía para mantener la estructura -->
                             </tr>
+
+                            <!-- Detalle de las escuelas asociadas, solo si hay escuelas -->
+                            @if($sustainer->schools->count() > 0)
+                                <tr>
+                                    <th colspan="4" class="text-center">Colegios Asociados</th>
+                                </tr>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>RBD</th>
+                                    <th>Dirección</th>
+                                    <th>Comuna</th>
+                                    <th>Región</th>
+                                </tr>
+                                @foreach($sustainer->schools as $school)
+                                    <tr>
+                                        <td>{{ $school->name }}</td>
+                                        <td>{{ $school->rbd }}</td>
+                                        <td>{{ $school->address }}</td>
+                                        <td>{{ $school->commune }}</td>
+                                        <td>{{ $school->region }}</td>
+                                    </tr>
+                                @endforeach
+                            @endif
                         </tbody>
                     </table>
                 </div>

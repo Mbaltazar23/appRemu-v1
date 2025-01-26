@@ -3,7 +3,7 @@
 @section('content')
     <div class="page-body">
         <div class="container-xl">
-            <div class="card">
+            <div class="card p-3">
                 <div class="card-header">
                     <h3>{{ __('Seleccione qué acción desea realizar') }}</h3>
                 </div>

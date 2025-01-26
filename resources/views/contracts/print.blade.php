@@ -161,10 +161,34 @@
     </p>
 
     <p>
-        El trabajador se compromete a prestar servicios en {{ $worker->school->name }},
-        ubicado en {{ $worker->school->address }}, Comuna de {{ $worker->school->commune }},
-        en calidad de {{ $worker->getFunctionWorkerDescription() }}.
+        El trabajador prestará servicios en {{ $worker->school->name }}, ubicada en {{ $worker->school->address }},
+        Comuna de {{ $worker->school->commune }}, como {{ $worker->getFunctionWorkerDescription() }} en el nivel
+        {{ $contractDetails['levels'] }}. El empleador podrá modificar la naturaleza de los servicios o el lugar de
+        trabajo, siempre que sean labores similares y dentro de la misma ciudad, sin perjuicio para el trabajador. El
+        reglamento interno indicará los deberes y obligaciones del trabajador.
     </p>
+
+    @if ($worker->worker_type == App\Models\Worker::WORKER_TYPE_TEACHER)
+        <p>
+            No obtante El trabajador se compromete a realizar las siguientes actividades curriculares no lectivas como
+            docente de aula:
+        </p>
+        <ul>
+            <li>Clases de reforzamiento individual y colectivas a las asignaturas del plan de estudios</li>
+            <li>Funcionamiento de talleres</li>
+            <li>Investigación, estudio y elaboración de planes y programas de estudio</li>
+            <li>Anotación de datos y constancia en formularios oficiales</li>
+            <li>Régimen escolar y comportamiento de los alumnos</li>
+            <li>Planificación de clases</li>
+            <li>Atención individual de alumnos y apoderados</li>
+            <li>Consejo de profesores</li>
+            <li>Consejo de curso</li>
+            <li>Reuniones periódicas con apoderados</li>
+            <li>Preparación, selección y confección de material didáctico</li>
+            <li>Otras actividades señaladas en el artículo 20 del Decreto Supremo número 453 de 1991 del Ministerio de
+                Educación</li>
+        </ul>
+    @endif
 
     <p><b>SEGUNDO:</b><br>
         La jornada ordinaria de trabajo será de <b>{{ $worker->working_hours }}</b> horas cronológicas semanales.
@@ -173,33 +197,62 @@
 
     <p><b>TERCERO:</b><br>
         El empleador pagará al
-        @if ($worker->worktype == App\Models\Worker::WORKER_TYPE_TEACHER)
-            {{ $worker->getFunctionWorkerTypes() }}
-        @elseif ($worker->worktype == App\Models\Worker::WORKER_TYPE_NON_TEACHER)
-            {{ $worker->getFunctionWorkerTypes() }}
+        @if ($worker->worker_type == App\Models\Worker::WORKER_TYPE_TEACHER)
+            {{ $worker->getDescriptionWorkerTypes() }}
+        @elseif ($worker->worker_type == App\Models\Worker::WORKER_TYPE_NON_TEACHER)
+            {{ $worker->getDescriptionWorkerTypes() }}
         @endif
-        una remuneración total de <b>${{ number_format($contractDetails['total_remuneration'], 0, ',', '.') }}
+        una remuneración aprox (variará segun lo trabajado) de
+        <b>${{ number_format($contractDetails['total_remuneration'], 0, ',', '.') }}
             ({{ $contractDetails['remuneration_gloss'] }})</b>, la que incluye el pago de la Remuneración base y demás
         remuneraciones legales y convencionales.
     </p>
 
-    <p><b>CUARTO:</b><br>
-        Este contrato de trabajo es de {{ $contractDetails['duration'] }}.
+    <p><b>CUARTO:</b><br><br>
+        El contrato de trabajo tiene una duración de {{ $contractDetails['duration'] }}.
     </p>
 
     <p>
-        Se deja expresa constancia que el trabajador ingresó al servicio el día {{ $worker->contract->hire_date }}.
+        El trabajador ingresó al servicio el
+        {{ \Carbon\Carbon::parse($worker->contract->hire_date)->format('d-m-Y') }}.
     </p>
 
     <p>
-        El trabajador declara que la dirección especificada corresponde a su actual domicilio y será su obligación
-        informar por escrito al Colegio cualquier cambio que hubiere en el futuro.
+        El trabajador confirma que la dirección proporcionada es su domicilio actual y se compromete a informar
+        cualquier cambio al Colegio.
     </p>
 
     <p>
-        Se entiende incorporadas al presente contrato todas las disposiciones legales que se dicten con posterioridad a
-        la fecha de suscripción y que tengan relación con él.
+        Se incorporan al contrato todas las disposiciones legales que se dicten posteriormente y que lo afecten.
     </p>
+
+    <p>
+        El contrato se extiende en dos ejemplares, uno para el empleador y otro para el trabajador, quien declara
+        recibirlo a su satisfacción y como reflejo de la relación laboral.
+    </p>
+
+    <!-- Agregar los anexos en la sección correspondiente -->
+    @if (!empty($contractDetails['annexes']) && count($contractDetails['annexes']) > 0)
+        <h5>ANEXOS DEL CONTRATO</h5>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Fecha de Creación</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($contractDetails['annexes'] as $annex)
+                    <tr>
+                        <td>{{ $annex['annex_name'] }}</td>
+                        <td>{{ $annex['annex_description'] }}</td>
+                        <td>{{ \Carbon\Carbon::parse($annex['created_at'])->format('d-m-Y') }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endif
 
     <div class="signature-table" align="center">
         <table>

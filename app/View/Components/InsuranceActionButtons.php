@@ -15,9 +15,8 @@ class InsuranceActionButtons extends Component
         $this->type = $type;
         $this->actions = $this->getActions();
     }
-
     /**
-     * Retorna una lista de botones con sus respectivas rutas y permisos.
+     * Returns a list of buttons with their respective routes and permissions.
      */
     public function getActions()
     {
@@ -26,29 +25,29 @@ class InsuranceActionButtons extends Component
                 'name' => 'Ver detalles',
                 'route' => route('insurances.show', [$this->insurance, 'type' => $this->type]),
                 'icon' => 'bx bx-show',
-                'permission' => 'view',  // Permiso para ver
+                'permission' => 'view',  // Permission to view
                 'type' => 'info'
             ],
             [
                 'name' => 'Editar',
                 'route' => route('insurances.edit', [$this->insurance, 'type' => $this->type]),
                 'icon' => 'bx bx-edit',
-                'permission' => 'update',  // Permiso para editar
+                'permission' => 'update',  // Permission to edit
                 'type' => 'warning'
             ],
             [
                 'name' => 'Eliminar',
                 'route' => route('insurances.destroy', [$this->insurance, 'type' => $this->type]),
                 'icon' => 'bx bx-trash',
-                'permission' => 'delete',  // Permiso para eliminar
+                'permission' => 'delete',  // Permission to delete
                 'type' => 'danger',
-                'method' => 'DELETE' // Método de la acción
+                'method' => 'DELETE' // Action method
             ],
             [
                 'name' => 'Agregar Trabajadores',
                 'route' => route('insurances.link_worker', [$this->insurance, 'type' => $this->type]),
                 'icon' => 'bx bxs-user-plus',
-                'permission' => 'linkWorker',  // Permiso personalizado para linkear trabajadores
+                'permission' => 'linkWorker',  // Custom permission to link workers
                 'type' => 'dark',
             ]
         ];

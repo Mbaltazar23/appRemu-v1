@@ -1,12 +1,14 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class License extends Model
-{
+class License extends Model {
+
     use HasFactory;
+
     // Define fillable fields for mass assignment
     protected $fillable = [
         'worker_id',
@@ -19,6 +21,7 @@ class License extends Model
         'processing_date',
         'responsible_person',
     ];
+
     /**
      * Get all licenses by school ID.
      *
@@ -27,12 +30,12 @@ class License extends Model
      * @param int $school_id
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public static function getLicensesBySchool($school_id)
-    {
+    public static function getLicensesBySchool($school_id) {
         return self::whereHas('worker', function ($query) use ($school_id) {
-            $query->where('school_id', $school_id);
-        })->orderBy('id', 'ASC');
+                    $query->where('school_id', $school_id);
+                })->orderBy('id', 'ASC');
     }
+
     /**
      * Update the license hours for a given day, month, and year.
      *
@@ -44,12 +47,11 @@ class License extends Model
      * @param int $year
      * @param int $days
      */
-    public function updateLicenseHours($day, $month, $year, $days)
-    {
+    public function updateLicenseHours($day, $month, $year, $days) {
         // First, delete the existing hours for the license
         $this->deleteLicenseHours();
         // Get the worker associated with the license
-        $worker         = $this->worker;
+        $worker = $this->worker;
         $loadHourlyWork = json_decode($worker->load_hourly_work, true);
         // Define hours for each weekday (Monday to Saturday)
         $d1 = $loadHourlyWork['lunes'] ?? 0;
@@ -61,10 +63,10 @@ class License extends Model
         // Process and update the hours for the given days
         do {
             $remainingHours = 0;
-            $initialDate    = mktime(0, 0, 0, $month, $day, $year); // Generate timestamp
-            $day            = date("d", $initialDate);
-            $month          = date("m", $initialDate);
-            $year           = date("y", $initialDate);
+            $initialDate = mktime(0, 0, 0, $month, $day, $year); // Generate timestamp
+            $day = date("d", $initialDate);
+            $month = date("m", $initialDate);
+            $year = date("y", $initialDate);
             // Get the weekday
             $weekday = date("w", $initialDate);
             // Assign hours based on the weekday
@@ -90,15 +92,16 @@ class License extends Model
             $days -= 1;
             // Insert the license hours for the specific day
             $this->hours()->create([
-                'day'   => $day,
+                'day' => $day,
                 'month' => $month,
-                'year'  => $year,
+                'year' => $year,
                 'hours' => $remainingHours,
             ]);
             // Increment the day
             $day++;
         } while ($days > 0);
     }
+
     /**
      * Update the license days for a given day, month, and year.
      *
@@ -109,17 +112,16 @@ class License extends Model
      * @param int $year
      * @param int $days
      */
-    public function updateLicenseDays($day, $month, $year, $days)
-    {
+    public function updateLicenseDays($day, $month, $year, $days) {
         // Delete previously registered license days
         $this->deleteLicenseDays();
         // Process and update the days for the given period
         do {
-            $available   = 0;
+            $available = 0;
             $initialDate = mktime(0, 0, 0, $month, $day, $year); // Generate timestamp
-            $day         = date("d", $initialDate);
-            $month       = date("m", $initialDate);
-            $year        = date("y", $initialDate);
+            $day = date("d", $initialDate);
+            $month = date("m", $initialDate);
+            $year = date("y", $initialDate);
             // Get the weekday
             $weekday = date("w", $initialDate);
             // Mark the day as available if it's a workday
@@ -130,15 +132,16 @@ class License extends Model
             $days -= 1;
             // Insert the license day for the specific day
             $this->days()->create([
-                'day'    => $day,
-                'month'  => $month,
-                'year'   => $year,
+                'day' => $day,
+                'month' => $month,
+                'year' => $year,
                 'exists' => $available,
             ]);
             // Increment the day
             $day++;
         } while ($days > 0);
     }
+
     /**
      * Sum the total hours of a specific worker for a given period.
      *
@@ -152,16 +155,15 @@ class License extends Model
      * @param int $endDay
      * @return int
      */
-    public static function sumLicenseHours($workerId, $month, $year, $startDay, $endDay)
-    {
+    public static function sumLicenseHours($workerId, $month, $year, $startDay, $endDay) {
         $licenseHours = LicenseHour::whereHas('license', function ($query) use ($workerId, $month, $year, $startDay, $endDay) {
-            $query->where('worker_id', $workerId)
-                ->where('month', $month)
-                ->where('year', $year)
-                ->where('day', '>', $startDay)
-                ->where('day', '<', $endDay);
-        })
-            ->get(['hours']);
+                    $query->where('worker_id', $workerId)
+                    ->where('month', $month)
+                    ->where('year', $year)
+                    ->where('day', '>', $startDay)
+                    ->where('day', '<', $endDay);
+                })
+                ->get(['hours']);
 
         // Return the total count of hours
         return $licenseHours->count();
@@ -180,16 +182,15 @@ class License extends Model
      * @param int $until
      * @return int
      */
-    public static function sumDaysLicence($worker_id, $mes, $year, $fromDay, $until)
-    {
+    public static function sumDaysLicence($worker_id, $mes, $year, $fromDay, $until) {
         $totalDays = LicenseDay::whereHas('license', function ($query) use ($worker_id, $mes, $year, $fromDay, $until) {
-            $query->where('worker_id', $worker_id)
-                ->where('month', $mes)
-                ->where('year', $year)
-                ->where('day', '>', $fromDay)
-                ->where('day', '<', $until);
-        })
-            ->sum('exists');
+                    $query->where('worker_id', $worker_id)
+                    ->where('month', $mes)
+                    ->where('year', $year)
+                    ->where('day', '>', $fromDay)
+                    ->where('day', '<', $until);
+                })
+                ->sum('exists');
         // Return the total sum or 0 if no records are found
         return $totalDays;
     }
@@ -199,8 +200,7 @@ class License extends Model
      *
      * This method deletes all the hours associated with the license.
      */
-    public function deleteLicenseHours()
-    {
+    public function deleteLicenseHours() {
         $this->hours()->delete();
     }
 
@@ -209,8 +209,7 @@ class License extends Model
      *
      * This method deletes all the days associated with the license.
      */
-    public function deleteLicenseDays()
-    {
+    public function deleteLicenseDays() {
         $this->days()->delete();
     }
 
@@ -221,8 +220,7 @@ class License extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function worker()
-    {
+    public function worker() {
         return $this->belongsTo(Worker::class);
     }
 
@@ -233,8 +231,7 @@ class License extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function days()
-    {
+    public function days() {
         return $this->hasMany(LicenseDay::class, 'license_id');
     }
 
@@ -245,8 +242,8 @@ class License extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function hours()
-    {
+    public function hours() {
         return $this->hasMany(LicenseHour::class, 'license_id');
     }
+
 }

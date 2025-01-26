@@ -133,6 +133,7 @@
 @if ($hasLaborPermission)
     <li class="nav-item dropdown @if (request()->is('insurances*') ||
             request()->is('workers*') ||
+            request()->is('settlements') ||
             request()->is('licenses*') ||
             request()->is('bonuses*') ||
             request()->is('financial-indicators*') ||
@@ -149,7 +150,7 @@
         <ul class="dropdown-menu" aria-labelledby="laborDropdown">
             @can('viewAny', App\Models\Worker::class)
                 <li>
-                    <a class="dropdown-item @if (request()->is('workers*')) active @endif"
+                    <a class="dropdown-item @if (request()->is('workers*') || request()->is('settlements')) active @endif"
                         href="{{ route('workers.index') }}">
                         <span class="nav-link-icon">
                             <i class='bx bx-hard-hat' style="font-size: 20px;"></i>

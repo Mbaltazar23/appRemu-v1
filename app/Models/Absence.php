@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Absence extends Model
-{
+class Absence extends Model {
+
     use HasFactory;
 
     // Attributes that can be mass-assigned
@@ -28,11 +29,10 @@ class Absence extends Model
      *
      * @return string|null The full date in YYYY-MM-DD format, or null if any of the date components are missing.
      */
-    public function getDateAttribute()
-    {
+    public function getDateAttribute() {
         // Ensure the values are present and valid
         if ($this->day && $this->month && $this->year) {
-            return \Carbon\Carbon::create($this->year, $this->month, $this->day)->toDateString();
+            return Carbon::create($this->year, $this->month, $this->day)->toDateString();
         }
         return null;
     }
@@ -45,11 +45,10 @@ class Absence extends Model
      *
      * @param string $value The date to be set in the format 'YYYY-MM-DD'.
      */
-    public function setDateAttribute($value)
-    {
+    public function setDateAttribute($value) {
         // If the 'date' value is valid, split the date
         if ($value) {
-            $date = \Carbon\Carbon::parse($value); // Converts the date to a Carbon object
+            $date = Carbon::parse($value); // Converts the date to a Carbon object
             $this->attributes['day'] = $date->day;
             $this->attributes['month'] = $date->month;
             $this->attributes['year'] = $date->year;
@@ -70,16 +69,15 @@ class Absence extends Model
      * 
      * @return int The total minutes of absence.
      */
-    public static function sumAbsenceMinutes($workerId, $month, $year, $fromDay, $toDate)
-    {
+    public static function sumAbsenceMinutes($workerId, $month, $year, $fromDay, $toDate) {
         // Make sure to convert the dates into Carbon objects if they're not already
         return self::where('worker_id', $workerId)
-            ->where('month', $month)
-            ->where('year', $year)
-            ->where('day', '>', $fromDay) // Compares with the day of fromDate
-            ->where('day', '<', $toDate) // Compares with the day of toDate
-            ->where('with_consent', 1) // Filters only the absences with consent
-            ->sum('minutes'); // Sums the minutes for the absences
+                        ->where('month', $month)
+                        ->where('year', $year)
+                        ->where('day', '>', $fromDay) // Compares with the day of fromDate
+                        ->where('day', '<', $toDate) // Compares with the day of toDate
+                        ->where('with_consent', 1) // Filters only the absences with consent
+                        ->sum('minutes'); // Sums the minutes for the absences
     }
 
     /**
@@ -89,8 +87,8 @@ class Absence extends Model
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The relationship instance.
      */
-    public function worker()
-    {
+    public function worker() {
         return $this->belongsTo(Worker::class);
     }
+
 }

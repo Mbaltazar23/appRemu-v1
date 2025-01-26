@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Sustainer extends Model
-{
+class Sustainer extends Model {
+
     use HasFactory;
 
     protected $fillable = [
@@ -21,13 +21,14 @@ class Sustainer extends Model
         'phone',
         'email',
     ];
-   /**
+
+    /**
      * Get the schools associated with the sustainer.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany - The schools relationship.
      */
-    public function schools()
-    {
+    public function schools() {
         return $this->hasMany(School::class);
     }
+
 }

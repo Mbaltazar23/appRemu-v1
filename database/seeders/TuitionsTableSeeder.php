@@ -6,13 +6,12 @@ use App\Models\SchoolUser;
 use App\Models\Tuition;
 use Illuminate\Database\Seeder;
 
-class TuitionsTableSeeder extends Seeder
-{
+class TuitionsTableSeeder extends Seeder {
+
     /**
      * Run the database seeds.
      */
-    public function run()
-    {
+    public function run() {
         $data = [
             ['TOTALAPAGAR', 'Total a Pagar', 'O', 1, 0],
             ['RENTAIMPONIBLE', 'Renta Imponible', 'O', 1, 0],
@@ -69,13 +68,14 @@ class TuitionsTableSeeder extends Seeder
             ['TOTALDESCUENTOSPREVISIONALES', 'Total Dctos Previsionales', 'O', 1, 0],
             ['ADHIEREASEGURO', 'Si adhiere o no a seguro de cesantia', 'P', 0, 0],
             ['DIASTRABAJADOS', 'Días trabajados', 'P', 1, 1],
+            ['DIASNOTRABAJADOS', 'Días de Ausencia', 'P', 1, 1],
             ['IMPONIBLEEIMPUTABLE', 'Imponible e imputable a la RTMN', 'O', 1, 1],
             ['VALORIMD', 'Valor IMD', 'P', 0, 0],
             ['IMD', 'IMD', 'O', 0, 0],
             ['SUMACARGASTODOS', 'Suma carga todos los trabajadores', 'S', 0, 0],
             ['RENTAIMPONIBLESD', 'Renta imponible sin descuentos', 'O', 0, 0],
             ['FACTORASIST', 'Factor de asistencia y licencia medica', 'P', 0, 0],
-            ['SUELDOBASEB', 'Sueldo base bruto', 'P',  0, 0],
+            ['SUELDOBASEB', 'Sueldo base bruto', 'P', 0, 0],
             ['TOTALDESCUENTOS', 'Total Descuentos', 'O', 1, 0],
         ];
         // Obtener el primer contador
@@ -83,7 +83,7 @@ class TuitionsTableSeeder extends Seeder
         // Verificar si se encontró un contador
         if ($contadorUser) {
             // Obtener el primer colegio asociado a este contador
-            $schoolId = $contadorUser->school_id; 
+            $schoolId = $contadorUser->school_id;
             // Insertar los registros en la tabla `tuitions`
             foreach ($data as $tuition) {
                 Tuition::create([
@@ -97,4 +97,5 @@ class TuitionsTableSeeder extends Seeder
             }
         }
     }
+
 }

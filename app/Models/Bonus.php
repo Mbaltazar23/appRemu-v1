@@ -109,73 +109,7 @@ class Bonus extends Model
         }
     }
 
-    /**
-     * Deletes an old bonus operation by removing the associated operations and tuition entries.
-     * 
-     * @param int $id The ID of the bonus to delete
-     * @param int $schoolId The school ID associated with the bonus
-     */
-    public static function deleteOldFunction($id, $schoolId)
-    {
-        $bonus = Bonus::find($id); // Find the bonus by its ID
-
-        if ($bonus) {
-            $isBonus = $bonus->is_bonus;
-            $taxable = $bonus->taxable;
-            $type = $bonus->type;
-            $imputable = $bonus->imputable;
-            $name = $bonus->title;
-
-            // Determine the type of operation based on bonus properties
-            if ($isBonus == 0) {
-                $operator = "+";
-                if ($taxable == 0) {
-                    if ($imputable == 0) {
-                        $operationType = "IMPONIBLEEIMPUTABLE";
-                    } else {
-                        $operationType = ($type == 1) ? "IMPONIBLEYNOIMPUTABLE" : "RENTAIMPONIBLESD";
-                    }
-                } else {
-                    $operationType = "TOTALNOIMPONIBLE";
-                }
-            } else {
-                $operator = "+";
-                $operationType = "DESCUENTOSVOLUNTARIOS";
-            }
-            
-            // Handle operations based on bonus type
-            if ($type != 3) {
-                if (($type == 2) && ($operationType == "IMPONIBLEEIMPUTABLE")) {
-                    $operationType = "RENTAIMPONIBLESD";
-                }
-                $originalOperation = Operation::getOperationFunction($operationType, $type, $schoolId);
-                $originalOperation = str_replace(" $operator $name", '', $originalOperation);
-                $newOperation = $originalOperation . " " . $operator . " " . $name;
-                Operation::updateOperationFunction($operationType, $type, $newOperation, $schoolId);
-            } else {
-                // Handle operations for teachers (type 1)
-                $originalOperation = Operation::getOperationFunction($operationType, 1, $schoolId);
-                if (strpos($originalOperation, $name) == 0) {
-                    $originalOperation = str_replace($name . " + ", "", $originalOperation);
-                } else {
-                    $originalOperation = str_replace(" " . $operator . " " . $name, "", $originalOperation);
-                }
-                $newOperation = $originalOperation . " " . $operator . " " . $name;
-                Operation::updateOperationFunction($operationType, 1, $newOperation, $schoolId);
-                
-                // Handle operations for non-teachers (type 2)
-                if ($operationType == "IMPONIBLEEIMPUTABLE") {
-                    $operationType = "RENTAIMPONIBLESD";
-                }
-                $originalOperation = Operation::getOperationFunction($operationType, 2, $schoolId);
-                $originalOperation = str_replace(" $operator $name", '', $originalOperation);
-                $newOperation = $originalOperation . " " . $operator . " " . $name;
-                Operation::updateOperationFunction($operationType, 2, $newOperation, $schoolId);
-            }
-        }
-    }
-
-    /**
+        /**
      * Processes the update of an existing bonus.
      * 
      * @param array $data The updated data for the bonus
@@ -241,6 +175,76 @@ class Bonus extends Model
     }
 
     /**
+     * Deletes an old bonus operation by removing the associated operations and tuition entries.
+     * 
+     * @param int $id The ID of the bonus to delete
+     * @param int $schoolId The school ID associated with the bonus
+     */
+    public static function deleteOldFunction($id, $schoolId)
+    {
+        $bonus = Bonus::find($id); // Find the bonus by its ID
+
+        if ($bonus) {
+            $isBonus = $bonus->is_bonus;
+            $taxable = $bonus->taxable;
+            $type = $bonus->type;
+            $imputable = $bonus->imputable;
+            $name = $bonus->title;
+
+            // Determine the type of operation based on bonus properties
+            if ($isBonus == 0) {
+                $operator = "+";
+                if ($taxable == 0) {
+                    if ($imputable == 0) {
+                        $operationType = "IMPONIBLEEIMPUTABLE";
+                    } else {
+                        $operationType = ($type == 1) ? "IMPONIBLEYNOIMPUTABLE" : "RENTAIMPONIBLESD";
+                    }
+                } else {
+                    $operationType = "TOTALNOIMPONIBLE";
+                }
+            } else {
+                $operator = "+";
+                $operationType = "DESCUENTOSVOLUNTARIOS";
+            }
+            
+            // Handle operations based on bonus type
+            if ($type != 3) {
+                if (($type == 2) && ($operationType == "IMPONIBLEEIMPUTABLE")) {
+                    $operationType = "RENTAIMPONIBLESD";
+                }
+                $originalOperation = Operation::getOperationFunction($operationType, $type, $schoolId);
+                if (strpos($originalOperation, $name) == 0) {
+                    $originalOperation = str_replace($name . " + ", "", $originalOperation);
+                } else {
+                    $originalOperation = str_replace(" " . $operator . " " . $name, "", $originalOperation);
+                }
+                $newOperation = $originalOperation . " " . $operator . " " . $name;
+                Operation::updateOperationFunction($operationType, $type, $newOperation, $schoolId);
+            } else {
+                // Handle operations for teachers (type 1)
+                $originalOperation = Operation::getOperationFunction($operationType, 1, $schoolId);
+                if (strpos($originalOperation, $name) == 0) {
+                    $originalOperation = str_replace($name . " + ", "", $originalOperation);
+                } else {
+                    $originalOperation = str_replace(" " . $operator . " " . $name, "", $originalOperation);
+                }
+                $newOperation = $originalOperation . " " . $operator . " " . $name;
+                Operation::updateOperationFunction($operationType, 1, $newOperation, $schoolId);
+                
+                // Handle operations for non-teachers (type 2)
+                if ($operationType == "IMPONIBLEEIMPUTABLE") {
+                    $operationType = "RENTAIMPONIBLESD";
+                }
+                $originalOperation = Operation::getOperationFunction($operationType, 2, $schoolId);
+                $originalOperation = str_replace(" ".$operator." ".$name,"", $originalOperation);
+                $newOperation = $originalOperation . " " . $operator . " " . $name;
+                Operation::updateOperationFunction($operationType, 2, $newOperation, $schoolId);
+            }
+        }
+    }
+
+    /**
      * Deletes a bonus based on the provided data.
      * 
      * @param request $data The data associated with the bonus to delete
@@ -257,13 +261,13 @@ class Bonus extends Model
             Tuition::deleteTuition($tuitionId, $data['school_id']);
 
             if ($type != 3) {
-                Operation::deleteOperation($tuitionId, 1, $data['school_id']);
-                Operation::deleteOperation($tuitionId, 2, $data['school_id']);
+                Operation::deleteOperation($title, $type, $data['school_id']);
             } else {
-                Operation::deleteOperation($tuitionId, $type, $data['school_id']);
+                Operation::deleteOperation($title, 1, $data['school_id']);
+                Operation::deleteOperation($title, 2, $data['school_id']);
             }
 
-            Operation::processDeleteOperation($tuitionId, $data, "+", $data->school->operations->first()->value('application'));
+            Operation::processDeleteOperation($title, $data, "+");
 
             Parameter::deleteParamAll($tuitionId, $data['school_id']);
             Parameter::deleteParamAll("APLICA" . $title, $data['school_id']);
@@ -290,9 +294,7 @@ class Bonus extends Model
             'message' => 'Bono Eliminado correctamente.',
         ];
     }
-
-
-   /**
+    /**
      * Creates a parameter associated with a bonus.
      * 
      * @param string $nombrev The unique tuition ID for the bonus
@@ -309,7 +311,6 @@ class Bonus extends Model
             'value' => $monto,
         ]);
     }
-
     /**
      * Creates a new bonus.
      * 
@@ -347,6 +348,7 @@ class Bonus extends Model
         }
         return null; // Return null if no bonus is found
     }
+
     /**
      * Deletes a bonus based on the provided title, school ID, and type.
      * 
@@ -362,6 +364,7 @@ class Bonus extends Model
             ->where('type', $type)
             ->delete();
     }
+
     /**
      * Retrieves all bonuses of a specific type and application for a given school.
      * 
@@ -386,6 +389,7 @@ class Bonus extends Model
             ->where('application', $application) // Filter by application type (e.g., hourly, fixed)
             ->get(['title', 'tuition_id']); // Return only the title and tuition_id fields
     }
+
     /**
      * Relationship: A Bonus belongs to a School.
      * 
@@ -397,7 +401,6 @@ class Bonus extends Model
      */
     public function school()
     {
-        // Define the "belongsTo" relationship between Bonus and School
         return $this->belongsTo(School::class);
     }
 
@@ -412,7 +415,6 @@ class Bonus extends Model
      */
     public function worker()
     {
-        // Define the "belongsTo" relationship between Bonus and Worker
         return $this->belongsTo(Worker::class);
     }
 

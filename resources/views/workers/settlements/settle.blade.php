@@ -5,7 +5,7 @@
         <!-- Page title -->
         <div class="page-header d-print-none">
             <h2 class="page-title">
-                Asignar Fecha de Finiquito
+                {{ $worker->settlement_date ? "Actualizar" : "Asignar" }} Fecha de Finiquito
             </h2>
         </div>
     </div>
@@ -21,7 +21,7 @@
                         <label for="settlement_date" class="mb-3">Fecha de Finiquito</label>
                         <!-- Agregamos mb-3 para espacio inferior -->
                         <input type="date" name="settlement_date" id="settlement_date" class="form-control mt-2" required
-                            min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
+                            min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" value="{{ old('settlement_date') ?? $worker->settlement_date }}">
                     </div>
 
                     <div class="d-flex justify-content-between mt-4">
@@ -36,9 +36,4 @@
             </div>
         </div>
     </div>
-
-    <script>
-        // Establecer la fecha mínima en el campo input usando JavaScript si el atributo min no se establece correctamente en el servidor
-        document.getElementById('settlement_date').setAttribute('min', new Date().toISOString().split('T')[0]);
-    </script>
 @endsection

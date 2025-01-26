@@ -9,28 +9,39 @@ use Illuminate\Http\Request;
 
 class CostCenterController extends Controller
 {
-
     public function index()
     {
+        // Get the available item options for cost centers
         $itemOptions = CostCenter::getItemOptions();
+        
+        // Get the available period options for cost centers
         $periodOptions = CostCenter::getPeriodOptions();
+        
+        // Get the distinct years from the liquidations
         $distincYears = Liquidation::getDistinctYears();
+        
+        // Get all schools that have associated users
         $schools = School::has('schoolUsers')->get();
+        
+        // Return the view with the available options and schools data
         return view('costcenters.index', compact('itemOptions', 'periodOptions', 'distincYears', 'schools'));
     }
 
     public function store(Request $request)
     {
-        // Obtenemos los inputs del formulario
+        // Get the form inputs from the request
         $schoolId = $request->input('school');
         $item = $request->input('item');
         $periodo = $request->input('periodo');
         $year = $request->input('year');
-        // Obtener el colegio (school) correspondiente
+        
+        // Find the school by its ID
         $school = School::find($schoolId);
-        // Obtener los totales de liquidación
+        
+        // Get the total liquidation sums for the specified cost center and period
         $result = CostCenter::getLiquidationSumsTotalCosts($schoolId, $item, $periodo);
-        // Si todo es correcto, pasamos los resultados a la vista `show` para mostrar en la ventana emergente
+        
+        // If everything is correct, pass the results to the `show` view to display in a modal window
         return view('costcenters.show', [
             'workers' => $result['workers'],
             'school' => $school,
@@ -38,5 +49,4 @@ class CostCenterController extends Controller
             'year' => $year,
         ]);
     }
-
 }

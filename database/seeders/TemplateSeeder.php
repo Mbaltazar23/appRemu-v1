@@ -9,19 +9,18 @@ use App\Models\User;
 use App\Models\Worker;
 use Illuminate\Database\Seeder;
 
-class TemplateSeeder extends Seeder
-{
+class TemplateSeeder extends Seeder {
+
     /**
      * Run the database seeds.
      */
-    public function run(): void
-    {
+    public function run(): void {
         // Obtener el primer contador
-       $contadorUser = SchoolUser::first();
-       // Verificar si se encontró un contador
-       if ($contadorUser) {
-           // Obtener el primer colegio asociado a este contador
-           $school_id = $contadorUser->school_id; // Obtener el primer colegio de los colegios asociados al contador
+        $contadorUser = SchoolUser::first();
+        // Verificar si se encontró un contador
+        if ($contadorUser) {
+            // Obtener el primer colegio asociado a este contador
+            $school_id = $contadorUser->school_id; // Obtener el primer colegio de los colegios asociados al contador
 
             $tuitionRBMN = Tuition::where('title', 'RBMN')->where('school_id', $school_id)->value('tuition_id');
             $tuitionUMP = Tuition::where('title', 'UMP')->where('school_id', $school_id)->value('tuition_id');
@@ -30,7 +29,7 @@ class TemplateSeeder extends Seeder
             $tuitionLey19464 = Tuition::where('title', 'Ley 19464')->where('school_id', $school_id)->value('tuition_id');
             $tuitionPerfeccionamiento = Tuition::where('title', 'Perfeccionamiento')->where('school_id', $school_id)->value('tuition_id');
             $tuitionAsigVolun = Tuition::where('title', 'Asignacion Voluntaria')->where('school_id', $school_id)->value('tuition_id');
-            $tuitionDesempnio= Tuition::where('title', 'Desempeño dificil')->where('school_id', $school_id)->value('tuition_id');
+            $tuitionDesempnio = Tuition::where('title', 'Desempeño dificil')->where('school_id', $school_id)->value('tuition_id');
             $tuitionColegioPro = Tuition::where('title', 'Colegio de profesores')->where('school_id', $school_id)->value('tuition_id');
             $tuitionFundacionLP = Tuition::where('title', 'Fundacion Lopez Perez')->where('school_id', $school_id)->value('tuition_id');
 
@@ -81,17 +80,17 @@ class TemplateSeeder extends Seeder
             ];
 
             // Insertar plantillas de tipo 1 (Docente)
-        foreach ($templatesType1 as $index => $template) {
-            Template::create([
-                'school_id' => $school_id,
-                'type' => Worker::WORKER_TYPE_TEACHER,  // Docente
-                'position' => $index + 1, // Genera el valor de position a partir del índice del bucle
-                'code' => $template[0],
-                'tuition_id' => $template[1],
-                'ignore_zero' => $template[2],
-                'parentheses' => $template[3],
-            ]);
-        }
+            foreach ($templatesType1 as $index => $template) {
+                Template::create([
+                    'school_id' => $school_id,
+                    'type' => Worker::WORKER_TYPE_TEACHER, // Docente
+                    'position' => $index + 1, // Genera el valor de position a partir del índice del bucle
+                    'code' => $template[0],
+                    'tuition_id' => $template[1],
+                    'ignore_zero' => $template[2],
+                    'parentheses' => $template[3],
+                ]);
+            }
 
             $templatesType2 = [
                 ['NV', 'SUELDOBASE', 0, 0],
@@ -134,12 +133,12 @@ class TemplateSeeder extends Seeder
                 ['_L_', '', 0, 0],
                 ['NV', 'TOTALAPAGAR', 0, 0],
             ];
-            
+
 
             foreach ($templatesType2 as $index => $template) {
                 Template::create([
                     'school_id' => $school_id,
-                    'type' => Worker::WORKER_TYPE_NON_TEACHER,  // Docente
+                    'type' => Worker::WORKER_TYPE_NON_TEACHER, // Docente
                     'position' => $index + 1, // Genera el valor de position a partir del índice del bucle
                     'code' => $template[0],
                     'tuition_id' => $template[1],
@@ -149,4 +148,5 @@ class TemplateSeeder extends Seeder
             }
         }
     }
+
 }

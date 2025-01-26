@@ -1,81 +1,80 @@
 <!DOCTYPE html>
 <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Certificados de Remuneraciones</title>
+        <style>
+            /* General */
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 14px;
+                /* Reducir el tamaño de la fuente */
+                margin: 0;
+                padding: 0;
+            }
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Certificados de Remuneraciones</title>
-    <style>
-        /* General */
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            /* Reducir el tamaño de la fuente */
-            margin: 0;
-            padding: 0;
-        }
+            h2 {
+                text-align: center;
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
 
-        h2 {
-            text-align: center;
-            font-size: 20px;
-            margin-bottom: 20px;
-        }
+            p {
+                margin-bottom: 10px;
+            }
 
-        p {
-            margin-bottom: 10px;
-        }
+            /* Para separar los certificados */
+            .certificate {
+                page-break-after: always;
+                padding: 20px;
+                margin-bottom: 30px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                background-color: #f9f9f9;
+            }
 
-        /* Para separar los certificados */
-        .certificate {
-            page-break-after: always;
-            padding: 20px;
-            margin-bottom: 30px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
+            /* Tabla */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                margin-bottom: 30px;
+            }
 
-        /* Tabla */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            margin-bottom: 30px;
-        }
+            th,
+            td {
+                padding: 8px 12px;
+                text-align: left;
+                border: 1px solid #ddd;
+                font-size: 14px;
+                /* Tamaño de fuente más pequeño para la tabla */
+            }
 
-        th,
-        td {
-            padding: 8px 12px;
-            text-align: left;
-            border: 1px solid #ddd;
-            font-size: 14px;
-            /* Tamaño de fuente más pequeño para la tabla */
-        }
+            th {
+                background-color: #f2f2f2;
+            }
 
-        th {
-            background-color: #f2f2f2;
-        }
+            td {
+                text-align: right;
+            }
 
-        td {
-            text-align: right;
-        }
+            /* Estilo para la fila total */
+            tr.total-row td {
+                font-weight: bold;
+                background-color: #f2f2f2;
+            }
 
-        /* Estilo para la fila total */
-        tr.total-row td {
-            font-weight: bold;
-            background-color: #f2f2f2;
-        }
+            /* Espaciado adicional entre celdas */
+            td,
+            th {
+                padding: 10px 15px;
+            }
+        </style>
+    </head>
 
-        /* Espaciado adicional entre celdas */
-        td,
-        th {
-            padding: 10px 15px;
-        }
-    </style>
-</head>
-
-<body>
-    @foreach ($workersData as $workerData)
+    <body>
+        @foreach ($workersData as $workerData)
         <div class="certificate">
             <h2>CERTIFICADO DE REMUNERACIONES</h2>
             <p><strong>Empleador: </strong>{{ $workerData['sustainer_name'] }}</p>
@@ -101,15 +100,15 @@
                 </thead>
                 <tbody>
                     @foreach ($workerData['months_data'] as $month)
-                        <tr>
-                            <td>{{ $month['month'] }}</td>
-                            <td>{{ $month['income'] }}</td>
-                            <td>{{ $month['legal_deductions'] }}</td>
-                            <td>{{ $month['taxable_salary'] }}</td>
-                            <td>{{ $month['tax_amount'] }}</td>
-                            <td>{{ $month['adjusted_salary'] }}</td>
-                            <td>{{ $month['adjusted_tax'] }}</td>
-                        </tr>
+                    <tr>
+                        <td>{{ $month['month'] }}</td>
+                        <td>{{ $month['income'] }}</td>
+                        <td>{{ $month['legal_deductions'] }}</td>
+                        <td>{{ $month['taxable_salary'] }}</td>
+                        <td>{{ $month['tax_amount'] }}</td>
+                        <td>{{ $month['adjusted_salary'] }}</td>
+                        <td>{{ $month['adjusted_tax'] }}</td>
+                    </tr>
                     @endforeach
                     <tr class="total-row">
                         <td><strong>Total</strong></td>
@@ -132,5 +131,6 @@
             <p>Se extiende el presente Certificado en cumplimiento de lo dispuesto en la Resolución Exenta Nº 6509 del
                 Servicio de Impuestos Internos, publicada en el Diario Oficial de fecha 20 de diciembre de 1993.</p>
         </div>
-    @endforeach
-</body>
+        @endforeach
+    </body>
+</html>

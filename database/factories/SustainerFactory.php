@@ -14,7 +14,7 @@ class SustainerFactory extends Factory
 
     public function definition()
     {
-        // Cargar las comunas y regiones desde la configuración
+        // Load the communes and regions from the configuration
         $communes = config('communes_region.COMMUNE_OPTIONS');
         $regions = config('communes_region.REGIONES_OPTIONS');
 

@@ -7,11 +7,10 @@ use App\Models\Parameter;
 use App\Models\TmpLiquidation;
 use App\Models\Tuition;
 
-class CalculateLiquidation
-{
+class CalculateLiquidation {
+
     // Removes excessive spaces from a string, leaving only one space between words.
-    public static function removeExcessSpaces($st)
-    {
+    public static function removeExcessSpaces($st) {
         $st = trim($st); // Removes leading and trailing spaces from the string.
         // Replaces all double spaces with a single space until no double spaces remain.
         while (strstr($st, "  ") != "") {
@@ -19,9 +18,9 @@ class CalculateLiquidation
         }
         return $st; // Returns the processed string.
     }
+
     // Checks if a value is within specified limits and adjusts the value if it exceeds.
-    public static function checkLimits($value, $tuitionId, $min, $max, $maxValue)
-    {
+    public static function checkLimits($value, $tuitionId, $min, $max, $maxValue) {
         // Gets the unit value for the tuition type.
         $unitValue = Parameter::getParameterValue($tuitionId, 0, 0);
         if ($unitValue == 0) {
@@ -52,9 +51,9 @@ class CalculateLiquidation
         }
         return $value; // Returns the adjusted value within limits.
     }
+
     // Checks if the operation is valid for the current month.
-    public static function checkApplication($months)
-    {
+    public static function checkApplication($months) {
         $currentMonth = date("n") - 1; // Gets the current month (0-indexed).
         $monthString = substr($months, $currentMonth, 1); // Extracts the corresponding month.
         // Evaluates if the months are available for processing.
@@ -68,9 +67,9 @@ class CalculateLiquidation
             return false; // If it's not "1", the application is not valid.
         }
     }
+
     // Processes the calculation of a liquidation based on tuition parameters, worker type, etc.
-    public static function processCalculation($tuitionId, $workerId, $workerTypeId, $schoolId)
-    {
+    public static function processCalculation($tuitionId, $workerId, $workerTypeId, $schoolId) {
         if ($tuitionId == "") {
             return 0; // If no tuition ID is provided, return 0.
         }
@@ -98,7 +97,7 @@ class CalculateLiquidation
             // If the worker type matches or is not specified, and the application is valid, process the operation.
             if ((($workerTypeId == $workerType) || ($workerType == "")) && (self::checkApplication($months) == true)) {
                 switch ($operationType) {
-                    case "O": // Mathematical operation (addition, subtraction, multiplication, etc.)
+                    case "O": // Mathematical operation (+, -, *, /)
                         $operation = self::removeExcessSpaces($operation); // Removes unnecessary spaces.
                         $parts = explode(" ", $operation); // Splits the operation into parts.
                         $mem = 0;
@@ -121,8 +120,12 @@ class CalculateLiquidation
                                         $op = "";
                                         break;
                                     case "/":
-                                        if ($item == 0) {$act = 0;} else { $act = $act / $item;
-                                            $op = ""; }
+                                        if ($item == 0) {
+                                            $act = 0;
+                                        } else {
+                                            $act = $act / $item;
+                                            $op = "";
+                                        }
                                         break;
                                     default:
                                         $act = $item;
@@ -131,11 +134,15 @@ class CalculateLiquidation
                             } elseif (($item == "*") || ($item == "/") || ($item == "+") || ($item == "-")) {
                                 $op = $item;
                             } elseif (($item == "M+") || ($item == "M-") || ($item == "MR") || ($item == "MC")) {
-                                if ($item == "M+") {$mem = $mem + $act;}
+                                if ($item == "M+") {
+                                    $mem = $mem + $act;
+                                }
                                 if ($item == "M-") {
                                     $mem = $mem - $act;
                                 }
-                                if ($item == "MR") {$act = $mem;}
+                                if ($item == "MR") {
+                                    $act = $mem;
+                                }
                                 if ($item == "MC") {
                                     $mem = 0;
                                 }
@@ -170,7 +177,7 @@ class CalculateLiquidation
                         $act = round(self::checkLimits($act, $unitLimit, $minLimit, $maxLimit, $maxValueLimit));
                         break;
                     // Direct parameter
-                    case "P": 
+                    case "P":
                         $act = Parameter::getParameterValue($tuitionId, $workerId, $schoolId); // Retrieves the parameter value.
                         $unitParam = Parameter::getUnitByTuitionWorkerAndSchool($tuitionId, $workerId, $schoolId);
                         if ($unitParam != "") {
@@ -180,13 +187,12 @@ class CalculateLiquidation
                         }
                         break;
                     // Sum of Parameter
-                    case "S": 
+                    case "S":
                         if ($tuitionId != "SUMACARGASTODOS") {
                             $act = Parameter::getSumValueByTuitionSchoolAndWorkerType($operation, $schoolId, $workerTypeId);
                         } else {
                             // If it's "SUMACARGASTODOS", sums the values for all workers.
-                            $act = Parameter::getSumValueByTuitionSchoolAndWorkerType($operation, $schoolId, 1)
-                             + Parameter::getSumValueByTuitionSchoolAndWorkerType($operation, $schoolId, 2);
+                            $act = Parameter::getSumValueByTuitionSchoolAndWorkerType($operation, $schoolId, 1) + Parameter::getSumValueByTuitionSchoolAndWorkerType($operation, $schoolId, 2);
                         }
                         break;
                 }
@@ -214,6 +220,7 @@ class CalculateLiquidation
 
         return $act; // Returns the final calculated value.
     }
+
     /**
      * Saves a calculation in the "temporary table" (in the session).
      *
@@ -222,8 +229,7 @@ class CalculateLiquidation
      * @param float  $value      The value of the calculation.
      * @param int    $inLiquidation Indicates whether it's in liquidation (1 or 0).
      */
-    public static function saveInTemporaryTable($id, $title, $value, $inLiquidation)
-    {
+    public static function saveInTemporaryTable($id, $title, $value, $inLiquidation) {
         // Checks if the tuition_id already exists in the temporary table 'tmp_liquidation'.
         $exists = TmpLiquidation::where('tuition_id', $id)->exists();
         // If it doesn't exist, inserts a new record with the provided data.
@@ -236,27 +242,14 @@ class CalculateLiquidation
             ]);
         }
     }
-    /**
-     * Retrieves a calculation from the "temporary table" using its ID.
-     *
-     * @param string $id The ID of the calculation.
-     * @return mixed The value of the calculation or null if it doesn't exist.
-     */
-    public static function getFromTemporaryTable($id)
-    {
-        // Searches for the calculation in the 'tmp_liquidation' table using the 'tuition_id'.
-        $record = TmpLiquidation::where('tuition_id', $id)->first();
-        // If the calculation is found, returns its value; otherwise returns null.
-        return $record ? $record->value : null;
-    }
+
     /**
      * Checks if a calculation already exists in the temporary table.
      *
      * @param string $id The ID of the calculation.
      * @return mixed The value of the calculation if it exists, or -1 if it doesn't exist.
      */
-    public static function alreadyExists($id)
-    {
+    public static function alreadyExists($id) {
         // Checks if a record exists in the 'tmp_liquidation' table with the 'tuition_id'.
         $record = TmpLiquidation::where('tuition_id', $id)->first();
         // If the calculation exists, returns its value; if not, returns -1.

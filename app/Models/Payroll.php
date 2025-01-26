@@ -5,16 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Payroll extends Model
-{
+class Payroll extends Model {
+
     use HasFactory;
 
     // Attributes that can be mass-assigned
     protected $fillable = [
-        'school_id',  // ID of the school
-        'month',      // Month of the payroll
-        'year',       // Year of the payroll
-        'details',    // Details of the payroll (usually a JSON)
+        'school_id', // ID of the school
+        'month', // Month of the payroll
+        'year', // Year of the payroll
+        'details', // Details of the payroll (usually a JSON)
     ];
 
     /**
@@ -25,13 +25,12 @@ class Payroll extends Model
      * @param int $year - Year of the payroll.
      * @return \App\Models\Payroll - Generated or updated payroll object.
      */
-    public static function generatePayroll($schoolId, $month, $year)
-    {
+    public static function generatePayroll($schoolId, $month, $year) {
         // Get all workers of the school
         $workers = Worker::where('school_id', $schoolId)->get();
         // Titles of different types of allowances or deductions (e.g., law 19410, difficult performance, etc.)
         $tuitionTitles = [
-            'RBMN','Desempeño dificil', 'Ley 19410', 'Ley 19464', 'Ley 19933', 'UMP',
+            'RBMN', 'Desempeño dificil', 'Ley 19410', 'Ley 19464', 'Ley 19933', 'UMP',
             'Asignacion Voluntaria', 'Colegio de profesores', 'Prestamo Social Caja los Andes',
             'Prestamo Social Caja los heroes', 'Fundacion Lopez Perez',
         ];
@@ -49,9 +48,9 @@ class Payroll extends Model
         foreach ($workers as $worker) {
             // Get liquidations for the specific month and year (if any)
             $liquidations = Liquidation::where('worker_id', $worker->id)
-                ->where('month', $month)
-                ->where('year', $year)
-                ->first();
+                    ->where('month', $month)
+                    ->where('year', $year)
+                    ->first();
 
             // Initialize worker's data
             $totalsWorker = [
@@ -111,8 +110,8 @@ class Payroll extends Model
                 $totalsWorker['presLosHeroes'] = $getDetailValue($liquidations, $tuitionIds[9], 'value');
                 $totalsWorker['fundationLp'] = $getDetailValue($liquidations, $tuitionIds[10], 'value');
                 $totalsWorker['voluntaryDiscount'] = $getDetailValue($liquidations, 'DESCUENTOSVOLUNTARIOS', 'value') +
-                    $getDetailValue($liquidations, 'IMPUESTORENTA', 'value') +
-                    $getDetailValue($liquidations, 'DESCUENTOSLEGALES', 'value');
+                        $getDetailValue($liquidations, 'IMPUESTORENTA', 'value') +
+                        $getDetailValue($liquidations, 'DESCUENTOSLEGALES', 'value');
                 $totalsWorker['totalPayable'] = $getDetailValue($liquidations, 'TOTALAPAGAR', 'value');
                 // Get the titles for AFP and Health
                 $afpTitle = $liquidations->getDetailByTuitionId($liquidations->id, 'AFP', 'title');
@@ -139,21 +138,21 @@ class Payroll extends Model
 
         // Create or update the payroll
         $payroll = self::updateOrCreate(
-            [
-                'school_id' => $schoolId,
-                'month' => $month,
-                'year' => $year,
-            ], [
-                'details' => json_encode($payrollDetails), // Save details of each worker
-            ]
+                        [
+                    'school_id' => $schoolId,
+                    'month' => $month,
+                    'year' => $year,
+                        ], [
+                    'details' => json_encode($payrollDetails), // Save details of each worker
+                        ]
         );
 
         return $payroll;
     }
 
     // Define the relationship with the 'School' model (one to many relationship)
-    public function school()
-    {
+    public function school() {
         return $this->belongsTo(School::class);
     }
+
 }

@@ -90,7 +90,7 @@
         </div>
         <div class="col-md-4">
             <label for="worker_type" class="form-label" style="opacity: 0.7;">Tipo de Trabajador</label>
-            <select id="worker_type" class="form-select" name="worker_type" onchange="toggleInputs()">
+            <select id="worker_type" class="form-select" name="worker_type">
                 <option value="">Seleccione un tipo de trabajador</option>
                 @foreach ($workerTypes as $key => $type)
                     <option value="{{ $key }}"

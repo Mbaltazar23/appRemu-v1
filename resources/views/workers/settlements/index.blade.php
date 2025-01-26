@@ -20,13 +20,13 @@
                 <div class="table-responsive">
                     <!-- Verificar si no hay trabajadores -->
                     @if ($workers->isEmpty())
-                    <div class="page-wrapper">
-                        <div class="container-xl mt-2">
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                No hay trabajadores finiquitados en este momento
+                        <div class="page-wrapper">
+                            <div class="container-xl mt-2">
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    No hay trabajadores finiquitados en este momento
+                                </div>
                             </div>
                         </div>
-                    </div>
                     @else
                         <table class="table table-bordered table-striped">
                             <thead class="thead-dark">
@@ -43,7 +43,17 @@
                                         <td>{{ $worker->name }}</td>
                                         <td>{{ $worker->last_name }}</td>
                                         <td>{{ $worker->getWorkerTypes()[$worker->worker_type] }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($worker->settlement_date)->format('d-m-Y') }}</td>
+                                        <td>
+                                            {{ \Carbon\Carbon::parse($worker->settlement_date)->format('d-m-Y') }}
+                                            <!-- Botón para eliminar la fecha de finiquito -->
+                                            <form action="{{ route('workers.removeSettlementDate', $worker->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('PUT') <!-- Usamos PUT para actualizar el registro -->
+                                                <button type="submit" class="btn btn-link text-danger" title="Eliminar fecha de finiquito">
+                                                    <i class="bx bx-trash"></i> <!-- Icono de eliminación -->
+                                                </button>
+                                            </form>
+                                        </td>                                    
                                     </tr>
                                 @endforeach
                             </tbody>

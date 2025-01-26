@@ -24,7 +24,7 @@
             <select class="form-select" id="is_bonus" name="is_bonus">
                 <option value="0" {{ (old('is_bonus') ?? ($bonus->is_bonus ?? 0)) == 0 ? 'selected' : '' }}>Bono
                 </option>
-                <option value="1" {{ (old('is_bonus') ?? ($bonus->is_bonus ?? 0)) == 1 ? 'selected' : '' }}>
+                <option value="1" {{ (old('is_bonus') ?? ($bonus->is_bonus ?? 1)) == 1 ? 'selected' : '' }}>
                     Descuento</option>
             </select>
         </div>
@@ -32,9 +32,9 @@
         <div class="col-md-6 mb-3">
             <label for="taxable" class="form-label">¿Es imponible?</label>
             <select class="form-select" id="taxable" name="taxable">
-                <option value="1" {{ (old('taxable') ?? ($bonus->taxable ?? 1)) == 1 ? 'selected' : '' }}>No
+                <option value="0" {{ (old('taxable', $bonus->taxable ?? 0)) == 0 ? 'selected' : '' }}>Sí
                 </option>
-                <option value="0" {{ (old('taxable') ?? ($bonus->taxable ?? 1)) == 0 ? 'selected' : '' }}>Sí
+                <option value="1" {{ (old('taxable', $bonus->taxable ?? 1)) == 1 ? 'selected' : '' }}>No
                 </option>
             </select>
         </div>
@@ -47,9 +47,9 @@
             <div class="col-md-6 mb-3">
                 <label for="imputable" class="form-label">¿Es imputable a la renta mínima?</label>
                 <select class="form-select" id="imputable" name="imputable">
-                    <option value="0" {{ (old('imputable') ?? ($bonus->imputable ?? 0)) == 0 ? 'selected' : '' }}>
+                    <option value="0" {{ (old('imputable', $bonus->imputable ?? 0)) == 0 ? 'selected' : '' }}>
                         Sí</option>
-                    <option value="1" {{ (old('imputable') ?? ($bonus->imputable ?? 1)) == 1 ? 'selected' : '' }}>
+                    <option value="1" {{ (old('imputable', $bonus->imputable ?? 1)) == 1 ? 'selected' : '' }}>
                         No</option>
                 </select>
             </div>
@@ -72,7 +72,7 @@
         <div class="col-md-6 mb-3">
             <label for="amount" class="form-label">Monto (en pesos)</label>
             <input type="number" class="form-control" id="amount" name="amount"
-                value="{{ old('amount', $bonus->school ? $bonus->school->parameters->where('name', $bonus->tuition_id)->value('value') ?? '' : '') }}"
+                value="{{ old('amount', $bonus->school ? $bonus->school->parameters->where('name', $bonus->tuition_id)->where('worker_id', 0)->first()->value ?? 0 : '') }}"
                 step="0.01">
         </div>
 
@@ -88,7 +88,9 @@
                 <div class="form-check form-check-inline">
                     <input type="checkbox" class="form-check-input" name="months[]" value="{{ $i }}"
                         {{ isset($allChecked) && $allChecked[$i - 1] == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label">{{ DateTime::createFromFormat('!m', $i)->format('M') }}</label>
+                    <label class="form-check-label">
+                        {{ ucfirst(\Carbon\Carbon::createFromFormat('!m', $i)->locale('es')->isoFormat('MMMM')) }}
+                    </label>
                 </div>
             @endfor
         </div>

@@ -45,7 +45,7 @@ class InsuranceController extends Controller
         $worker_id        = $request->input('worker_id') ?? optional($workers->first())->id;
         $workerParameters = $worker_id ? $this->getWorkerParameters($worker_id, $type) : [];
 
-        $fields = $this->getFieldsParameters($insurance, $type, $workerParameters);
+        $fields = $this->getFieldsParameters($type, $workerParameters);
 
         return view('insurances.index', compact(
             'insurances',
@@ -66,14 +66,14 @@ class InsuranceController extends Controller
         return Parameter::getWorkerParametersByInsuranceType($worker, $type);
     }
 
-    protected function getFieldsParameters($insurance, $type, $workerParameters)
+    protected function getFieldsParameters($type, $workerParameters)
     {
         // Make sure workerParameters has the correct values
         if (empty($workerParameters)) {
             // If no parameters, return an array with default or empty values
             return [];
         }
-        return $type == \App\Models\Insurance::AFP
+        return $type == Insurance::AFP
         ? [
             ['label' => "Cotización Legal (%)", 'name' => 'cotizacionafp', 'value' => $workerParameters['cotizacionafp'], 'readonly' => true],
             ['label' => 'APV', 'name' => 'apv', 'value' => $workerParameters['apv']],
