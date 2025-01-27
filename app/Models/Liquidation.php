@@ -163,6 +163,8 @@ class Liquidation extends Model {
      */
     public static function getHeaderGlosa($liquidationId, $workerId, $school_id) {
         $daysworkers = self::getDetailByTuitionId($liquidationId, "DIASTRABAJADOS", 'value');
+        $absentdays = self::getDetailByTuitionId($liquidationId, "DIASNOTRABAJADOS", 'value');
+
         $dataGlosa = LiquidationHelper::getHeaderLiquidation($workerId, $school_id, now()->month);
         // We show the worker's data, school, month in which they work and their workload, and the current year
         $worker = $dataGlosa['worker'];
@@ -183,6 +185,7 @@ class Liquidation extends Model {
             'workload' => $workload,
             'worker_function' => $worker->getFunctionWorkerTypes()[$worker->function_worker],
             'days_worked' => $daysworkers,
+            'absent_days' => $absentdays
         ];
         // Return HeaderData
         return $headerData;

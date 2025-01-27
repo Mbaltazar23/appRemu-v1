@@ -69,6 +69,8 @@ class LiquidationHelper {
         CalculateLiquidation::processCalculation("TOTALAPAGAR", $workerId, $workerType, $schoolId);
         // Save the worked days into the temporary table for further processing
         CalculateLiquidation::saveInTemporaryTable("DIASTRABAJADOS", "Dias trabajados", 0, 1);
+        // Save the absent days in the temporary table for later processing.
+        CalculateLiquidation::saveInTemporaryTable("DIASNOTRABAJADOS", "Días de Ausencia", $cierremes, 1);
     }
 
     // Get the header information for the liquidation report

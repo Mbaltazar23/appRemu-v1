@@ -38,13 +38,14 @@
                         Los valores pueden ser modificados únicamente si se ajustan los indicadores
                         financieros, bonos o sueldos de los trabajadores. El último parámetro (días trabajados) debe ser
                         llenado con la cantidad efectiva de días trabajados y solo se ingresa para efectos de despliegue en
-                        la liquidación.
+                        la liquidación, cargando por defecto 0 y los dias de ausencia con el dia de cierre de cada mes.
                     </p>
                     <br>
                     <!-- Formulario junto al botón Volver -->
                     <div class="d-flex align-items-center justify-content-between">
                         <!-- Formulario que contiene los datos de la sesión -->
-                        <form action="{{ route('liquidations.store', $worker) }}" method="POST" class="w-100" id="form-liquidation">
+                        <form action="{{ route('liquidations.store', $worker) }}" method="POST" class="w-100"
+                            id="form-liquidation">
                             @csrf
                             <!-- Inputs editables con valores de sesión -->
                             <div class="row">
@@ -61,9 +62,16 @@
                                             <!-- Condición para el campo 'Días Trabajados' -->
                                             @if ($liquidationRecord->tuition_id === 'DIASTRABAJADOS')
                                                 <input type="number" class="form-control"
+                                                    id="input_{{ $liquidationRecord->tuition_id }}"
                                                     name="VALID{{ $liquidationRecord->tuition_id }}"
                                                     value="{{ number_format($liquidationRecord->value, 0, '.', ',') }}"
                                                     required>
+                                            @elseif($liquidationRecord->tuition_id === 'DIASNOTRABAJADOS')
+                                                <input type="number" class="form-control"
+                                                    id="input_{{ $liquidationRecord->tuition_id }}"
+                                                    name="VALID{{ $liquidationRecord->tuition_id }}"
+                                                    value="{{ number_format($liquidationRecord->value, 0, '.', ',') }}"
+                                                    readonly>
                                             @else
                                                 <input type="text" class="form-control"
                                                     name="VALID{{ $liquidationRecord->tuition_id }}"
@@ -87,6 +95,7 @@
                             </div>
                         </form>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -94,25 +103,58 @@
 @endsection
 
 @push('custom_scripts')
-<!-- Agregar Script para Validación -->
-<script>
-    document.getElementById("form-liquidation").addEventListener("submit", function(event) {
-        // Buscar el campo de Días Trabajados
-        var diasTrabajadosField = document.querySelector('input[name="VALIDDIASTRABAJADOS"]');
-        
-        if (diasTrabajadosField) {
-            var diasTrabajados = diasTrabajadosField.value;
+    <!-- Agregar Script para Validación -->
+    <script>
+          document.addEventListener('DOMContentLoaded', function() {
+        const diasTrabajadosInput = document.querySelector('input[name="VALIDDIASTRABAJADOS"]');
+        const diasNoTrabajadosInput = document.querySelector('input[name="VALIDDIASNOTRABAJADOS"]');
 
-            // Validar que el campo no esté vacío
-            if (!diasTrabajados || diasTrabajados.trim() === "") {
-                alert("Por favor, ingresa el número de días trabajados.");
-                event.preventDefault();  // Impide el envío del formulario
+        // Guardamos el valor original de DIASNOTRABAJADOS al cargar el formulario
+        let diasNoTrabajadosOriginal = parseInt(diasNoTrabajadosInput.value.replace(/,/g, ''), 10) || 0;
+
+        // Función para hacer la resta de días de forma segura
+        function updateDiasNoTrabajados() {
+            let diasTrabajados = parseInt(diasTrabajadosInput.value.replace(/,/g, ''), 10) || 0;
+
+            // Comprobamos que el valor de DIASTRABAJADOS sea válido (mayor que 0)
+            if (isNaN(diasTrabajados) || diasTrabajados < 0) {
+                // Si el valor no es válido, restauramos el valor original de DIASNOTRABAJADOS
+                diasNoTrabajadosInput.value = diasNoTrabajadosOriginal;
+                return; // Salimos de la función para evitar realizar una resta incorrecta
             }
-        } else {
-            // Si el campo no existe, puedes agregar otra lógica o dejarlo vacío
-            console.error('El campo de días trabajados no se encuentra en el formulario.');
+
+            // Resta el valor de DIASNOTRABAJADOS con los DIASTRABAJADOS
+            let diasNoTrabajados = diasNoTrabajadosOriginal - diasTrabajados;
+
+            // Actualizamos el valor de DIASNOTRABAJADOS
+            diasNoTrabajadosInput.value = diasNoTrabajados;
+
+            // Formateamos el valor con comas para mejor visualización
+            diasNoTrabajadosInput.value = diasNoTrabajados.toLocaleString();
+        }
+
+        // Escuchamos cambios en el campo de días trabajados
+        if (diasTrabajadosInput) {
+            diasTrabajadosInput.addEventListener('input', updateDiasNoTrabajados);
         }
     });
-</script>
 
+        document.getElementById("form-liquidation").addEventListener("submit", function(event) {
+            // Buscar el campo de Días Trabajados
+            var diasTrabajadosField = document.querySelector('input[name="VALIDDIASTRABAJADOS"]');
+
+            if (diasTrabajadosField) {
+                var diasTrabajados = diasTrabajadosField.value;
+
+                // Validar que el campo no esté vacío
+                if (!diasTrabajados || diasTrabajados == 0 || diasTrabajados.trim() === "") {
+                    alert("Por favor, ingresa el número de días trabajados.");
+                    event.preventDefault(); // Impide el envío del formulario
+                }
+            } else {
+                // Si el campo no existe, puedes agregar otra lógica o dejarlo vacío
+                console.error('El campo de días trabajados no se encuentra en el formulario.');
+            }
+        });
+    </script>
 @endpush

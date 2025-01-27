@@ -57,6 +57,7 @@ class Payroll extends Model {
                 'name' => $worker->name,
                 'rut' => $worker->rut,
                 'daysWorker' => 0,
+                'absentDays' => 0,
                 'monthlySalary' => 0,
                 'hardPerformance' => 0,
                 'law19410' => 0,
@@ -88,6 +89,7 @@ class Payroll extends Model {
             if ($liquidations) {
                 // Assign liquidation values to the worker
                 $totalsWorker['daysWorker'] = $getDetailValue($liquidations, 'DIASTRABAJADOS', 'value');
+                $totalsWorker['absentDays'] = $getDetailValue($liquidations, 'DIASNOTRABAJADOS', 'value');
                 $totalsWorker['monthlySalary'] = $getDetailValue($liquidations, $tuitionIds[0], 'value') + $getDetailValue($liquidations, 'SUELDOBASE', 'value');
                 // Assign values for each "tuition" using the preloaded IDs
                 $totalsWorker['hardPerformance'] = $getDetailValue($liquidations, $tuitionIds[1], 'value');

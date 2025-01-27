@@ -31,10 +31,12 @@ class WorkerFormRequest extends FormRequest {
             'commune' => 'required|string|max:30',
             'region' => 'required|string|max:20',
             'phone' => 'required|string|max:20',
+            'num_load_family' => 'required|integer|min:0|max:30',
             'marital_status' => 'required|integer',
             'nationality' => 'required|string|max:30',
             'worker_type' => 'required|integer',
             'function_worker' => 'required|integer', // Make sure this field exists in the form
+            'contract_type' => 'required|integer',
             'hire_date' => 'required|date',
             'termination_date' => 'nullable|date',
             'worker_titular' => 'nullable|exists:workers,id',

@@ -105,7 +105,8 @@
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '{{ route('costcenters.store') }}';
-                form.target = 'popupWindow'; // Define la ventana emergente como destino
+                form.target = '_blank'; // Abrir el formulario en una nueva pestaña
+
                 // CSRF token
                 form.appendChild(createHiddenInput('_token', '{{ csrf_token() }}'));
                 // Campos del formulario
@@ -113,9 +114,8 @@
                 form.appendChild(createHiddenInput('item', item));
                 form.appendChild(createHiddenInput('periodo', periodo));
                 form.appendChild(createHiddenInput('year', year));
-                // Crear la ventana emergente
-                const popupWindow = window.open('', 'popupWindow', 'width=820,height=600,scrollbars=yes');
-                // Enviar el formulario en la ventana emergente
+
+                // Enviar el formulario en una nueva pestaña
                 document.body.appendChild(form);
                 form.submit();
                 return true; // Permite el envío del formulario

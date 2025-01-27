@@ -134,11 +134,12 @@
             <tr>
                 <td class="worker-name">Nombre: {!! $headerData['worker_name'] !!} {!! $headerData['worker_last_name'] !!}</td>
                 <td class="worker-rut">R.U.T.: {!! $headerData['worker_rut'] !!}</td>
+                <td>Carga horaria (horas): {!! $headerData['workload'] !!}</td>
             </tr>
             <tr>
-                <td>Carga horaria (horas): {!! $headerData['workload'] !!}</td>
                 <td>{!! $headerData['worker_function'] !!}</td>
                 <td>Días trabajados: {!! $headerData['days_worked'] !!}</td>
+                <td>Dias de Ausencia: {!! $headerData['absent_days'] !!}</td>
             </tr>
         </table>
 

@@ -5,17 +5,17 @@
 
     <div class="row mb-4">
         <div class="col-md-4">
-            <label for="rut" class="form-label" style="opacity: 0.7;">RUT</label>
+            <label for="rut" class="form-label" style="opacity: 0.7;">RUT *</label>
             <input id="rut" type="text" class="form-control" name="rut"
                 value="{{ old('rut') ?? $worker->rut }}" maxlength="15" />
         </div>
         <div class="col-md-4">
-            <label for="name" class="form-label" style="opacity: 0.7;">Nombre</label>
+            <label for="name" class="form-label" style="opacity: 0.7;">Nombre * </label>
             <input id="name" type="text" class="form-control" name="name"
                 value="{{ old('name') ?? $worker->name }}" />
         </div>
         <div class="col-md-4">
-            <label for="last_name" class="form-label" style="opacity: 0.7;">Apellido</label>
+            <label for="last_name" class="form-label" style="opacity: 0.7;">Apellido *</label>
             <input id="last_name" type="text" class="form-control" name="last_name"
                 value="{{ old('last_name') ?? $worker->last_name }}" />
         </div>
@@ -23,7 +23,7 @@
 
     <div class="row mb-4">
         <div class="col-md-4">
-            <label for="address" class="form-label" style="opacity: 0.7;">Dirección</label>
+            <label for="address" class="form-label" style="opacity: 0.7;">Dirección *</label>
             <input id="address" type="text" class="form-control" name="address"
                 value="{{ old('address') ?? $worker->address }}" />
         </div>
@@ -65,7 +65,7 @@
                 value="{{ old('phone') ?? $worker->phone }}" />
         </div>
         <div class="col-md-4">
-            <label for="num_load_family" class="form-label" style="opacity: 0.7;">N° Cargas Familiar</label>
+            <label for="num_load_family" class="form-label" style="opacity: 0.7;">N° Cargas Familiar *</label>
             <input id="num_load_family" type="number" class="form-control" name="num_load_family"
                 value="{{ old('num_load_family') ?? optional($worker->parameters->where('name', 'CARGASFAMILIARES')->first())->value }}" />
         </div>
@@ -73,7 +73,7 @@
 
     <div class="row mb-4">
         <div class="col-md-4">
-            <label for="birth_date" class="form-label" style="opacity: 0.7;">Fecha de Nacimiento</label>
+            <label for="birth_date" class="form-label" style="opacity: 0.7;">Fecha de Nacimiento *</label>
             <input id="birth_date" type="date" class="form-control" name="birth_date"
                 value="{{ old('birth_date') ?? $worker->birth_date }}" />
         </div>
@@ -122,16 +122,44 @@
     <h3 class="mb-4" style="font-weight: bold; color: #333;">Datos del Contrato</h3>
 
     <div class="row mb-4">
+        <!-- Tipo de Contrato -->
+        <div class="col-md-4">
+            <label for="contract_type" class="form-label" style="opacity: 0.7;">Tipo de Contrato</label>
+            <select id="contract_type" class="form-select" name="contract_type">
+                <option value="">Seleccione un tipo de contrato</option>
+                @foreach ($contractTypes as $key => $type)
+                    <option value="{{ $key }}"
+                        {{ (old('contract_type') ?? optional($worker->contract)->contract_type) == $key ? 'selected' : '' }}>
+                        {{ $type }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Motivo de Reemplazo -->
+        <div class="col-md-4">
+            <label for="replacement_reason" class="form-label" style="opacity: 0.7;">Motivo de Reemplazo</label>
+            <input id="replacement_reason" type="text" class="form-control" name="replacement_reason"
+                value="{{ old('replacement_reason') ?? optional($worker->contract)->replacement_reason }}" />
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Fecha Inicio Contrato -->
         <div class="col-md-4">
             <label for="hire_date" class="form-label" style="opacity: 0.7;">Fecha Inicio Contrato</label>
             <input id="hire_date" type="date" class="form-control" name="hire_date"
                 value="{{ old('hire_date') ?? optional($worker->contract)->hire_date }}" />
         </div>
+
+        <!-- Fecha Término Contrato -->
         <div class="col-md-4">
             <label for="termination_date" class="form-label" style="opacity: 0.7;">Fecha Término Contrato</label>
             <input id="termination_date" type="date" class="form-control" name="termination_date"
                 value="{{ old('termination_date') ?? optional($worker->contract)->termination_date }}" />
         </div>
+
+        <!-- Trabajador Titular -->
         <div class="col-md-4">
             <label for="worker_titular" class="form-label" style="opacity: 0.7;">Trabajador Titular</label>
             <select id="worker_titular" class="form-select" name="worker_titular">
@@ -147,33 +175,15 @@
     </div>
 
     <div class="row mb-4">
-        <div class="col-md-6">
-            <label for="replacement_reason" class="form-label" style="opacity: 0.7;">Motivo de Reemplazo</label>
-            <input id="replacement_reason" type="text" class="form-control" name="replacement_reason"
-                value="{{ old('replacement_reason') ?? optional($worker->contract)->replacement_reason }}" />
-        </div>
-    </div>
-
-    <div class="row mb-4">
+        <!-- Carga Horaria -->
         <div class="col-md-4">
             <label for="hourly_load" class="form-label" style="opacity: 0.7;">Carga Horaria</label>
             <input id="hourly_load" type="number" class="form-control" name="hourly_load" min="1"
                 max="45"
                 value="{{ old('hourly_load') ?? optional($worker->parameters->where('name', 'CARGAHORARIA')->first())->value }}" />
         </div>
-        <div class="col-md-4">
-            <label for="contract_type" class="form-label" style="opacity: 0.7;">Tipo de Contrato</label>
-            <select id="contract_type" class="form-select" name="contract_type">
-                <option value="">Seleccione un tipo de contrato</option>
-                @foreach ($contractTypes as $key => $type)
-                    <option value="{{ $key }}"
-                        {{ (old('contract_type') ?? optional($worker->contract)->contract_type) == $key ? 'selected' : '' }}>
-                        {{ $type }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
     </div>
+
 
     <div class="mb-4">
         <label class="form-label">Carga Horaria por Día</label>

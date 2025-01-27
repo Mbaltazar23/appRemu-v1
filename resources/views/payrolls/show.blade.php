@@ -164,6 +164,7 @@
                     <th>Nombre</th>
                     <th>Rut</th>
                     <th>Días Trabajados</th>
+                    <th>Días de Ausencia</th>
                     <th>Sueldo Mensual</th>
                     <th>Desem. Dificil</th>
                     <th>Bonif DL. 19.410</th>
@@ -194,6 +195,7 @@
             <tbody>
                 @php
                     $total_days = 0;
+                    $total_absents = 0;
                     $total_sueldo = 0;
                     $total_hardPerformance = 0;
                     $total_law19410 = 0;
@@ -222,6 +224,7 @@
                         <td>{{ $totals['name'] }}</td>
                         <td>{{ $totals['rut'] }}</td>
                         <td>{{ $totals['daysWorker'] }}</td>
+                        <td>{{ $totals['absentDays'] }}</td>
                         <td>{{ number_format($totals['monthlySalary'], 0, 0, ',') }}</td>
                         <td>{{ number_format($totals['hardPerformance'], 0, 0, ',') }}</td>
                         <td>{{ number_format($totals['law19410'], 0, 0, ',') }}</td>
@@ -250,6 +253,7 @@
                     </tr>
                     @php
                         $total_days += $totals['daysWorker'];
+                        $total_absents += $totals['absentDays'];
                         $total_sueldo += $totals['monthlySalary'];
                         $total_hardPerformance += $totals['hardPerformance'];
                         $total_law19410 += $totals['law19410'];
@@ -279,6 +283,7 @@
                 <tr>
                     <td colspan="2">Totales</td>
                     <td>{{ number_format($total_days, 0, 0, ',') }}</td>
+                    <td>{{ number_format($total_absents, 0, 0, ',') }}</td>
                     <td>{{ number_format($total_sueldo, 0, 0, ',') }}</td>
                     <td>{{ number_format($total_hardPerformance, 0, 0, ',') }}</td>
                     <td>{{ number_format($total_law19410, 0, 0, ',') }}</td>
