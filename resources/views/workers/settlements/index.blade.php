@@ -32,28 +32,30 @@
                             <thead class="thead-dark">
                                 <tr>
                                     <th onclick="sortTable(0)" class="sort-table">Nombre</th>
-                                    <th onclick="sortTable(1)" class="sort-table">Apellido</th>
-                                    <th onclick="sortTable(2)" class="sort-table">Tipo de Trabajador</th>
-                                    <th onclick="sortTable(3)" class="sort-table">Fecha de Finiquito</th>
+                                    <th onclick="sortTable(1)" class="sort-table">Tipo de Trabajador</th>
+                                    <th onclick="sortTable(2)" class="sort-table">Fecha de Finiquito</th>
+                                    <th onclick="sortTable(3)" class="sort-table">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($workers as $worker)
                                     <tr>
-                                        <td>{{ $worker->name }}</td>
-                                        <td>{{ $worker->last_name }}</td>
+                                        <td>{{ $worker->name .' '.$worker->last_name }}</td>
                                         <td>{{ $worker->getWorkerTypes()[$worker->worker_type] }}</td>
+                                        <td> {{ \Carbon\Carbon::parse($worker->settlement_date)->format('d-m-Y') }}
+                                        </td>
                                         <td>
-                                            {{ \Carbon\Carbon::parse($worker->settlement_date)->format('d-m-Y') }}
                                             <!-- Botón para eliminar la fecha de finiquito -->
-                                            <form action="{{ route('workers.removeSettlementDate', $worker->id) }}" method="POST" class="d-inline">
+                                            <form action="{{ route('workers.removeSettlementDate', $worker->id) }}"
+                                                method="POST" class="d-inline">
                                                 @csrf
                                                 @method('PUT') <!-- Usamos PUT para actualizar el registro -->
-                                                <button type="submit" class="btn btn-link text-danger" title="Eliminar fecha de finiquito">
+                                                <button type="submit" class="btn btn-danger rounded-3 px-3"
+                                                    title="Eliminar fecha de finiquito">
                                                     <i class="bx bx-trash"></i> <!-- Icono de eliminación -->
                                                 </button>
                                             </form>
-                                        </td>                                    
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>

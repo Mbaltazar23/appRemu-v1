@@ -164,7 +164,7 @@ class Bonus extends Model
                     Operation::addOperation($nameValue, 2, $operation, $meses, $data['school_id']);
                 }
 
-                self::updateBonus($data, $nameValue, $factor);
+                self::updateBonus($data, $namev, $factor);
             }
 
         }
