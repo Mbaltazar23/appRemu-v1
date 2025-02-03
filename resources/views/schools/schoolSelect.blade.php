@@ -5,7 +5,7 @@
     <div class="container-xl">
       <div class="card">
         <div class="card-header">
-          <h3>{{ __('Seleccione La Escuela a la que tiene Acceso') }}</h3>
+          <h3>{{ __('Seleccione Un Colegio a la que tenga Acceso') }}</h3>
         </div>
         <div class="card-body">
           <!-- Formulario para seleccionar el colegio -->

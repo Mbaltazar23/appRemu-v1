@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Helpers\MonthHelper;
 
 class License extends Model {
 
@@ -176,16 +177,16 @@ class License extends Model {
      * between a given start and end day.
      *
      * @param int $worker_id
-     * @param int $mes
+     * @param int $month
      * @param int $year
      * @param int $fromDay
      * @param int $until
      * @return int
      */
-    public static function sumDaysLicence($worker_id, $mes, $year, $fromDay, $until) {
-        $totalDays = LicenseDay::whereHas('license', function ($query) use ($worker_id, $mes, $year, $fromDay, $until) {
+    public static function sumDaysLicence($worker_id, $month, $year, $fromDay, $until) {
+        $totalDays = LicenseDay::whereHas('license', function ($query) use ($worker_id, $month, $year, $fromDay, $until) {
                     $query->where('worker_id', $worker_id)
-                    ->where('month', $mes)
+                    ->where('month', $month)
                     ->where('year', $year)
                     ->where('day', '>', $fromDay)
                     ->where('day', '<', $until);
@@ -195,6 +196,122 @@ class License extends Model {
         return $totalDays;
     }
 
+    /**
+     * Get the medical leave percentage for a specific year.
+     *
+     * This method calculates the percentage of workers with medical leave in a given year for a specific school.
+     * If no school ID is passed, it calculates the percentage for all workers.
+     *
+     * @param int $schoolId
+     * @param int $year
+     * @return float
+     */
+    public static function getMedicalLeavePercentage($schoolId, $year)
+    {
+        // If no school_id is provided, get all workers without filtering by school
+        $workers = $schoolId 
+            ? Worker::where('school_id', $schoolId)->get() 
+            : Worker::all();
+    
+        $totalWorkers = $workers->count();
+        $workersWithLicenses = 0;
+    
+        // Count how many workers have medical leave in the given year
+        foreach ($workers as $worker) {
+            $hasLicense = $worker->licenses()
+                ->whereYear('issue_date', $year)
+                ->exists();
+    
+            if ($hasLicense) {
+                $workersWithLicenses++;
+            }
+        }
+    
+        // Calculate the percentage
+        return $totalWorkers > 0 ? ($workersWithLicenses / $totalWorkers) * 100 : 0;
+    }
+
+    /**
+     * Get the monthly medical leave percentage for a specific year.
+     *
+     * This method calculates the percentage of workers with medical leave for each month of a given year.
+     * If no school ID is provided, it calculates for all workers.
+     *
+     * @param int $schoolId
+     * @param int $year
+     * @return array
+     */
+    public static function getMonthlyMedicalLeavePercentage($schoolId, $year)
+    {
+        // If no school_id is provided, get all workers without filtering by school
+        $workers = $schoolId 
+            ? Worker::where('school_id', $schoolId)->get() 
+            : Worker::all();
+
+        // Initialize counters
+        $monthlyPercentages = [];
+
+        // Iterate over each month
+        for ($month = 1; $month <= 12; $month++) {
+            // Define the date range for the selected month
+            $startOfMonth = now()->year($year)->month($month)->startOfMonth();
+            $endOfMonth = now()->year($year)->month($month)->endOfMonth();
+
+            // Initialize counters for the workers
+            $totalWorkers = $workers->count();
+            $workersWithLicenses = 0;
+
+            // Count workers with medical leave in the month
+            foreach ($workers as $worker) {
+                $hasLicense = $worker->licenses()
+                    ->whereBetween('issue_date', [$startOfMonth, $endOfMonth])
+                    ->exists();
+
+                if ($hasLicense) {
+                    $workersWithLicenses++;
+                }
+            }
+
+            // Calculate the percentage for this month
+            $percentage = $totalWorkers > 0 ? ($workersWithLicenses / $totalWorkers) * 100 : 0;
+
+            // Store the percentage for this month
+            $monthlyPercentages[] = [
+                'month' => MonthHelper::integerToMonth($month), // Use helper to get month name
+                'percentage' => round($percentage, 0)
+            ];
+        }
+
+        return $monthlyPercentages;
+    }
+
+    /**
+     * Get available years for medical leave records of a specific school.
+     *
+     * This method retrieves the distinct years when medical leave records exist for a particular school.
+     *
+     * @param int $schoolId
+     * @return array
+     */
+    public static function getAvailableYears($schoolId)
+    {
+        // If no school_id is provided, get the years from all workers
+        $query = self::query();
+        
+        if ($schoolId) {
+            $query->whereHas('worker', function ($query) use ($schoolId) {
+                $query->where('school_id', $schoolId); // Filter by school_id if provided
+            });
+        }
+    
+        return $query
+            ->selectRaw('YEAR(issue_date) as year') // Get only the year of the issue_date
+            ->distinct() // Only distinct years
+            ->orderByDesc('year') // Order from most recent to oldest
+            ->pluck('year') // Get the years as an array
+            ->toArray();
+    }
+    
     /**
      * Delete all license hours.
      *
@@ -245,5 +362,4 @@ class License extends Model {
     public function hours() {
         return $this->hasMany(LicenseHour::class, 'license_id');
     }
-
 }

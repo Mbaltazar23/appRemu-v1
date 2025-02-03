@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @push('custom_styles')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <style>
         .chart-container {
             background-color: #fff;
@@ -10,30 +10,49 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 40px;
         }
+
         .filters {
             display: flex;
-            flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 20px;
         }
+
         .filter-buttons {
             display: flex;
             gap: 10px;
-            margin-bottom: 10px;
         }
+
         .filter-info {
             display: flex;
-            flex-wrap: wrap;
+            align-items: center;
             gap: 10px;
-            font-size: 16px;
-            justify-content: center;
         }
+
+        .filter-info div {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .percentage-text {
+            font-size: 30px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .year-select {
+            font-size: 16px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
         @media (max-width: 767px) {
             .filters {
                 flex-direction: column;
                 align-items: flex-start;
             }
+
             .filter-info {
                 justify-content: flex-start;
             }
@@ -53,20 +72,91 @@
                 </div>
             </div>
 
-            <div class="chart-container">
-                <div class="filters mb-4">
-                    <div class="filter-buttons">
-                
-                    </div>
+            <div class="chart-container ">
+                <div class="filters mb-4 p-4">
                     <div class="filter-info">
+                        <!-- Texto del porcentaje de Licencias Médicas -->
+                        <h3>{{ $HeaderGrafictLicence }}</h3>
+                    </div>
+                    <div class="filter-buttons">
+                        <!-- Formulario con label a la izquierda del select para cambiar de año -->
+                        <form action="{{ route('home') }}" method="GET">
+                            <div class="d-flex align-items-center">
+                                <label for="year" class="form-label" style="margin-right: 10px;">Seleccione un año
+                                </label> <!-- Ajusté el margen aquí -->
+                                <select id="year" name="year" class="year-select" onchange="this.form.submit()">
+                                    @foreach ($availableYears as $yearOption)
+                                        <option value="{{ $yearOption }}" {{ $year == $yearOption ? 'selected' : '' }}>
+                                            {{ $yearOption }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div>
-                    <canvas id="delaysChart"></canvas>
-                </div>
+                <!-- Contenedor para el gráfico -->
+                <div id="medicalLeaveChart"></div>
             </div>
-
         </div>
     </div>
 @endsection
 
+@push('custom_scripts')
+    <script>
+        const monthlyData = @json($monthlyMedicalLeavePercentages);
+
+        const months = monthlyData.map(data => data.month);
+        const percentages = monthlyData.map(data => data.percentage);
+
+        var options = {
+            chart: {
+                type: 'bar',
+                height: '350',
+                width: '100%',
+                toolbar: {
+                    show: false
+                }
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '60%',
+                    endingShape: 'rounded'
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            series: [{
+                name: 'Licencias Médicas (%)',
+                data: percentages
+            }],
+            xaxis: {
+                categories: months,
+            },
+            yaxis: {
+                title: {
+                    text: 'Porcentaje'
+                },
+                max: 100,
+                labels: {
+                    formatter: function(val) {
+                        return val.toFixed(0) + "%";
+                    }
+                }
+            },
+            responsive: [{
+                breakpoint: 1000,
+                options: {
+                    chart: {
+                        height: '300px'
+                    }
+                }
+            }]
+        };
+
+        var chart = new ApexCharts(document.querySelector("#medicalLeaveChart"), options);
+        chart.render();
+    </script>
+@endpush

@@ -16,7 +16,6 @@ class Liquidation extends Model {
         'worker_id',
         'month',
         'year',
-        'values',
         'details', // Added 'details' to be mass-assignable
         'glosa', // Added 'glosa' for mass-assignment if you're going to assign it directly
     ];

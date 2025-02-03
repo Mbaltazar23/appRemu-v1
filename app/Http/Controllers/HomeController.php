@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\License;
+use App\Models\SchoolUser;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -16,15 +18,31 @@ class HomeController extends Controller
     {
         $this->middleware('auth');
     }
+
     /**
      * Show the application dashboard.
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('home');
+        $schoolId = auth()->user()->school_id_session;
+        $year = $request->input('year', now()->year);
+    
+        // Obtener los datos
+        $availableYears = License::getAvailableYears($schoolId);
+        $monthlyMedicalLeavePercentages = License::getMonthlyMedicalLeavePercentage($schoolId, $year);
+        $medicalLeavePercentage = round(License::getMedicalLeavePercentage($schoolId, $year), 0);
+        
+        // Cabecera del gráfico
+        $HeaderGrafictLicence = $schoolId 
+            ? "Porcentaje Total de Licencias Médicas del Colegio Seleccionado : $medicalLeavePercentage%" 
+            : "Porcentaje Total de Licencias Médicas en Total: $medicalLeavePercentage%";
+    
+        return view('home', compact('monthlyMedicalLeavePercentages', 'HeaderGrafictLicence', 'year', 'availableYears'));
     }
+    
+    
     /**
      * Set the school session for the authenticated user.
      *

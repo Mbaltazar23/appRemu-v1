@@ -46,32 +46,7 @@ class Contract extends Model {
         'Media' => 'Media',
         'Superior' => 'Superior',
     ];
-
-    /**
-     * Accessor to retrieve annexes as an array.
-     * 
-     * This method is used to decode the 'annexes' attribute (stored as JSON in the database)
-     * and return it as an array.
-     * 
-     * @param string $value The JSON string stored in the 'annexes' column
-     * @return array The decoded annexes as an array
-     */
-    public function getAnnexesAttribute($value) {
-        return json_decode($value, true) ?? []; // Decode JSON or return empty array if null
-    }
-
-    /**
-     * Mutator to save annexes as a JSON string.
-     * 
-     * This method is used to encode the 'annexes' attribute as JSON before saving it to the database.
-     * 
-     * @param mixed $value The annexes data to be saved
-     * @return void
-     */
-    public function setAnnexesAttribute($value) {
-        $this->attributes['annexes'] = json_encode($value); // Encode the annexes as JSON before saving
-    }
-
+    
     /**
      * Returns the available contract types.
      * 

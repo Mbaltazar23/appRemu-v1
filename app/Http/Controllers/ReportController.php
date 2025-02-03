@@ -39,7 +39,7 @@ class ReportController extends Controller
     {
         // Get the school ID from the user's session
         $school_id = auth()->user()->school_id_session;
-$nameInsurance = Insurance::getInsuranceTypes()[$typeInsurance];
+        $nameInsurance = Insurance::getInsuranceTypes()[$typeInsurance];
         // Set the tuition ID depending on the type of insurance
         $tuition_id = "AFPTRABAJADOR";
         if ($typeInsurance != Insurance::AFP) {
