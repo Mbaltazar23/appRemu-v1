@@ -18,7 +18,7 @@
                                 <td><strong>Trabajador:</strong></td>
                                 <td> {{ $absence->worker->name }} {{ $absence->worker->last_name }} </td>
                                 <td><strong>Fecha de Ausencia:</strong></td>
-                                <td>{{ $absence->day }}/{{ $absence->month }}/{{ $absence->year }} </td>
+                                <td>{{ \Carbon\Carbon::parse($absence->date)->format('d-m-Y') }} </td>
                             </tr>
                             <tr>
                                 <td>
@@ -26,7 +26,7 @@
                                 </td>
                                 <td>{{ $absence->reason }}</td>
                                 <td><strong>Duración:</strong></td>
-                                <td>{{ $absence->minutes }} minuto</td>
+                                <td>{{ $absence->minutes }} minuto(s)</td>
                             </tr>
                             <tr>
                                 <td> <strong>Con goce de sueldo:</strong></td>

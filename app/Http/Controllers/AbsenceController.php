@@ -24,7 +24,7 @@ class AbsenceController extends Controller
         $absences = Absence::whereHas('worker', function ($query) {
             $query->where('school_id', auth()->user()->school_id_session);
         })
-            ->orderBy('id', 'ASC')
+            ->orderBy('id', 'DESC')
             ->paginate(5); // Paginación si es necesario
 
         return view('absences.index', compact('absences'));

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Absence;
 
 class AbsenceFormRequest extends FormRequest
 {
@@ -34,13 +35,16 @@ class AbsenceFormRequest extends FormRequest
 
     public function prepareForValidation()
     {
-        // If 'date' is provided, extract and merge the day, month, and year
+        // If 'date' is provided, use the setDateAttribute method to set the day, month, and year
         if ($this->has('date')) {
-            $date = \Carbon\Carbon::parse($this->date);
+            $absence = new Absence();
+            $absence->setDateAttribute($this->date); // Use the setDateAttribute to set day, month, and year
+    
+            // Merge the day, month, and year into the request data
             $this->merge([
-                'day' => $date->day,
-                'month' => $date->month,
-                'year' => $date->year,
+                'day' => $absence->day,
+                'month' => $absence->month,
+                'year' => $absence->year,
             ]);
         }
     }

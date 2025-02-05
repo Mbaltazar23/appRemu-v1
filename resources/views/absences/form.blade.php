@@ -12,7 +12,7 @@
     </div>
     <div class="col-md-6 form-group">
         <label for="date" class="form-label">Fecha</label>
-        <input type="date" class="form-control" name="date" value="{{ old('date', $absence->date) }}" required>
+        <input type="date" class="form-control" name="date" value="{{ old('date',  $absence->date) }}" required>
     </div>
 </div>
 

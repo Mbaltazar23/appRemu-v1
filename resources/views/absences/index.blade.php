@@ -29,16 +29,18 @@
                                 <th onclick="sortTable(1)" class="sort-table">{{ __('Fecha de Ausencia') }}</th>
                                 <th onclick="sortTable(2)" class="sort-table">{{ __('Motivo') }}</th>
                                 <th onclick="sortTable(3)" class="sort-table">{{ __('Duración (minutos)') }}</th>
-                                <th onclick="sortTable(4)" class="sort-table">{{ __('Acciones') }}</th>
+                                <th onclick="sortTable(4)" class="sort-table">{{ __('Updated') }}</th>
+                                <th onclick="sortTable(5)" class="sort-table">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($absences as $absence)
                                 <tr>
                                     <td>{{ $absence->worker->name }} {{ $absence->worker->last_name }}</td>
-                                    <td>{{ $absence->day }}-{{ $absence->month }}-{{ $absence->year }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($absence->date)->format('d-m-Y') }}</td>
                                     <td>{{ $absence->reason }}</td>
                                     <td>{{ $absence->minutes }}</td>
+                                    <td>{{ $absence->updated_at->diffForHumans() }}</td>
                                     <td>
                                         @can('view', $absence)
                                             <a class="text-decoration-none" href="{{ route('absences.show', $absence) }}">
