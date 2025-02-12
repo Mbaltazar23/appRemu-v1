@@ -4,7 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalles de la Planilla</title>
+    <title>Planilla de Remuneraciones del Mes de {{ \App\Helpers\MonthHelper::integerToMonth($payroll->month) }} del
+        {{ $payroll->year }}</title>
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
+
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
@@ -37,14 +40,14 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 10px; /* Ajuste más pequeño de fuente */
+            font-size: 10px;
             table-layout: auto;
             margin-top: 15px;
         }
 
         th,
         td {
-            padding: 6px 10px; /* Más espacio para mejorar legibilidad */
+            padding: 6px 10px;
             text-align: center;
             border: 1px solid #ccc;
             word-wrap: break-word;
@@ -82,17 +85,18 @@
 
         .btn {
             display: inline-block;
-            padding: 6px 12px;
+            padding: 12px 24px;
             background-color: #6c757d;
             color: #fff;
             border: none;
             border-radius: 6px;
             text-decoration: none;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 16px;
             transition: background-color 0.3s ease;
-            margin-top: 15px;
+            margin-top: 20px;
             text-align: center;
+            width: auto;
         }
 
         .btn:hover {
@@ -117,12 +121,13 @@
 
             table {
                 width: 100%;
-                font-size: 9px; /* Fuente más pequeña para impresión */
+                font-size: 9px;
                 table-layout: auto;
                 overflow: visible;
             }
 
-            th, td {
+            th,
+            td {
                 padding: 4px;
                 text-align: center;
             }
@@ -131,7 +136,8 @@
                 padding: 0;
             }
 
-            h3, h4 {
+            h3,
+            h4 {
                 font-size: 16px;
             }
 
@@ -143,15 +149,30 @@
         /* Estilo para pantallas más pequeñas */
         @media (max-width: 768px) {
             table {
-                font-size: 9px; /* Reducir tamaño de fuente en pantallas pequeñas */
+                font-size: 9px;
             }
 
             th,
             td {
-                padding: 5px 8px; /* Ajustar padding en pantallas pequeñas */
+                padding: 5px 8px;
             }
         }
+
+        @media print {
+            button {
+                display: none;
+            }
+        }
+
+        /* Estilo para centrar el botón */
+        .btn-container {
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
+    <script>
+        window.print();
+    </script>
 </head>
 
 <body>
@@ -313,9 +334,9 @@
             </tfoot>
         </table>
     </div>
-    <script>
-        window.print();
-    </script>
+    <div class="btn-container">
+        <button onclick="window.print()"> <i class='bx bxs-printer'></i> Imprimir Planilla</button>
+    </div>
 </body>
 
 </html>

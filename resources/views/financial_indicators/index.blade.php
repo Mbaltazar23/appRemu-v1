@@ -10,7 +10,8 @@
                 <div class="card-body">
                     <div class="form-group mb-4">
                         <label for="economicIndices" class="form-label">{{ __('Índices Económicos') }}</label>
-                        <select class="form-control" id="economicIndices" name="index" onchange="window.location.href=this.value;" required>
+                        <select class="form-control" id="economicIndices" name="index"
+                            onchange="window.location.href=this.value;" required>
                             <option value="">{{ __('Seleccione un Índice economico...') }}</option>
                             @foreach ($indices as $index)
                                 <option value="{{ route('financial-indicators.show', $index['value']) }}">

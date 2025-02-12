@@ -12,18 +12,20 @@
     </div>
     <div class="col-md-6 form-group">
         <label for="date" class="form-label">Fecha</label>
-        <input type="date" class="form-control" name="date" value="{{ old('date',  $absence->date) }}" required>
+        <input type="date" class="form-control" name="date" value="{{ old('date', $absence->date) }}" required>
     </div>
 </div>
 
 <div class="row mb-4">
     <div class="col-md-6 form-group">
         <label for="reason" class="form-label">Motivo</label>
-        <input type="text" class="form-control" name="reason" value="{{ old('reason', $absence->reason) }}" required>
+        <input type="text" class="form-control" name="reason" value="{{ old('reason', $absence->reason) }}"
+            required>
     </div>
     <div class="col-md-6 form-group">
         <label for="minutes" class="form-label">Duración (minutos)</label>
-        <input type="number" class="form-control" name="minutes" value="{{ old('minutes', $absence->minutes) }}" required>
+        <input type="number" class="form-control" name="minutes" value="{{ old('minutes', $absence->minutes) }}"
+            required>
     </div>
 </div>
 

@@ -170,8 +170,8 @@ class InsuranceController extends Controller
         // Check if the operation is "modificar"
         if ($operation == 'modificar') {
             // Get necessary values for validation
-            $unitCotizacion = $insuranceType == Insurance::AFP ?? $request->input('unit');
-            $cotizacion     = $insuranceType == Insurance::AFP ? $request->input('apv') : $request->input('cotization');
+            $unitCotizacion = $request->input('unit');
+            $cotizacion     = $insuranceType != Insurance::AFP ?  $request->input('cotization') : $request->input('apv');
             // Validate quotations (if unit is UF)
             $validationResult = Parameter::checkCotizationUnitLimit(
                 $workerId,

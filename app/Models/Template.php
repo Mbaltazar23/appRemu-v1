@@ -96,10 +96,10 @@ class Template extends Model {
     /**
      * Lists positions of a class in a template
      */
-    public static function listTuitionPositionsInTemplate($schoolId, $type, $classId) {
+    public static function listTuitionPositionsInTemplate($schoolId, $type, $tuition_id) {
         return self::where('school_id', $schoolId)
                         ->where('type', $type)
-                        ->where('tuition_id', $classId)
+                        ->where('tuition_id', $tuition_id)
                         ->select('position')
                         ->get();
     }
@@ -183,13 +183,13 @@ class Template extends Model {
         }
         // Create a new line in the template
         return self::create([
-                    'school_id' => $schoolId,
-                    'type' => $type,
-                    'position' => $position,
-                    'code' => $code,
-                    'tuition_id' => $tuitionId ?? $text,
-                    'ignore_zero' => $ignoreIfZero,
-                    'parentheses' => $parentheses,
+			'school_id' => $schoolId,
+			'type' => $type,
+			'position' => $position,
+			'code' => $code,
+			'tuition_id' => $tuitionId,
+			'ignore_zero' => $ignoreIfZero,
+			'parentheses' => $parentheses,
         ]);
     }
 
@@ -216,7 +216,7 @@ class Template extends Model {
                         ->where('position', $position)
                         ->update([
                             'code' => $code,
-                            'tuition_id' => $tuitionId ?? $text,
+                            'tuition_id' => $tuitionId,
                             'ignore_zero' => $ignoreIfZero,
                             'parentheses' => $parentheses,
         ]);

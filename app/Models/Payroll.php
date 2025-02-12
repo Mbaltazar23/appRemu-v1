@@ -139,17 +139,14 @@ class Payroll extends Model {
         }
 
         // Create or update the payroll
-        $payroll = self::updateOrCreate(
-                        [
-                    'school_id' => $schoolId,
-                    'month' => $month,
-                    'year' => $year,
-                        ], [
-                    'details' => json_encode($payrollDetails), // Save details of each worker
-                        ]
+        self::updateOrCreate(
+            [ 'school_id' => $schoolId,
+                'month' => $month,
+                'year' => $year,
+            ], [
+                'details' => json_encode($payrollDetails), // Save details of each worker
+            ]
         );
-
-        return $payroll;
     }
 
     // Define the relationship with the 'School' model (one to many relationship)

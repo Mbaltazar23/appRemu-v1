@@ -126,7 +126,8 @@
                         <td>{{ number_format($workers->sum(fn($worker) => $worker->totals['TOTALAPAGAR']), 0, ',', '.') }}
                         </td>
                         <td>{{ number_format($workers->sum(fn($worker) => $worker->totals['AFP']), 0, ',', '.') }}</td>
-                        <td>{{ number_format($workers->sum(fn($worker) => $worker->totals['SALUD']), 0, ',', '.') }}</td>
+                        <td>{{ number_format($workers->sum(fn($worker) => $worker->totals['SALUD']), 0, ',', '.') }}
+                        </td>
                         <td>{{ number_format($workers->sum(fn($worker) => $worker->totals['SEGUROCESANTIA']), 0, ',', '.') }}
                         </td>
                         <td>{{ number_format($workers->sum(fn($worker) => $worker->totals['LICENCIA']), 0, ',', '.') }}

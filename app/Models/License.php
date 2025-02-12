@@ -247,41 +247,40 @@ class License extends Model {
         $workers = $schoolId 
             ? Worker::where('school_id', $schoolId)->get() 
             : Worker::all();
-
-        // Initialize counters
+    
+        // Initialize an array to store the percentages for each month
         $monthlyPercentages = [];
-
+    
         // Iterate over each month
         for ($month = 1; $month <= 12; $month++) {
-            // Define the date range for the selected month
-            $startOfMonth = now()->year($year)->month($month)->startOfMonth();
-            $endOfMonth = now()->year($year)->month($month)->endOfMonth();
-
-            // Initialize counters for the workers
+            // Initialize counters for this month
             $totalWorkers = $workers->count();
             $workersWithLicenses = 0;
-
-            // Count workers with medical leave in the month
+    
+            // Count the accumulated medical leave licenses for the month
             foreach ($workers as $worker) {
-                $hasLicense = $worker->licenses()
-                    ->whereBetween('issue_date', [$startOfMonth, $endOfMonth])
-                    ->exists();
-
-                if ($hasLicense) {
+                // Check if the worker has any medical leave issued during the month
+                $licensesThisMonth = $worker->licenses()
+                    ->whereMonth('issue_date', $month) // Filter only the licenses for this month
+                    ->whereYear('issue_date', $year)  // And only those from this year
+                    ->count();
+    
+                // If the worker has at least one license this month, count them
+                if ($licensesThisMonth > 0) {
                     $workersWithLicenses++;
                 }
             }
-
-            // Calculate the percentage for this month
+    
+            // Calculate the percentage of workers with medical leave for this month
             $percentage = $totalWorkers > 0 ? ($workersWithLicenses / $totalWorkers) * 100 : 0;
-
+    
             // Store the percentage for this month
             $monthlyPercentages[] = [
-                'month' => MonthHelper::integerToMonth($month), // Use helper to get month name
-                'percentage' => round($percentage, 0)
+                'month' => MonthHelper::integerToMonth($month), // Use a helper to get the month name
+                'percentage' => round($percentage, 0) // Round the percentage
             ];
         }
-
+    
         return $monthlyPercentages;
     }
 
@@ -338,7 +337,7 @@ class License extends Model {
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function worker() {
-        return $this->belongsTo(Worker::class);
+        return $this->belongsTo(Worker::class, 'worker_id');
     }
 
     /**

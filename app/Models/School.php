@@ -71,7 +71,6 @@ class School extends Model {
     public function schoolUsers() {
         return $this->hasMany(SchoolUser::class);
     }
-
     /**
      * Get the users related to the school.
      *

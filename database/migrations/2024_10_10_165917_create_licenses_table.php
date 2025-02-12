@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('licenses', function (Blueprint $table) {
             $table->id(); // ID de la licencia (auto-incrementable)
             $table->unsignedBigInteger('worker_id')->nullable(); // ID del trabajador
-            $table->string('issue_date', 11)->nullable(); // Fecha de la licencia
+            $table->date('issue_date')->nullable(); // Fecha de la licencia
             $table->string('reason', 50)->nullable(); // Motivo de la licencia
             $table->integer('days')->nullable(); // Días de la licencia
             $table->string('institution')->nullable(); // Institución que emite la licencia
