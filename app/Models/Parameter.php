@@ -391,7 +391,7 @@ class Parameter extends Model
      * This method retrieves worker parameters based on the insurance type (AFP or ISAPRE).
      * It returns an array containing different parameter values like cotización, APV, discounts, etc.
      */
-    public static function getWorkerParametersByInsuranceType(Worker $worker, $type)
+    public static function getWorkerParametersByInsuranceType(Worker $worker, $type, $school_id)
     {
         if (! $worker) {
             return [
@@ -408,19 +408,19 @@ class Parameter extends Model
 
         if ($type == Insurance::AFP) {
             return [
-                'cotizacionafp'      => $worker->parameters->where('name', 'COTIZACIONAFP')->first()->value ?? 0,
-                'apv'                => $worker->parameters->where('name', 'APV')->first()->value ?? 0,
-                'others_discounts'   => $worker->parameters->where('name', 'AFPOTRO')->first()->value ?? 0,
-                'unidad'             => $worker->parameters->where('name', 'APV')->value('unit') ?? 'Pesos',
-                'unit_cotizacionafp' => $worker->parameters->where('name', 'COTIZACIONAFP')->first()->unit ?? 'Pesos', // Get AFP cotization unit
+                'cotizacionafp'      => $worker->parameters->where('school_id', $school_id)->where('name', 'COTIZACIONAFP')->first()->value ?? 0,
+                'apv'                => $worker->parameters->where('school_id', $school_id)->where('name', 'APV')->first()->value ?? 0,
+                'others_discounts'   => $worker->parameters->where('school_id', $school_id)->where('name', 'AFPOTRO')->first()->value ?? 0,
+                'unidad'             => $worker->parameters->where('school_id', $school_id)->where('name', 'APV')->value('unit') ?? 'Pesos',
+                'unit_cotizacionafp' => $worker->parameters->where('school_id', $school_id)->where('name', 'COTIZACIONAFP')->first()->unit ?? 'Pesos', // Get AFP cotization unit
             ];
         } else {
             return [
-                'cotizacionisapre'      => $worker->parameters->where('name', 'COTIZACIONISAPRE')->first()->value ?? 0,
-                'cotizacionpactada'     => $worker->parameters->where('name', 'COTIZACIONPACTADA')->first()->value ?? 0,
-                'others_discounts'      => $worker->parameters->where('name', 'ISAPREOTRO')->first()->value ?? 0,
-                'unidad'                => $worker->parameters->where('name', 'COTIZACIONPACTADA')->first()->unit ?? 'Pesos',
-                'unit_cotizacionisapre' => $worker->parameters->where('name', 'COTIZACIONISAPRE')->first()->unit ?? 'Pesos', // Get ISAPRE cotization unit
+                'cotizacionisapre'      => $worker->parameters->where('school_id', $school_id)->where('name', 'COTIZACIONISAPRE')->first()->value ?? 0,
+                'cotizacionpactada'     => $worker->parameters->where('school_id', $school_id)->where('name', 'COTIZACIONPACTADA')->first()->value ?? 0,
+                'others_discounts'      => $worker->parameters->where('school_id', $school_id)->where('name', 'ISAPREOTRO')->first()->value ?? 0,
+                'unidad'                => $worker->parameters->where('school_id', $school_id)->where('name', 'COTIZACIONPACTADA')->first()->unit ?? 'Pesos',
+                'unit_cotizacionisapre' => $worker->parameters->where('school_id', $school_id)->where('name', 'COTIZACIONISAPRE')->first()->unit ?? 'Pesos', // Get ISAPRE cotization unit
             ];
         }
     }

@@ -1,11 +1,11 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Operation extends Model {
+class Operation extends Model
+{
 
     use HasFactory;
 
@@ -23,20 +23,21 @@ class Operation extends Model {
     ];
 
     // Constants for worker types
-    const WORKER_TYPE_TEACHER = 1;
+    const WORKER_TYPE_TEACHER     = 1;
     const WORKER_TYPE_NON_TEACHER = 2;
-    const WORKER_TYPE_ALL = 3;
+    const WORKER_TYPE_ALL         = 3;
 
     /**
      * Get the possible worker types.
      *
      * @return array
      */
-    public static function getWorkerTypes() {
+    public static function getWorkerTypes()
+    {
         return [
-            self::WORKER_TYPE_TEACHER => 'Docente',
+            self::WORKER_TYPE_TEACHER     => 'Docente',
             self::WORKER_TYPE_NON_TEACHER => 'No Docente',
-            self::WORKER_TYPE_ALL => "Todos",
+            self::WORKER_TYPE_ALL         => "Todos",
         ];
     }
 
@@ -49,12 +50,13 @@ class Operation extends Model {
      * @param float $factor
      * @return string
      */
-    public static function generateOperation($data, $nombre, $nombrev, $factor) {
+    public static function generateOperation($data, $nombre, $nombrev, $factor)
+    {
         switch ($data['application']) {
             case "H":
                 return $data['type'] != 3 ?
-                        "{$nombrev} * {$factor} * APLICA{$nombre} * CARGAHORARIA / SUMACARGAS" :
-                        "{$nombrev} * {$factor} * APLICA{$nombre} * CARGAHORARIA / SUMACARGASTODOS";
+                "{$nombrev} * {$factor} * APLICA{$nombre} * CARGAHORARIA / SUMACARGAS" :
+                "{$nombrev} * {$factor} * APLICA{$nombre} * CARGAHORARIA / SUMACARGASTODOS";
             case "C":
                 return "{$nombrev} * {$factor} * APLICA{$nombre} * CARGAHORARIA";
             case "T":
@@ -77,15 +79,16 @@ class Operation extends Model {
      * @param string $application
      * @param int $school_id
      */
-    public static function addOperation($tuitionId, $workerType, $operation, $application, $school_id) {
+    public static function addOperation($tuitionId, $workerType, $operation, $application, $school_id)
+    {
         self::create([
-            'tuition_id' => $tuitionId,
-            'school_id' => $school_id,
+            'tuition_id'  => $tuitionId,
+            'school_id'   => $school_id,
             'worker_type' => $workerType,
-            'operation' => $operation,
-            'min_limit' => 0,
-            'max_limit' => 0,
-            'max_value' => 0,
+            'operation'   => $operation,
+            'min_limit'   => 0,
+            'max_limit'   => 0,
+            'max_value'   => 0,
             'application' => $application,
         ]);
     }
@@ -98,11 +101,12 @@ class Operation extends Model {
      * @param int $schoolId
      * @return string
      */
-    public static function getOperationFunction($tuitionId, $workerType, $schoolId) {
+    public static function getOperationFunction($tuitionId, $workerType, $schoolId)
+    {
         return self::where('tuition_id', $tuitionId)
-                        ->where('worker_type', $workerType)
-                        ->where('school_id', $schoolId)
-                        ->value('operation');
+            ->where('worker_type', $workerType)
+            ->where('school_id', $schoolId)
+            ->value('operation');
     }
 
     /**
@@ -114,15 +118,16 @@ class Operation extends Model {
      * @param int $schoolId
      * @return int
      */
-    public static function updateOperationFunction($tuitionId, $workerType, $function, $schoolId) {
+    public static function updateOperationFunction($tuitionId, $workerType, $function, $schoolId)
+    {
         return self::where([
-                            ['tuition_id', '=', $tuitionId],
-                            ['worker_type', '=', $workerType],
-                            ['school_id', '=', $schoolId],
-                        ])
-                        ->update([
-                            'operation' => $function,
-        ]);
+            ['tuition_id', '=', $tuitionId],
+            ['worker_type', '=', $workerType],
+            ['school_id', '=', $schoolId],
+        ])
+            ->update([
+                'operation' => $function,
+            ]);
     }
 
     /**
@@ -131,7 +136,8 @@ class Operation extends Model {
      * @param array $data
      * @return string
      */
-    public static function getOperationFromTuition($data) {
+    public static function getOperationFromTuition($data)
+    {
         if ($data['is_bonus'] == 0) {
             if ($data['taxable'] == 0) {
                 if ($data['imputable'] == 0) {
@@ -156,11 +162,12 @@ class Operation extends Model {
      * @param int $schoolId
      * @return int
      */
-    public static function deleteOperation($tuitionId, $workerType, $schoolId) {
+    public static function deleteOperation($tuitionId, $workerType, $schoolId)
+    {
         return self::where('tuition_id', $tuitionId)
-                        ->where('worker_type', $workerType)
-                        ->where('school_id', $schoolId)
-                        ->delete();
+            ->where('worker_type', $workerType)
+            ->where('school_id', $schoolId)
+            ->delete();
     }
 
     /**
@@ -173,15 +180,14 @@ class Operation extends Model {
      * @param string $operador
      * @param bool $option
      */
-    public static function processOperation($nombre, $data, $operation, $meses, $operador, $option) {
+    public static function processOperation($nombre, $data, $operation, $meses, $operador, $option)
+    {
         // Get the operation class based on the provided data
         $operasobreclase = self::getOperationFromTuition($data);
-
         // If the operation type involves taxable or non-taxable income, apply the attendance factor
         if (in_array($operasobreclase, ["RENTAIMPONIBLESD", "IMPONIBLEEIMPUTABLE", "IMPONIBLEYNOIMPUTABLE"])) {
             $operation .= " * FACTORASIST";
         }
-
         // If the 'option' flag is true, proceed to add the operation
         if ($option) {
             if ($data['type'] != 3) {
@@ -194,7 +200,6 @@ class Operation extends Model {
                 self::addOperation($nombre, 2, $operation, $meses, $data['school_id']);
             }
         }
-
         // Update the original operations for teachers or non-teachers
         if ($data['type'] != 3) {
             // If the type is 2 (non-teacher) and the class is "IMPONIBLEEIMPUTABLE", change to "RENTAIMPONIBLESD"
@@ -203,19 +208,32 @@ class Operation extends Model {
             }
             // Get the original operation for the current type (teacher or non-teacher)
             $operationOriginal = self::getOperationFunction($operasobreclase, $data['type'], $data['school_id']);
-            // Remove the operator and name from the original operation
-            $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
-            // Create the new operation by appending the operator and name
-            $newOperation = $operationOriginal . " " . $operador . " " . $nombre;
+            // Check if the operation is empty or null
+            if (empty($operationOriginal)) {
+                // If the operation is empty or null, do not add the operator before the name
+                $newOperation = $nombre;
+            } else {
+                // Remove the operator and name from the original operation
+                $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
+                // Create the new operation by appending the operator and name
+                $newOperation = $operationOriginal . " " . $operador . " " . $nombre;
+            }
             // Update the operation function for the current type (teacher or non-teacher)
             self::updateOperationFunction($operasobreclase, $data['type'], $newOperation, $data['school_id']);
         } else {
             // For teachers (type 1)
             $operationOriginal = self::getOperationFunction($operasobreclase, 1, $data['school_id']);
-            // Remove the operator and name from the original operation for type 1 (teachers)
-            $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
-            // Create the new operation for type 1 (teachers)
-            $newOperation = $operationOriginal . " " . $operador . " " . $nombre;
+
+            // Check if the operation is empty or null
+            if (empty($operationOriginal)) {
+                // If the operation is empty or null, do not add the operator before the name
+                $newOperation = $nombre;
+            } else {
+                // Remove the operator and name from the original operation for type 1 (teachers)
+                $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
+                // Create the new operation for type 1 (teachers)
+                $newOperation = $operationOriginal . " " . $operador . " " . $nombre;
+            }
             // Update the operation function for type 1 (teachers)
             self::updateOperationFunction($operasobreclase, 1, $newOperation, $data['school_id']);
             // For non-teachers (type 2)
@@ -225,10 +243,16 @@ class Operation extends Model {
             }
             // Get the original operation for type 2 (non-teachers)
             $operationOriginal = self::getOperationFunction($operasobreclase, 2, $data['school_id']);
-            // Remove the operator and name from the original operation for type 2 (non-teachers)
-            $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
-            // Create the new operation for type 2 (non-teachers)
-            $newOperation = $operationOriginal . " " . $operador . " " . $nombre;
+            // Check if the operation is empty or null
+            if (empty($operationOriginal)) {
+                // If the operation is empty or null, do not add the operator before the name
+                $newOperation =  $nombre;
+            } else {
+                // Remove the operator and name from the original operation for type 2 (non-teachers)
+                $operationOriginal = str_replace(" " . $operador . " " . $nombre, " ", $operationOriginal);
+                // Create the new operation for type 2 (non-teachers)
+                $newOperation = $operationOriginal . " " . $operador . " " . $nombre;
+            }
             // Update the operation function for type 2 (non-teachers)
             self::updateOperationFunction($operasobreclase, 2, $newOperation, $data['school_id']);
         }
@@ -242,7 +266,8 @@ class Operation extends Model {
      * @param string $operador
      * @param string $meses
      */
-    public static function processDeleteOperation($nombre, $data, $operador) {
+    public static function processDeleteOperation($nombre, $data, $operador)
+    {
         $operasobreclase = self::getOperationFromTuition($data);
 
         if ($data['type'] != 3) {
@@ -296,36 +321,41 @@ class Operation extends Model {
      * @param int $schoolId
      * @return string
      */
-    public static function getMounthOperations($tuitionId, $workerType, $schoolId) {
+    public static function getMounthOperations($tuitionId, $workerType, $schoolId)
+    {
         return self::where('tuition_id', $tuitionId)
-                        ->where('worker_type', $workerType)
-                        ->where('school_id', $schoolId)
-                        ->value('application');
+            ->where('worker_type', $workerType)
+            ->where('school_id', $schoolId)
+            ->value('application');
     }
 
     // Method to get the minimum tax limit for a tuition
-    public static function getMinLimit($tuitionId) {
+    public static function getMinLimit($tuitionId)
+    {
         return self::where('tuition_id', $tuitionId)->value('min_limit');
     }
 
     // Method to get the maximum tax limit for a tuition
-    public static function getMaxLimit($tuitionId) {
+    public static function getMaxLimit($tuitionId)
+    {
         return self::where('tuition_id', $tuitionId)->value('max_limit');
     }
 
     // Method to get the tax value for a tuition
-    public static function getTaxValue($tuitionId) {
+    public static function getTaxValue($tuitionId)
+    {
         return self::where('tuition_id', $tuitionId)->pluck('max_value')->first();
     }
 
     // Method to update or insert operation limits for given tuition IDs
-    public static function updOrInsertTopesOperation($tuitionId, $min, $max) {
+    public static function updOrInsertTopesOperation($tuitionId, $min, $max)
+    {
         $operations = self::whereIn('tuition_id', $tuitionId)->get();
 
         foreach ($operations as $operation) {
             $operation->update([
-                'min_limit' => $min,
-                'max_limit' => $max,
+                'min_limit'  => $min,
+                'max_limit'  => $max,
                 'updated_at' => now(),
             ]);
         }
@@ -338,7 +368,8 @@ class Operation extends Model {
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function tuition() {
+    public function tuition()
+    {
         return $this->belongsTo(Tuition::class);
     }
 
@@ -349,7 +380,8 @@ class Operation extends Model {
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function school() {
+    public function school()
+    {
         return $this->belongsTo(School::class);
     }
 

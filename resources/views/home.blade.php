@@ -79,20 +79,24 @@
                         <h3>{{ $HeaderGrafictLicence }}</h3>
                     </div>
                     <div class="filter-buttons">
-                        <!-- Formulario con label a la izquierda del select para cambiar de año -->
-                        <form action="{{ route('home') }}" method="GET">
-                            <div class="d-flex align-items-center">
-                                <label for="year" class="form-label" style="margin-right: 10px;">Seleccione un año
-                                </label> <!-- Ajusté el margen aquí -->
-                                <select id="year" name="year" class="year-select" onchange="this.form.submit()">
-                                    @foreach ($availableYears as $yearOption)
-                                        <option value="{{ $yearOption }}" {{ $year == $yearOption ? 'selected' : '' }}>
-                                            {{ $yearOption }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </form>
+                        <!-- Verificar si $availableYears tiene datos -->
+                        @if (!empty($availableYears))
+                            <!-- Formulario con label a la izquierda del select para cambiar de año -->
+                            <form action="{{ route('home') }}" method="GET">
+                                <div class="d-flex align-items-center">
+                                    <label for="year" class="form-label" style="margin-right: 10px;">Seleccione un
+                                        año</label>
+                                    <select id="year" name="year" class="year-select" onchange="this.form.submit()">
+                                        @foreach ($availableYears as $yearOption)
+                                            <option value="{{ $yearOption }}"
+                                                {{ $year == $yearOption ? 'selected' : '' }}>
+                                                {{ $yearOption }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </form>
+                        @endif
                     </div>
                 </div>
                 <!-- Contenedor para el gráfico -->

@@ -34,21 +34,7 @@ class OperationsTableSeeder extends Seeder
         $tuitionAsignacionVoluntariaId = Tuition::where('title', 'Asignacion Voluntaria')->value('tuition_id');
         $tuitionRBMN = Tuition::where('title', 'RBMN')->value('tuition_id');
 
-        /* Obtener los tuition_id previamente
-
-        $tuitionLey19464Id = Tuition::where('title', 'Ley 19464')->value('tuition_id');
-        $tuitionDesempeñoDificilId = Tuition::where('title', 'Desempeño Dificil')->value('tuition_id');
-        $tuitionTodosporIgualId = Tuition::where('title', 'Todos por igual')->value('tuition_id');
-        $tuitionColegioProfesoresId = Tuition::where('title', 'Colegio de profesores')->value('tuition_id');
-        $tuitionPrestamoSocialCajaLosAndesId = Tuition::where('title', 'Prestamo Social Caja Los Andes')->value('tuition_id');
-        $tuitionCuentaAhorroCajaLosAndesId = Tuition::where('title', 'Cuenta Ahorro Caja los Andes')->value('tuition_id');
-        $tuitionFundacionLopezPerezId = Tuition::where('title', 'Fundacion Lopez Perez')->value('tuition_id');
-        $tuitionRBMNId = Tuition::where('title', 'RBMN')->value('tuition_id');
-        $tuitionUMPId = Tuition::where('title', 'UMP')->value('tuition_id');
-        /*$tuitionLey19410IdAplicacion = Tuition::where('title', 'Valor de Bono de Ley 19410')->value('tuition_id');
-        $tuitionLey19933IdAplicacion = Tuition::where('title', 'Valor de Ley 19933')->value('tuition_id');*/
-
-        // Definir las operaciones con los títulos que deben buscarse en la tabla Tuition
+    
         $operations = [
             ['IMPONIBLEEIMPUTABLE', 1,
                 "$tuitionAsignacionVoluntariaId + $tuitionRBMN", NULL, 0, 0, 0, '111111111111'],

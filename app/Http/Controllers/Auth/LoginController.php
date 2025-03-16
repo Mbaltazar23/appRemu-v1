@@ -74,21 +74,13 @@ use AuthenticatesUsers;
     }
 
     public function logout() {
-        /* $userDetail = SchoolUser::where('user_id', auth()->user()->id)->first();
+        // Fetch all users and set 'school_id_session' to null for each
+		$userDetail = SchoolUser::where('user_id', auth()->user()->id)->first();
 
-          // Verifica si el rol del usuario es "Contador"
-          if ($userDetail && $userDetail->user->school_id_session) {
-          // Establece school_id_session a null
+
+		if ($userDetail && $userDetail->user->school_id_session) {
           $userDetail->user->school_id_session = null;
           $userDetail->user->save();
-          } */
-
-        // Fetch all users and set 'school_id_session' to null for each
-        $users = User::all();
-
-        foreach ($users as $user) {
-            $user->school_id_session = null;
-            $user->save(); // Save the changes
         }
 
         Auth::logout();
@@ -96,4 +88,12 @@ use AuthenticatesUsers;
         return redirect('/'); // Redirige a donde desees después del logout
     }
 
+ /*
+   /* $users = User::all();
+
+          // 
+         foreach ($users as $user) {
+            $user->school_id_session = null;
+            $user->save(); // Save the changes
+        } */
 }

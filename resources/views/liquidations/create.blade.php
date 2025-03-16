@@ -10,7 +10,6 @@
                         Valores calculados &nbsp;&nbsp; {{ \App\Helpers\MonthHelper::integerToMonth(now()->month) }}
                         {{ now()->year }}
                     </h3>
-
                     <!-- Botón Volver al costado derecho -->
                     <a href="{{ route('liquidations.workerLiquidation', [$worker->id]) }}" class="btn btn-secondary mt-2">
                         Volver
@@ -85,7 +84,6 @@
                                     </div>
                                 @endforeach
                             </div>
-
                             <!-- Botón Guardar alineado a la derecha -->
                             <div class="d-flex justify-content-end">
                                 <button type="submit" class="btn btn-primary"
@@ -148,7 +146,7 @@
 
                 // Validar que el campo no esté vacío
                 if (!diasTrabajados || diasTrabajados == 0 || diasTrabajados.trim() === "") {
-                    alert("Por favor, ingresa el número de días trabajados.");
+                    alert("Por favor, Ingresa el número de días trabajados.");
                     event.preventDefault(); // Impide el envío del formulario
                 }
             } else {

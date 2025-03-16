@@ -40,7 +40,7 @@ class InsuranceController extends Controller
         $workers = Worker::where(
             $insurance->type == Insurance::AFP ? 'insurance_AFP' : 'insurance_ISAPRE',
             $insurance->id
-        )->get();
+        )->where('school_id', $school_id)->get();
 
         $worker_id        = $request->input('worker_id') ?? optional($workers->first())->id;
         $workerParameters = $worker_id ? $this->getWorkerParameters($worker_id, $type) : [];
@@ -63,7 +63,7 @@ class InsuranceController extends Controller
     {
         $worker = Worker::find($worker_id);
 
-        return Parameter::getWorkerParametersByInsuranceType($worker, $type);
+        return Parameter::getWorkerParametersByInsuranceType($worker, $type, auth()->user()->school_id_session);
     }
 
     protected function getFieldsParameters($type, $workerParameters)

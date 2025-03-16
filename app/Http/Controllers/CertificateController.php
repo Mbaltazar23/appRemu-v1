@@ -9,7 +9,7 @@ class CertificateController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(Certificate::class, 'certificate');
+        $this->middleware('auth');
     }
     /**
      * Display a listing of the resource.
@@ -53,20 +53,20 @@ class CertificateController extends Controller
      */
     public function view($year)
     {
-        $school_id          = auth()->user()->school_id_session;
+        $school_id = auth()->user()->school_id_session;
         $impresCertificates = Certificate::getCertificates($year, $school_id);
         return view('certificates.view', ['workersData' => $impresCertificates]);
     }
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy($year)
     {
         $school_id = auth()->user()->school_id_session;
 
         // Delete certificates for the specified year
         Certificate::where('school_id', $school_id)
-            ->where('year', $id)
+            ->where('year', $year)
             ->delete();
 
         return redirect()->route('certificates.index')->with('success', 'Certificados eliminados exitosamente.');

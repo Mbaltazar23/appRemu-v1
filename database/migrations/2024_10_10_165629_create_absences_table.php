@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('reason', 50)->nullable();
             $table->integer('minutes')->nullable();
             $table->boolean('with_consent')->default(false);
-            $table->foreign('worker_id')->references('id')->on('workers');
+            $table->foreign('worker_id')->references('id')->on('workers')->onDelete('cascade');
             $table->timestamps();
         });
     }
