@@ -158,7 +158,7 @@ class Parameter extends Model
         ];
         $params['APV'] = isset($extraParams['apv']) ? [
             'description' => 'APV',
-            'unit'        => $extraParams['unit']  != "UF" ?? NULL,
+            'unit'        => $extraParams['unit'] ?? NULL,
             'value'       => $extraParams['apv'],
         ] : null;
         $params['AFPOTRO'] = isset($extraParams['others_discounts']) ? [
@@ -180,7 +180,7 @@ class Parameter extends Model
         ];
         $params['COTIZACIONPACTADA'] = isset($extraParams['cotization']) ? [
             'description' => 'Cotización pactada en ISAPRE del trabajador',
-            'unit'        => $extraParams['unit'] != "UF" ?? NULL,
+            'unit'        => $extraParams['unit'] ?? NULL,
             'value'       => $extraParams['cotization'],
         ] : null;
         $params['ISAPREOTRO'] = isset($extraParams['others_discounts']) ? [

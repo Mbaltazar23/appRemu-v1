@@ -30,7 +30,10 @@
                         <a href="{{ route('home') }}">
                             @if (auth()->check())
                                 @php
-                                    $detailSchool = App\Models\SchoolUser::where('school_id', auth()->user()->school_id_session)->first();
+                                    $detailSchool = App\Models\SchoolUser::where(
+                                        'school_id',
+                                        auth()->user()->school_id_session,
+                                    )->first();
                                 @endphp
                                 @if ($detailSchool)
                                     {{ auth()->user()->name . ' - ' . $detailSchool->school->name }}

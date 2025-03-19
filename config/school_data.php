@@ -227,7 +227,7 @@ return [
     'tuitions'   => [
         ['TOTALAPAGAR', 'Total a Pagar', 'O', 1, 0],
         ['RENTAIMPONIBLE', 'Renta Imponible', 'O', 1, 0],
-        ['FACTORRBMNBASICA', 'Factor RMBN Basica', 'P', 0, 1],
+        /*['FACTORRBMNBASICA', 'Factor RMBN Basica', 'P', 0, 1],*/
         ['CARGAHORARIA', 'Carga horaria', 'P', 0, 0],
         ['DESCUENTOSLEGALES', 'Descuentos previsionales', 'O', 1, 0],
         ['AFP', 'AFP', 'O', 1, 0],

@@ -36,6 +36,7 @@ use App\Policies\TemplatePolicy;
 use App\Policies\UserPolicy;
 use App\Policies\WorkerPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Pagination\Paginator;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -69,6 +70,6 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerPolicies();
-        \Illuminate\Pagination\Paginator::useBootstrap(); // Cambia según tu configuración
+        Paginator::useBootstrap(); // Cambia según tu configuración
     }
 }

@@ -6,10 +6,12 @@ use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CostCenterController;
 use App\Http\Controllers\FinancialIndicatorController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LiquidationController;
 use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SchoolController;
@@ -34,22 +36,23 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->middleware('clearcache');
 
 Route::get('form', function () {
     return view('form');
-});
+})->middleware('clearcache');
+
 Route::get('/select-school', function () {
     return view('schools.schoolSelect');
 })->name('schoolSelect')->middleware(['auth', 'clearcache']);
 
-Route::post('/set-school-session', [\App\Http\Controllers\HomeController::class, 'setSchoolSession'])->name('setSchoolSession')->middleware(['auth', 'clearcache']);
+Route::post('/set-school-session', [HomeController::class, 'setSchoolSession'])->name('setSchoolSession')->middleware(['auth', 'clearcache']);
 
 // Route to handle setting the school session
 Auth::routes();
 
 Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(function () {
-    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::resource('users', UserController::class);
     Route::resource('roles', RoleController::class);
     Route::resource('schools', SchoolController::class);
@@ -66,8 +69,8 @@ Route::middleware((['auth', 'check.school.session', 'clearcache']))->group(funct
     Route::resource('costcenters', CostCenterController::class);
     Route::resource('historys', HistoryController::class);
 
-    Route::get('profile', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
-    Route::put('profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
 });
 
 Route::middleware(['auth', 'check.school.session', 'clearcache'])->group(function () {

@@ -168,10 +168,10 @@ class WorkersImport implements ToCollection, WithHeadingRow {
         $this->assignInsurance($row, $columns['insurance_AFP'], 'insurance_AFP');
         $this->assignInsurance($row, $columns['insurance_ISAPRE'], 'insurance_ISAPRE');
 
-        $row['apv'] = $row[$columns['apv']] ?? 0;
-        $row['cotization'] = $row[$columns['cotization']] ?? 0;
-        $row['unit'] = $row[$columns['unit']] ?? "";
-        $row['others_discounts'] = $row[$columns['others_discounts']] ?? 0;
+        $row['apv'] = $row[$columns['apv']];
+        $row['cotization'] = $row[$columns['cotization']];
+        $row['unit'] = $row[$columns['unit']] ;
+        $row['others_discounts'] = $row[$columns['others_discounts']] ;
     }
 
     // Assigns an individual insurance (either AFP or ISAPRE) by searching for it in the Insurance model

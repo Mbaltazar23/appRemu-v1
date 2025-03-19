@@ -1,5 +1,7 @@
 <?php
 
+// config/permissions.php
+
 return [
     'MANUSU' => 'Mantener usuarios',
     'MANPER' => 'Mantener perfiles',

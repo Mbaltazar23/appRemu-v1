@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\Models\Bonus;
@@ -147,6 +148,13 @@ class SchoolService
                 'school_id'   => $schoolId,
             ]);
         }
+
+        Tuition::factory()->create([
+            'tuition_id' => "IMPUESTOTRAMO$i",
+            'title'      => "IMPUESTOTRAMO$i",
+            'type'       => 'O',
+            'school_id'  => $schoolId,
+        ]);
     }
 
     /**
@@ -462,6 +470,8 @@ class SchoolService
         foreach ($schoolIds as $schoolId) {
             // Delete parameters
             Parameter::where('school_id', $schoolId)->delete();
+            // Delete workers
+            Worker::where('school_id', $schoolId)->delete();
             // Delete tuitions
             Tuition::where('school_id', $schoolId)->delete();
             // Delete operations
