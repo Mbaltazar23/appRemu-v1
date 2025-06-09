@@ -1,17 +1,15 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\History;
 use App\Models\SchoolUser;
-use Carbon\Carbon;
+use App\Models\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
-
-class LoginController extends Controller {
+class LoginController extends Controller
+{
     /*
       |--------------------------------------------------------------------------
       | Login Controller
@@ -23,7 +21,7 @@ class LoginController extends Controller {
       |
      */
 
-use AuthenticatesUsers;
+    use AuthenticatesUsers;
 
     /**
      * Where to redirect users after login.
@@ -37,7 +35,8 @@ use AuthenticatesUsers;
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
     }
@@ -49,51 +48,30 @@ use AuthenticatesUsers;
      * @param  mixed  $user
      * @return mixed
      */
-    protected function authenticated() {
+    protected function authenticated()
+    {
         $user = auth()->user();
-        // Obtener la fecha y hora actual
-        $currentDateTime = Carbon::now();
-        // Verificamos si ya existe un historial de ingreso para el usuario
-        $exists = History::where('user_id', $user->id)
-                ->whereDate('created_at', $currentDateTime->toDateString()) // Misma fecha
-                ->whereBetween('created_at', [
-                    $currentDateTime->copy()->startOfHour(), // Hora de inicio de la hora actual
-                    $currentDateTime->copy()->endOfHour(), // Hora final de la hora actual
-                ])
-                ->exists();
-
-        // Si no existe, creamos el nuevo registro de ingreso
-        if (!$exists) {
-            History::create([
-                'user_id' => $user->id,
-                'action' => 'Ingreso',
-            ]);
-        }
+        // Create a new entry record in the history without prior validations
+        History::create([
+            'user_id' => $user->id,
+            'action'  => 'Ingreso',
+        ]);
 
         return redirect()->intended($this->redirectTo);
     }
 
-    public function logout() {
+    public function logout()
+    {
         // Fetch all users and set 'school_id_session' to null for each
-		$userDetail = SchoolUser::where('user_id', auth()->user()->id)->first();
+        $userDetail = SchoolUser::where('user_id', auth()->user()->id)->first();
 
-
-		if ($userDetail && $userDetail->user->school_id_session) {
-          $userDetail->user->school_id_session = null;
-          $userDetail->user->save();
+        if ($userDetail && $userDetail->user->school_id_session) {
+            $userDetail->user->school_id_session = null;
+            $userDetail->user->save();
         }
 
         Auth::logout();
 
         return redirect('/'); // Redirige a donde desees después del logout
     }
-
- /*
-   /* $users = User::all();
-
-          // 
-         foreach ($users as $user) {
-            $user->school_id_session = null;
-            $user->save(); // Save the changes
-        } */
 }

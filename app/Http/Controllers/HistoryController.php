@@ -15,7 +15,7 @@ class HistoryController extends Controller {
     public function index() {
         // Get records with pagination
         $historys = History::query()
-                ->orderBy('user_id', 'ASC')
+                ->orderBy('created_at', 'DESC')
                 ->paginate(5);
 
         // Check if the user has permission to view history

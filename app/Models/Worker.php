@@ -190,7 +190,7 @@ class Worker extends Model {
             'origin_city' => '',
             'schedule' => '',
             'levels' => '',
-            'duration' => CONTRACT::CONTRACT_TYPES[$this->contract->contract_type],
+            'duration' => Contract::CONTRACT_TYPES[$this->contract->contract_type],
             'total_remuneration' => '',
             'remuneration_gloss' => '',
             'teaching_hours' => '',
